@@ -12,12 +12,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(ProgramSeeder::class);
-
-        $this->call(KegiatanSeeder::class);
-
-        $this->call(SubKegiatanSeeder::class);
-
-        $this->call(RkaSeeder::class);
+        $this->call(AdminUserSeeder::class);
     }
 }
