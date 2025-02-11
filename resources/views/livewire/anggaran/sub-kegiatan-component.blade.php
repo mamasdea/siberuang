@@ -24,15 +24,15 @@
                     </tr>
                 </table>
             </div>
-            <div class="card-body">
-                <table class="table">
+            <div class="card-body table-responsive">
+                <table class="table table-striped table-bordered ">
                     <thead>
                         <tr class="thead-dark text-center">
-                            <th>Kode Sub Kegiatan</th>
-                            <th>Uraian Sub Kegiatan</th>
-                            <th>Pagu Sub Kegiatan</th>
-                            <th>PPTK</th>
-                            <th>Aksi</th>
+                            <th width="100">Kode Sub Kegiatan</th>
+                            <th width="300">Uraian Sub Kegiatan</th>
+                            <th width="150">Pagu Sub Kegiatan</th>
+                            <th width="150">PPTK</th>
+                            <th width="100">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>

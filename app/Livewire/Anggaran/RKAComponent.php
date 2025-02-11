@@ -16,15 +16,18 @@ class RkaComponent extends Component
     #[Reactive]
     public $sub_kegiatan_id;
     public $kegiatan_id;
-    public $kode_belanja, $nama_belanja, $anggaran;
+    public $kode_belanja, $nama_belanja, $penetapan, $perubahan, $selisih, $anggaran;
     public $rkaId;
     public $isEditMode = false;
     public $rekeningBelanjaList;
+    public $selectedRekeningBelanja;
 
     protected $rules = [
-        'kode_belanja' => 'required|unique:rkas,kode_belanja',
-        'nama_belanja' => 'required|string|max:255',
-        'anggaran' => 'required|numeric|min:0',
+        'selectedRekeningBelanja' => 'required',
+        'penetapan' => 'required|numeric|min:0',
+        'perubahan' => 'nullable|numeric|min:0',
+        'selisih' => 'nullable|numeric',
+        'anggaran' => 'numeric|min:0',
     ];
 
     public function mount($subKegiatanId)
@@ -35,9 +38,7 @@ class RkaComponent extends Component
 
     public function render()
     {
-
         $namaSubKegiatan = SubKegiatan::with('kegiatan.program')->find($this->sub_kegiatan_id);
-
         $namaKegiatan = $namaSubKegiatan ? $namaSubKegiatan->kegiatan : null;
 
         return view('livewire.anggaran.r-k-a-component', [
@@ -52,33 +53,41 @@ class RkaComponent extends Component
     {
         $this->kode_belanja = '';
         $this->nama_belanja = '';
-        $this->anggaran = '';
+        $this->penetapan = 0;
+        $this->perubahan = 0;
+        $this->selisih = 0;
+        $this->anggaran = 0;
         $this->rkaId = null;
         $this->isEditMode = false;
+        $this->selectedRekeningBelanja = '';
     }
-
 
     public function loadRekeningBelanja()
     {
         $this->rekeningBelanjaList = RekeningBelanja::all();
     }
 
+    public function updatedPerubahan()
+    {
+        // Hitung otomatis nilai selisih dan anggaran
+        $this->selisih = $this->perubahan - $this->penetapan;
+        $this->anggaran = $this->perubahan > 0 ? $this->perubahan : $this->penetapan;
+    }
 
     public function store()
     {
-        $this->validate([
-            'selectedRekeningBelanja' => 'required',
-            'anggaran' => 'required|numeric|min:0',
-        ]);
+        $this->validate();
 
-        // Pisahkan kode dan nama dari Select2
         list($kode, $uraian) = explode('|', $this->selectedRekeningBelanja);
 
         Rka::create([
             'sub_kegiatan_id' => $this->sub_kegiatan_id,
             'kode_belanja' => $kode,
             'nama_belanja' => $uraian,
-            'anggaran' => $this->anggaran,
+            'penetapan' => $this->penetapan,
+            'perubahan' => $this->perubahan,
+            'selisih' => $this->perubahan - $this->penetapan,
+            'anggaran' => $this->perubahan > 0 ? $this->perubahan : $this->penetapan,
         ]);
 
         $this->js(<<<'JS'
@@ -106,10 +115,15 @@ class RkaComponent extends Component
     public function edit($id)
     {
         $rka = Rka::findOrFail($id);
+        $this->rkaId = $rka->id;
         $this->kode_belanja = $rka->kode_belanja;
         $this->nama_belanja = $rka->nama_belanja;
+        $this->penetapan = $rka->penetapan;
+        $this->perubahan = $rka->perubahan;
+        $this->selisih = $rka->selisih;
         $this->anggaran = $rka->anggaran;
-        $this->rkaId = $rka->id;
+        $this->selectedRekeningBelanja = $rka->kode_belanja . '|' . $rka->nama_belanja;
+
         $this->isEditMode = true;
 
         $this->js(<<<'JS'
@@ -119,17 +133,18 @@ class RkaComponent extends Component
 
     public function update()
     {
-        $this->validate([
-            'kode_belanja' => 'required|unique:rkas,kode_belanja,' . $this->rkaId,
-            'nama_belanja' => 'required|string|max:255',
-            'anggaran' => 'required|numeric|min:0',
-        ]);
+        $this->validate();
+
+        list($kode, $uraian) = explode('|', $this->selectedRekeningBelanja);
 
         $rka = Rka::findOrFail($this->rkaId);
         $rka->update([
-            'kode_belanja' => $this->kode_belanja,
-            'nama_belanja' => $this->nama_belanja,
-            'anggaran' => $this->anggaran,
+            'kode_belanja' => $kode,
+            'nama_belanja' => $uraian,
+            'penetapan' => $this->penetapan,
+            'perubahan' => $this->perubahan,
+            'selisih' => $this->perubahan - $this->penetapan,
+            'anggaran' => $this->perubahan > 0 ? $this->perubahan : $this->penetapan,
         ]);
 
         $this->js(<<<'JS'
@@ -154,30 +169,31 @@ class RkaComponent extends Component
         $this->resetInput();
     }
 
-
     public function delete_confirmation($id)
     {
-
         $this->rkaId = $id;
+
         $this->js(<<<'JS'
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-                text: "Apakah kamu ingin menghapus data ini? proses ini tidak dapat dikembalikan.",
-                 icon: "warning",
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data ini akan dihapus dan tidak dapat dikembalikan!",
+                icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
+                confirmButtonText: "Ya, hapus!"
+            }).then((result) => {
                 if (result.isConfirmed) {
-                    $wire.delete()
+                    $wire.delete();
                 }
-                });
+            });
         JS);
     }
+
     public function delete()
     {
         Rka::destroy($this->rkaId);
+
         $this->js(<<<'JS'
             const Toast = Swal.mixin({
                 toast: true,
@@ -194,10 +210,8 @@ class RkaComponent extends Component
                 icon: "error",
                 title: "Data berhasil dihapus"
             });
-            JS);
+        JS);
     }
-
-
 
     public function resetAndCloseModal()
     {

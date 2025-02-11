@@ -49,14 +49,14 @@
                                 </div>
 
                             </div>
-                            <div class="card-body">
-                                <table class="table">
-                                    <thead>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="thead-dark">
                                         <tr class="thead-dark text-center">
-                                            <th>Kode Program</th>
-                                            <th>Nama Program</th>
-                                            <th>Pagu Program</th>
-                                            <th>Aksi</th>
+                                            <th width="100">Kode Program</th>
+                                            <th width="300">Nama Program</th>
+                                            <th width="150">Pagu Program</th>
+                                            <th width="100">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
