@@ -40,7 +40,7 @@
             height: 100%;
             top: 0;
             left: 0;
-            z-index: -1;
+            z-index: 1;
         }
 
         /* Box Login */
@@ -71,7 +71,7 @@
     </style>
 </head>
 
-<body class="hold-transition custom-login">
+<body class="custom-login">
     <!-- Efek Partikel -->
     <div id="particles-js"></div>
 
