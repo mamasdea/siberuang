@@ -58,10 +58,20 @@
             width: 100px;
             height: auto;
         }
+
+        .custom-login {
+            display: flex;
+            justify-content: center;
+            /* Pusatkan secara horizontal */
+            align-items: center;
+            /* Pusatkan secara vertikal */
+            height: 100vh;
+
+        }
     </style>
 </head>
 
-<body class="hold-transition login-page">
+<body class="hold-transition custom-login">
     <!-- Efek Partikel -->
     <div id="particles-js"></div>
 
