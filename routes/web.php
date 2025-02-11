@@ -37,7 +37,7 @@ use App\Livewire\Anggaran\ProgramKegiatanForm;
 */
 
 Route::get('/', function () {
-    return view('login');
+    return view('auth.login');
 });
 
 Route::get('template', function () {
