@@ -14,11 +14,6 @@
         </div>
     </div>
 
-    @foreach ($laporan as $asu)
-        <li>{{ $asu->pajak_nominal }}</li>
-    @endforeach
-
-
     {{-- Tampilkan laporan hanya jika bulan dipilih dan ada data --}}
     @if ($bulan)
         @if (count($laporan) > 0)
@@ -44,6 +39,24 @@
                         </thead>
 
                         <tbody>
+                            @foreach ($laporan as $item)
+                                <tr>
+                                    <td style="text-align: center;">
+                                        {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="text-align: center;">{{ $item->no_bukti }}</td>
+                                    <td style="text-align: center;">{{ $item->rekening }}</td>
+                                    <td>{{ $item->uraian }}</td>
+                                    <td class="text-right">{{ number_format($item->nominal, 0, ',', '.') }}</td>
+                                    @if ($item->pajak_nominal)
+                                        <td class="text-right">{{ $item->pajak_nominal }}</td>
+                                    @else
+                                        <td class="text-right">-</td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                        </tbody>
+
+                        {{-- <tbody>
                             @php
                                 $totalNominal = 0;
                                 $totalPajak = 0;
@@ -51,7 +64,6 @@
                             @endphp
                             @foreach ($laporan as $item)
                                 @if ($item->no_bukti !== null)
-                                    {{-- Baris utama untuk belanja --}}
                                     <tr>
                                         <td style="text-align: center;">
                                             {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
@@ -67,7 +79,6 @@
                                     @endphp
                                 @endif
 
-                                {{-- Pajak muncul di bawah belanja terkait --}}
                                 @if ($item->jenis_pajak && $lastBukti === $item->belanja_id)
                                     <tr>
                                         <td></td>
@@ -93,7 +104,7 @@
                                 <td class="text-right"><strong>{{ number_format($totalPajak, 0, ',', '.') }}</strong>
                                 </td>
                             </tr>
-                        </tfoot>
+                        </tfoot> --}}
                     </table>
                 </div>
 
