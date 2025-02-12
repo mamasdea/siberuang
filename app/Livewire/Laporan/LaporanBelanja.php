@@ -29,7 +29,8 @@ class LaporanBelanja extends Component
         $this->laporan_id = $laporanId ?: 'default_value';
         $belanja = Belanja::with(['rka.subKegiatan.kegiatan', 'rka.subKegiatan.pptk', 'pajak', 'penerimaan.penerima'])->findOrFail($laporanId);
 
-        $templatePath = storage_path('app/templates/kwitansi_dinas.docx');
+        $templatePath = public_path('templates/kwitansi_dinas.docx');
+
 
         if (!file_exists($templatePath)) {
             abort(404, 'Template tidak ditemukan.');
@@ -102,7 +103,8 @@ class LaporanBelanja extends Component
             'uraian' => $belanja->uraian,
             'kode_rka' => $belanja->rka->kode_belanja,
             'nama_belanja' => $belanja->rka->nama_belanja,
-            'anggaran' => number_format($belanja->rka->anggaran, 0, ',', '.'),
+            'penetapan' => number_format($belanja->rka->penetapan, 0, ',', '.'),
+            'perubahan' => number_format($belanja->rka->perubahan, 0, ',', '.'),
             'kode_sub_kegiatan' => $belanja->rka->subKegiatan->kode,
             'nama_sub_kegiatan' => $belanja->rka->subKegiatan->nama,
             'nama_pptk' => $belanja->rka->subKegiatan->pptk->nama,
@@ -125,6 +127,7 @@ class LaporanBelanja extends Component
             'sisa_sesudah' => number_format($sisaRealisasi, 0, ',', '.'),
         ];
 
+        dd($data);
         foreach ($data as $placeholder => $value) {
             $templateProcessor->setValue($placeholder, $value);
         }
@@ -174,6 +177,7 @@ class LaporanBelanja extends Component
         $templateProcessor->setValue('total_nominal', number_format($totalNominal, 0, ',', '.'));
 
         $pathWord = $laporanId . '.docx';
+
 
         $outputPath = storage_path('app/public/reports/laporan_belanja_' . $pathWord);
         $templateProcessor->saveAs($outputPath);

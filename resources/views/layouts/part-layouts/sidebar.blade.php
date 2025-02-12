@@ -15,7 +15,7 @@
                     alt="User Image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ Auth::user()->name ?? 'Guest' }}</a>
+                <a href="#" class="d-block">Hi, {{ Auth::user()->name ?? 'Guest' }}</a>
                 <form action="{{ route('logout') }}" method="POST" class="mt-2">
                     @csrf
                     <button type="submit" class="btn btn-danger btn-sm btn-block">

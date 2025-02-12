@@ -25,15 +25,15 @@
     @if ($selectedSubKegiatan)
 
         <!-- Tombol Download Laporan NPD -->
-        <button wire:click="exportLaporanNPD" class="btn btn-sm btn-primary mt-3">
+        {{-- <button wire:click="exportLaporanNPD" class="btn btn-sm btn-primary mt-3">
             <i class="fas fa-download"></i> Download Laporan NPD
-        </button>
+        </button> --}}
         <button onclick="printReport()" class="btn btn-sm btn-primary mt-3">
             <i class="fas fa-print"></i> Print Preview
         </button>
-        <button wire:click="printLaporanNPD" class="btn btn-sm btn-danger mt-3">
+        {{-- <button wire:click="printLaporanNPD" class="btn btn-sm btn-danger mt-3">
             <i class="fas fa-print"></i> Print PDF
-        </button>
+        </button> --}}
 
         <div class="card p-4 mt-2" id="printArea">
             <!-- Tampilkan laporan NPD -->
