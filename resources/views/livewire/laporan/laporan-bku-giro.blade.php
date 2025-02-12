@@ -38,23 +38,53 @@
                             </tr>
                         </thead>
 
+
                         <tbody>
                             @foreach ($laporan as $item)
                                 <tr>
                                     <td style="text-align: center;">
                                         {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                                     <td style="text-align: center;">{{ $item->no_bukti }}</td>
-                                    <td style="text-align: center;">{{ $item->rekening }}</td>
+                                    <td style="text-align: center;">{{ $item->rka->kode_belanja }}</td>
                                     <td>{{ $item->uraian }}</td>
-                                    <td class="text-right">{{ number_format($item->nominal, 0, ',', '.') }}</td>
-                                    @if ($item->pajak_nominal)
-                                        <td class="text-right">{{ $item->pajak_nominal }}</td>
-                                    @else
-                                        <td class="text-right">-</td>
-                                    @endif
+                                    <td class="text-right">{{ number_format($item->nilai, 0, ',', '.') }}</td>
+                                    <td class="text-right">-</td>
+
                                 </tr>
+
+                                {{-- Tambahkan baris baru jika ada pajak --}}
+                                @if ($item->pajak->isNotEmpty())
+                                    @foreach ($item->pajak as $pajak)
+                                        <tr>
+                                            <td class="text-right"></td>
+                                            <td class="text-right"></td>
+                                            <td class="text-right"></td>
+                                            <td colspan="2">
+                                                {{ 'Pajak :' . $pajak->jenis_pajak . ' - ' . $pajak->no_billing }}</td>
+                                            <td class="text-right">
+                                                {{ number_format($pajak->nominal, 0, ',', '.') }}
+                                            </td>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             @endforeach
                         </tbody>
+
+                        @php
+                            $totalNominal = $laporan->sum('nilai');
+                            $totalPajak = $laporan->sum(fn($item) => $item->pajak->sum('nominal'));
+                        @endphp
+
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                                <td class="text-right"><strong>{{ number_format($totalNominal, 0, ',', '.') }}</strong>
+                                </td>
+                                <td class="text-right"><strong>{{ number_format($totalPajak, 0, ',', '.') }}</strong>
+                                </td>
+                            </tr>
+                        </tfoot>
 
                         {{-- <tbody>
                             @php
