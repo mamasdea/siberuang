@@ -136,7 +136,7 @@
                         wire:click="closeForm">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                </div>
+                </div>git
                 <div class="modal-body">
                     <!-- Form Belanja LS -->
                     <form>
@@ -158,6 +158,7 @@
                                     readonly>
                             </div>
                         </div>
+
 
                         <!-- Tanggal -->
                         <div class="form-group row mb-3">
