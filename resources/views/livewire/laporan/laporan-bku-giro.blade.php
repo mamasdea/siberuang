@@ -14,6 +14,11 @@
         </div>
     </div>
 
+    @foreach ($laporan as $asu)
+        <li>{{ $asu->pajak_nominal }}</li>
+    @endforeach
+
+
     {{-- Tampilkan laporan hanya jika bulan dipilih dan ada data --}}
     @if ($bulan)
         @if (count($laporan) > 0)
@@ -68,7 +73,8 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $item->uraian }} - <strong>Billing:</strong> {{ $item->no_billing }}</td>
+                                        <td>{{ $item->uraian }} - <strong>Billing:</strong> {{ $item->no_billing }}
+                                        </td>
                                         <td class="text-right">-</td>
                                         <td class="text-right">{{ number_format($item->pajak_nominal, 0, ',', '.') }}
                                         </td>
