@@ -68,6 +68,7 @@ class LaporanBkuGiro extends Component
         ) AS laporan
         ORDER BY tanggal, no_bukti IS NULL, belanja_id, jenis_pajak IS NULL DESC
     ", [$startDate, $endDate, $startDate, $endDate]);
+        dd($this->laporan);
     }
 
     public function render()
