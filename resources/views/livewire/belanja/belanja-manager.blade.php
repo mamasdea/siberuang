@@ -137,7 +137,6 @@
                                                 <button wire:click="downloadTai({{ $row->id }})"
                                                     class="btn btn-sm btn-success">
                                                     <i class="fas fa-download"></i>
-
                                                 </button>
                                             </div>
                                         </td>

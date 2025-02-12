@@ -8,9 +8,9 @@
 
 
             <!-- Tab content -->
-            <div class="tab-content mt-2 p-2">
+            <div class="tab-content mt-2">
                 <div class="tab-pane fade show active" id="bukti">
-                    <div class="p-2">
+                    <div class="">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <button class="btn btn-outline-primary btn-sm" wire:click="openForm" data-toggle="modal"
@@ -42,75 +42,74 @@
                                 </div>
                             </div>
                         </div>
-                        <table class="table">
-                            <thead class="thead-dark text-center">
-                                <tr>
-                                    <th>No.</th>
-                                    <th>No Bukti</th>
-                                    <th>Tanggal</th>
-                                    <th>Uraian</th>
-                                    <th>Total Nilai</th>
-                                    <th>Potongan Pajak</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($belanja as $row)
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered text-center">
+                                <thead class="thead-dark">
                                     <tr>
-                                        <td>{{ $loop->index + $belanja->firstItem() }}</td>
-                                        <td>LS-{{ $row->no_bukti }}-02.16-06.09-{{ date('Y') }}</td>
-                                        <td>{{ $row->tanggal }}</td>
-                                        <td>{{ $row->uraian }}</td>
-                                        <td>{{ number_format($row->total_nilai, 2) }} </td>
-                                        <td class="text-center">
-
-                                            @if ($row->pajakLs->sum('nominal') > 0)
-                                                Rp {{ number_format($row->pajakLs->sum('nominal'), 2, ',', '.') }}
-                                                <a href="{{ route('pajakls', ['belanjaLsId' => $row->id]) }}"
-                                                    class="btn btn-sm btn-warning rounded-circle" title="Edit Pajak">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </a>
-                                            @else
-                                                <a href="{{ route('pajakls', ['belanjaLsId' => $row->id]) }}"
-                                                    class="btn btn-sm btn-primary" title="Rincian Pajak">
-                                                    <i class="fas fa-plus"></i> Rincian Pajak
-                                                </a>
-                                            @endif
-                                        </td>
-
-                                        <td class="text-center">
-                                            <button class="btn btn-warning btn-sm text-white"
-                                                wire:click="edit({{ $row->id }})" data-toggle="tooltip"
-                                                title="Edit">
-                                                <i class="fas fa-pencil-alt"></i>
-                                            </button>
-                                            <button class="btn btn-danger btn-sm"
-                                                wire:click="delete_confirmation({{ $row->id }})"
-                                                data-toggle="tooltip" title="Hapus">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                            <button wire:loading.remove wire:target="printTai({{ $row->id }})"
-                                                wire:click="printTai({{ $row->id }})"
-                                                class="btn btn-sm btn-secondary" title="Print">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                            <div class="page-btn" wire:loading
-                                                wire:target="printTai({{ $row->id }})">
-                                                <button class="btn btn-dark btn-sm" type="button" disabled>
-                                                    <span class="spinner-border spinner-border-sm" role="status"
-                                                        aria-hidden="true"></span>
-                                                </button>
-                                            </div>
-                                            <button wire:click="downloadTai({{ $row->id }})"
-                                                class="btn btn-sm btn-success" title="Download">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-
-                                        </td>
+                                        <th width="50">No.</th>
+                                        <th width="150">No Bukti</th>
+                                        <th width="100">Tanggal</th>
+                                        <th width="380">Uraian</th>
+                                        <th width="150">Total Nilai</th>
+                                        <th width="150">Potongan Pajak</th>
+                                        <th width="150">Actions</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($belanja as $row)
+                                        <tr>
+                                            <td>{{ $loop->index + $belanja->firstItem() }}</td>
+                                            <td>SPM-{{ $row->no_bukti }}/Diskominfo/{{ date('Y') }}</td>
+                                            <td>{{ $row->tanggal }}</td>
+                                            <td class="text-left">{{ $row->uraian }}</td>
+                                            <td class="text-right">
+                                                {{ number_format($row->total_nilai, 2) }} <br>
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($row->pajakLs->sum('nominal') > 0)
+                                                    Rp {{ number_format($row->pajakLs->sum('nominal'), 2, ',', '.') }}
+                                                    <a href="{{ route('pajakls', ['belanjaLsId' => $row->id]) }}"
+                                                        class="btn btn-sm btn-outline-warning rounded-circle"
+                                                        title="Edit Pajak">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('pajakls', ['belanjaLsId' => $row->id]) }}"
+                                                        class="btn btn-sm btn-primary" title="Rincian Pajak">
+                                                        <i class="fas fa-plus"></i> Rincian Pajak
+                                                    </a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-warning btn-sm text-white"
+                                                        wire:click="edit({{ $row->id }})" data-toggle="tooltip"
+                                                        title="Edit">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm"
+                                                        wire:click="delete_confirmation({{ $row->id }})"
+                                                        data-toggle="tooltip" title="Hapus">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                    <button wire:loading.remove
+                                                        wire:target="printTai({{ $row->id }})"
+                                                        wire:click="printTai({{ $row->id }})"
+                                                        class="btn btn-sm btn-secondary" title="Print">
+                                                        <i class="fas fa-print"></i>
+                                                    </button>
+                                                    <button wire:click="downloadTai({{ $row->id }})"
+                                                        class="btn btn-sm btn-success" title="Download">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
                         <div class="container mt-2 mb-2">
                             {{ $belanja->links('livewire::bootstrap') }}
                         </div>
@@ -145,7 +144,7 @@
                         <div class="form-group row mb-3">
                             <label for="no_bukti" class="col-md-3 form-label" style="min-width: 150px;">No Bukti</label>
                             <div class="col-md-2">
-                                <input type="text" class="form-control" value="TBP-" readonly>
+                                <input type="text" class="form-control" value="SPM-" readonly>
                             </div>
                             <div class="col-md-3">
                                 <input wire:model="no_bukti" type="text" class="form-control" id="no_bukti"
@@ -155,7 +154,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-4">
-                                <input type="text" class="form-control" value="-02.16-06.09-{{ date('Y') }}"
+                                <input type="text" class="form-control" value="/Diskominfo/{{ date('Y') }}"
                                     readonly>
                             </div>
                         </div>
