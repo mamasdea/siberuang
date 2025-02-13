@@ -61,6 +61,7 @@
                         <td>Saldo Awal</td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td style="text-align: right">{{ number_format($saldo, 0, ',', '.') }}</td>
                     </tr>
                     @foreach ($data as $row)
