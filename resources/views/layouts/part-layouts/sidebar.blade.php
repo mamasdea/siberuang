@@ -46,6 +46,34 @@
                             <p>Anggaran</p>
                         </a>
                     </li>
+
+                    <li class="nav-item {{ request()->is('up-giro') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>
+                                Uang Persediaan
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <!-- Submenu GU -->
+                            <li class="nav-item">
+                                <a href="{{ url('up-giro') }}"
+                                    class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-dollar-sign"></i>
+                                    <p>Giro</p>
+                                </a>
+                            </li>
+                            <!-- Submenu LS -->
+                            <li class="nav-item">
+                                <a href="{{ url('up-giro') }}"
+                                    class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-dollar-sign"></i>
+                                    <p>Kredit</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
                 <!-- Belanja Menu dengan Submenu -->
                 <li class="nav-item {{ request()->is('belanja*') ? 'menu-open' : '' }}">
@@ -96,8 +124,8 @@
                         </li>
                         <!-- Submenu BKU -->
                         <li class="nav-item">
-                            <a href="{{ url('laporan-bku-giro') }}"
-                                class="nav-link {{ request()->is('laporan-bku-giro') ? 'active' : '' }}">
+                            <a href="{{ url('laporan-bkugiro') }}"
+                                class="nav-link {{ request()->is('laporan-bkugiro') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-book"></i>
                                 <p>BKU GU GIRO</p>
                             </a>

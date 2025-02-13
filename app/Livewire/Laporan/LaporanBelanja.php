@@ -127,7 +127,7 @@ class LaporanBelanja extends Component
             'sisa_sesudah' => number_format($sisaRealisasi, 0, ',', '.'),
         ];
 
-        dd($data);
+
         foreach ($data as $placeholder => $value) {
             $templateProcessor->setValue($placeholder, $value);
         }

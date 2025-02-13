@@ -12,6 +12,7 @@ use App\Livewire\Laporan\LaporanNPD;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use App\Livewire\Laporan\LaporanPage;
+use App\Livewire\Persediaan\UangGiro;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\SubKegiatanHierarchy;
 use App\Livewire\Master\UserManagement;
@@ -19,6 +20,7 @@ use App\Livewire\Belanja\BelanjaManager;
 use App\Livewire\Laporan\LaporanBelanja;
 use App\Livewire\Laporan\LaporanBkuGiro;
 use App\Livewire\Master\RekeningBelanja;
+use App\Livewire\Laporan\BukuKasUmumGiro;
 use App\Http\Controllers\HelperController;
 use App\Livewire\Master\PengelolaKeuangan;
 use App\Livewire\Penerima\PenerimaRekanan;
@@ -62,12 +64,15 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('show-picture', [HelperController::class, 'showPicture'])->name('helper.show-picture');
     Route::get('dashboard', Dashboard::class);
+    Route::get('up-giro', UangGiro::class);
     Route::get('belanja', BelanjaManager::class);
     Route::get('belanja_ls', BelanjaLs::class);
     Route::get('hirarki', ProgramHierarchy::class);
     Route::get('sub_hirarki', SubKegiatanHierarchy::class);
     Route::get('laporan-page', LaporanPage::class)->name('laporan.page');
     Route::get('laporan-bku-giro', LaporanBkuGiro::class)->name('laporan.bku.giro');
+    Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
+
     Route::get('laporan-npd', LaporanNPD::class)->name('laporan-npd');
     Route::get('penerimaan/{belanjaId}', Penerimaan::class)->name('penerimaan');
     Route::get('pajak/{belanjaId}', Pajak::class)->name('pajak');
