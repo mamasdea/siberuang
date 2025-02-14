@@ -238,12 +238,16 @@ class Penerimaan extends Component
 
     public function openModalPenerima()
     {
-        $this->openPenerima = true;
+        $this->js(<<<'JS'
+        $('#PenerimaanModal').modal('show');
+    JS);
     }
 
     public function closeModalPenerima()
     {
-        $this->openPenerima = false;
+        $this->js(<<<'JS'
+        $('#PenerimaanModal').modal('hide');
+    JS);
     }
 
     public function closeFormPenerimaan()

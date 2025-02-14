@@ -30,7 +30,7 @@
         </tbody>
     </table>
 
-    {{ $penerimas->links() }}
+    {{ $penerimas->links('livewire::bootstrap') }}
 
 
 </div>
