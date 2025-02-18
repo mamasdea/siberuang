@@ -28,7 +28,7 @@ class BukuKasUmumGiro extends Component
     public function render()
     {
         $uangasuk = UangGiro::where('tanggal', '<', $this->mulai)->where('tanggal', '>=', $this->tahun . "-01-01")->sum('nominal');
-        $uangKeluar = Belanja::where('tanggal', '<', $this->mulai)->where('tanggal', '>=', $this->tahun . "-01-01")->sum('nilai');
+        $uangKeluar = Belanja::where('tanggal', '<', $this->mulai)->where('tanggal', '>=', $this->tahun . "-01-01")->where('is_transfer', '1')->sum('nilai');
 
         $saldo = $uangasuk - $uangKeluar;
         $data = VwTransaksi::with('pajak')->where('tanggal', '>=', $this->mulai)->where('tanggal', '<=', $this->end)->orderBy('tanggal', 'asc')->get();
