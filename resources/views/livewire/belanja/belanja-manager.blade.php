@@ -123,6 +123,10 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
+                                                <button wire:click="openPreview({{ $row->id }})"
+                                                    class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
                                                 <button class="btn btn-warning btn-sm"
                                                     wire:click="edit({{ $row->id }})" data-toggle="tooltip"
                                                     title="Edit">
@@ -148,9 +152,6 @@
                                                             role="status" aria-hidden="true"></span>
                                                     </span>
                                                 </button>
-
-
-
                                                 <button wire:click="downloadTai({{ $row->id }})"
                                                     class="btn btn-sm btn-success">
                                                     <i class="fas fa-download"></i>
@@ -170,6 +171,7 @@
                 </div>
 
             </div>
+            <!-- Panggil Komponen BelanjaPreview -->
             <div class="tab-pane fade" id="spjkan">
                 <div class="card">
                     bukti sudah terspjkan
@@ -177,7 +179,22 @@
             </div>
         </div>
     </div>
+    <div wire:ignore.self class="modal fade" id="previewBelanjaModal" tabindex="-1" aria-labelledby="modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Preview Belanja</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" wire:click="closePreview"
+                        aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
 
+                    <livewire:belanja.belanja-preview />
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Modal Belanja -->
     <div wire:ignore.self class="modal fade" id="belanjaModal" tabindex="-1" aria-labelledby="belanjaModalLabel"
         aria-hidden="true">

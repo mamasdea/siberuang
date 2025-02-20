@@ -37,5 +37,4 @@ class SubKegiatan extends Model
     {
         return $this->belongsTo(PengelolaKeuangan::class, 'pptk_id');
     }
-
 }

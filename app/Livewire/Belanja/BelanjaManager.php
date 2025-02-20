@@ -33,12 +33,27 @@ class BelanjaManager extends Component
     public $totalPenerimaan;
     public $totalPajak;
     public $bulan;
+    public $selectedBelanjaId;
 
     public $pathWord;
     public $pathpdf;
 
     public $sub_kegiatan_kode, $sub_kegiatan_nama, $sisa_anggaran;
 
+    public function openPreview($belanjaId)
+    {
+        $this->selectedBelanjaId = $belanjaId;
+        $this->dispatch('openPreview', $belanjaId);
+        $this->js(<<<'JS'
+        $('#previewBelanjaModal').modal('show');
+    JS);
+    }
+    public function closePreview()
+    {
+        $this->js(<<<'JS'
+        $('#previewBelanjaModal').modal('hide');
+    JS);
+    }
 
     public function render()
     {
