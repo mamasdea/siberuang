@@ -69,7 +69,8 @@ class BelanjaManager extends Component
             ->whereMonth('tanggal', $bulan) // Filter berdasarkan bulan
             ->where(function ($query) {
                 $query->where('id', 'like', '%' . $this->search . '%')
-                    ->orWhere('uraian', 'like', '%' . $this->search . '%');
+                    ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                    ->orWhere('no_bukti', 'like', '%' . $this->search . '%');
             })
             ->orderBy('id', 'desc')
             ->paginate($this->paginate);
