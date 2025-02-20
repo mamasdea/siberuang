@@ -150,11 +150,11 @@
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-2">
-                        @if ($belanjas instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                        @if ($paginate !== 'all')
                             {{ $belanjas->links('livewire::bootstrap') }}
                         @endif
-
                     </div>
+
                 </div>
 
             </div>
