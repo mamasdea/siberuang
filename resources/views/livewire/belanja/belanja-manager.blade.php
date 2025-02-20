@@ -73,7 +73,9 @@
                                     <th width="150">Nilai</th>
                                     <th width="50">Penerimaan</th>
                                     <th width="50">Pajak</th>
-                                    <th width="50">Transfer</th>
+                                    @if (Auth::user()->role == 'admin')
+                                        <th width="50">Transfer</th>
+                                    @endif
                                     <th width="50">SIPD</th>
                                     <th width="150">Actions</th>
                                 </tr>
@@ -107,11 +109,13 @@
                                                 <i class="fas fa-receipt"></i>
                                             </a>
                                         </td>
-                                        <td>
-                                            <input type="checkbox"
-                                                wire:click="toggleField({{ $row->id }}, 'is_transfer')"
-                                                {{ $row->is_transfer ? 'checked' : '' }}>
-                                        </td>
+                                        @if (Auth::user()->role == 'admin')
+                                            <td>
+                                                <input type="checkbox"
+                                                    wire:click="toggleField({{ $row->id }}, 'is_transfer')"
+                                                    {{ $row->is_transfer ? 'checked' : '' }}>
+                                            </td>
+                                        @endif
                                         <td>
                                             <input type="checkbox"
                                                 wire:click="toggleField({{ $row->id }}, 'is_sipd')"
@@ -133,15 +137,16 @@
                                                     class="btn btn-sm btn-secondary" wire:loading.attr="disabled"
                                                     wire:target="printTai({{ $row->id }})">
 
-                                                    <span wire:loading wire:target="printTai({{ $row->id }})">
-                                                        <span class="spinner-border spinner-border-sm" role="status"
-                                                            aria-hidden="true"></span>
-
-                                                    </span>
-
                                                     <span wire:loading.remove
                                                         wire:target="printTai({{ $row->id }})">
-                                                        <i class="fas fa-print"></i> </span>
+                                                        <i class="fas fa-print"></i>
+                                                    </span>
+
+                                                    <span wire:loading.flex wire:target="printTai({{ $row->id }})"
+                                                        class="items-center">
+                                                        <span class="spinner-border spinner-border-sm mr-1"
+                                                            role="status" aria-hidden="true"></span>
+                                                    </span>
                                                 </button>
 
 
