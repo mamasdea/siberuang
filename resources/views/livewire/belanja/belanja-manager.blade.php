@@ -24,7 +24,6 @@
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
-                                <option value="all">All</option>
                             </select>
                         </div>
 
@@ -82,8 +81,7 @@
                             <tbody>
                                 @foreach ($belanja as $row)
                                     <tr>
-                                        <td>{{ $loop->index + ($belanjas instanceof \Illuminate\Pagination\LengthAwarePaginator ? $belanjas->firstItem() : 1) }}
-                                        </td>
+                                        <td>{{ $loop->index + $belanja->firstItem() }}</td>
                                         <td>TBP-{{ $row->no_bukti }}</td>
                                         <td>{{ $row->tanggal }}</td>
                                         <td class="text-left">{{ $row->uraian }}</td>
@@ -150,12 +148,8 @@
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-2">
-                        @if ($paginate !== 'all' && $belanjas)
-                            {{ $belanjas->links('livewire::bootstrap') }}
-                        @endif
+                        {{ $belanja->links('livewire::bootstrap') }}
                     </div>
-
-
                 </div>
 
             </div>
