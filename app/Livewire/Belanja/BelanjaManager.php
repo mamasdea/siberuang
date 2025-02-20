@@ -70,6 +70,7 @@ class BelanjaManager extends Component
             ->where(function ($query) {
                 $query->where('id', 'like', '%' . $this->search . '%')
                     ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                    ->orWhere('nilai', 'like', '%' . $this->search . '%')
                     ->orWhere('no_bukti', 'like', '%' . $this->search . '%');
             })
             ->orderBy('id', 'desc')
