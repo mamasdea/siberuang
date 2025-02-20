@@ -150,10 +150,11 @@
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-2">
-                        @if ($paginate !== 'all')
+                        @if ($paginate !== 'all' && $belanjas)
                             {{ $belanjas->links('livewire::bootstrap') }}
                         @endif
                     </div>
+
 
                 </div>
 
