@@ -5,8 +5,9 @@
                 <!-- Header -->
                 <div class="row text-center">
                     <div class="col-2">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Lambang_Kabupaten_Wonosobo.webp/1200px-Lambang_Kabupaten_Wonosobo.webp.png"
-                            alt="Logo" width="80" height="auto">
+                        {{-- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Lambang_Kabupaten_Wonosobo.webp/1200px-Lambang_Kabupaten_Wonosobo.webp.png"
+                            alt="Logo" width="80" height="auto"> --}}
+                        <img src="{{ asset('assets/logo/siberuang.png') }}" alt="Logo" width="80" height="auto">
                     </div>
                     <div class="col-8">
                         <h5 class="mb-0">PEMERINTAH KABUPATEN WONOSOBO</h5>
@@ -133,16 +134,21 @@
 
                 <hr class="border border-dark">
 
-                <!-- Tombol Print -->
-                <div class="text-center no-print">
-                    <button type="button" class="btn btn-success" onclick="printDiv()"><i class="fas fa-print"></i>
-                        Print</button>
-                </div>
+
             </div>
         </div>
     @else
         <p class="text-center">Belanja tidak ditemukan.</p>
     @endif
+    <!-- Tombol Print -->
+    <div class="text-center no-print mt-3">
+        <button type="button" class="btn btn-success" onclick="printDiv()">
+            <i class="fas fa-print"></i> Print
+        </button>
+        <button type="button" class="btn btn-danger" onclick="downloadPDF()">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
+    </div>
 </div>
 
 @push('css')
@@ -183,6 +189,8 @@
 @endpush
 
 @push('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <script>
         function printDiv() {
             var printContents = document.getElementById("printArea").innerHTML;
@@ -194,4 +202,45 @@
             location.reload();
         }
     </script>
+    @push('js')
+        <script>
+            function printDiv() {
+                var printContents = document.getElementById("printArea").innerHTML;
+                var originalContents = document.body.innerHTML;
+
+                document.body.innerHTML = printContents;
+                window.print();
+                document.body.innerHTML = originalContents;
+                location.reload(); // Reload halaman agar tampilan kembali normal setelah print
+            }
+
+            function downloadPDF() {
+                const element = document.getElementById("printArea");
+
+                html2pdf()
+                    .set({
+                        margin: 10,
+                        filename: 'Surat_Bukti_Belanja.pdf',
+                        image: {
+                            type: 'jpeg',
+                            quality: 0.98
+                        },
+                        html2canvas: {
+                            scale: 2,
+                            logging: true,
+                            dpi: 192,
+                            letterRendering: true
+                        },
+                        jsPDF: {
+                            unit: 'mm',
+                            format: 'a4',
+                            orientation: 'portrait'
+                        }
+                    })
+                    .from(element)
+                    .save();
+            }
+        </script>
+    @endpush
+
 @endpush
