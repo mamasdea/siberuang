@@ -82,7 +82,8 @@
                             <tbody>
                                 @foreach ($belanja as $row)
                                     <tr>
-                                        <td>{{ $loop->index + $belanja->firstItem() }}</td>
+                                        <td>{{ $loop->index + ($belanjas instanceof \Illuminate\Pagination\LengthAwarePaginator ? $belanjas->firstItem() : 1) }}
+                                        </td>
                                         <td>TBP-{{ $row->no_bukti }}</td>
                                         <td>{{ $row->tanggal }}</td>
                                         <td class="text-left">{{ $row->uraian }}</td>
