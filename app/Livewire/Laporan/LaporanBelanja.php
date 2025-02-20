@@ -48,7 +48,6 @@ class LaporanBelanja extends Component
         $tahunIndo = Carbon::parse($belanja->tanggal)->translatedFormat('Y');
         $tanggalIndoSingkat = Carbon::parse($belanja->tanggal)->format('d/m/Y');
         $nilaiTerbilang = $this->terbilang($belanja->nilai) . ' rupiah';
-
         $pengguna_anggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
         $bendahara_pengeluaran = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
 
