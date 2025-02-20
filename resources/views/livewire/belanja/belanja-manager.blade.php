@@ -131,17 +131,19 @@
                                                 </button>
                                                 <button wire:click="printTai({{ $row->id }})"
                                                     class="btn btn-sm btn-secondary" wire:loading.attr="disabled"
-                                                    wire:target="printTai">
+                                                    wire:target="printTai({{ $row->id }})">
 
-                                                    <span wire:loading wire:target="printTai">
+                                                    <span wire:loading wire:target="printTai({{ $row->id }})">
                                                         <span class="spinner-border spinner-border-sm" role="status"
                                                             aria-hidden="true"></span>
+
                                                     </span>
 
-                                                    <span wire:loading.remove wire:target="printTai">
-                                                        <i class="fas fa-print"></i>
-                                                    </span>
+                                                    <span wire:loading.remove
+                                                        wire:target="printTai({{ $row->id }})">
+                                                        <i class="fas fa-print"></i> </span>
                                                 </button>
+
 
 
                                                 <button wire:click="downloadTai({{ $row->id }})"
