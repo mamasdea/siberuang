@@ -47,17 +47,21 @@ class BelanjaManager extends Component
         $bulan = $this->bulan ?? date('m'); // Ambil bulan yang dipilih, default ke bulan sekarang
 
         // Query belanja sesuai tahun anggaran dan bulan
-        $belanjas = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program'])
+        $belanjasQuery = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program'])
             ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
                 $query->where('tahun_anggaran', $tahun);
             })
-            ->whereMonth('tanggal', $bulan) // Filter berdasarkan bulan
+            ->whereMonth('tanggal', $bulan)
             ->where(function ($query) {
                 $query->where('id', 'like', '%' . $this->search . '%')
                     ->orWhere('uraian', 'like', '%' . $this->search . '%');
             })
-            ->orderBy('id', 'desc')
-            ->paginate($this->paginate ?? 10);
+            ->orderBy('id', 'desc');
+
+        $belanjas = $this->paginate === 'all'
+            ? $belanjasQuery->get() // Jika pilih 'All', pakai get() untuk mengambil semua data
+            : $belanjasQuery->paginate($this->paginate);
+
 
         // Perhitungan total penerimaan dan pajak untuk setiap belanja
         foreach ($belanjas as $belanja) {
