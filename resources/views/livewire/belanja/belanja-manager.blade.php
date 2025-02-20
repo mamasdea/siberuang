@@ -129,11 +129,21 @@
                                                     data-toggle="tooltip" title="Hapus">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
-                                                <button wire:loading.remove wire:target="printTai({{ $row->id }})"
-                                                    wire:click="printTai({{ $row->id }})"
-                                                    class="btn btn-sm btn-secondary">
-                                                    <i class="fas fa-print"></i>
+                                                <button wire:click="printTai({{ $row->id }})"
+                                                    class="btn btn-sm btn-secondary" wire:loading.attr="disabled"
+                                                    wire:target="printTai({{ $row->id }})">
+
+                                                    <span wire:loading wire:target="printTai({{ $row->id }})">
+                                                        <span class="spinner-border spinner-border-sm" role="status"
+                                                            aria-hidden="true"></span>
+                                                    </span>
+
+                                                    <span wire:loading.remove
+                                                        wire:target="printTai({{ $row->id }})">
+                                                        <i class="fas fa-print"></i>
+                                                    </span>
                                                 </button>
+
                                                 <button wire:click="downloadTai({{ $row->id }})"
                                                     class="btn btn-sm btn-success">
                                                     <i class="fas fa-download"></i>
