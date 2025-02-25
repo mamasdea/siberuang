@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Livewire\Belanja;
+namespace App\Livewire\Belanja\Kkpd;
 
 use App\Models\Rka;
 use App\Models\Belanja;
 use Livewire\Component;
 use App\Models\Penerima;
+use App\Models\BelanjaKkpd;
 use App\Models\SubKegiatan;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
@@ -13,9 +14,10 @@ use Livewire\Attributes\Title;
 use App\Livewire\Laporan\LaporanNPD;
 use Illuminate\Support\Facades\Storage;
 use App\Livewire\Laporan\LaporanBelanja;
+use App\Livewire\Laporan\LaporanBelanjaKkpd;
 
-#[Title('Belanja GU Giro')]
-class BelanjaManager extends Component
+#[Title('Belanja GU KKPD')]
+class BelanjaKkpdsManager extends Component
 {
     use WithPagination;
 
@@ -45,14 +47,14 @@ class BelanjaManager extends Component
         $this->selectedBelanjaId = $belanjaId;
         $this->dispatch('openPreview', $belanjaId);
         $this->js(<<<'JS'
-        $('#previewBelanjaModal').modal('show');
-    JS);
+            $('#previewBelanjaModal').modal('show');
+        JS);
     }
     public function closePreview()
     {
         $this->js(<<<'JS'
-        $('#previewBelanjaModal').modal('hide');
-    JS);
+            $('#previewBelanjaModal').modal('hide');
+        JS);
     }
 
     public function render()
@@ -62,7 +64,7 @@ class BelanjaManager extends Component
         $bulan = $this->bulan ?? date('m'); // Ambil bulan yang dipilih, default ke bulan sekarang
 
         // Query belanja sesuai tahun anggaran dan bulan
-        $belanjas = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program'])
+        $belanjas = BelanjaKkpd::with(['penerimaankkpd', 'pajakkkpd', 'rka.subKegiatan.kegiatan.program'])
             ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
                 $query->where('tahun_anggaran', $tahun);
             })
@@ -78,12 +80,12 @@ class BelanjaManager extends Component
 
         // Perhitungan total penerimaan dan pajak untuk setiap belanja
         foreach ($belanjas as $belanja) {
-            $belanja->total_penerimaan = $belanja->penerimaan ? $belanja->penerimaan->sum('nominal') : 0;
-            $belanja->total_pajak = $belanja->pajak ? $belanja->pajak->sum('nominal') : 0;
+            $belanja->total_penerimaan = $belanja->penerimaankkpd ? $belanja->penerimaankkpd->sum('nominal') : 0;
+            $belanja->total_pajak = $belanja->pajakkkpd ? $belanja->pajakkkpd->sum('nominal') : 0;
         }
 
-        return view('livewire.belanja.belanja-manager', [
-            'belanja' => $belanjas,
+        return view('livewire.belanja.kkpd.belanja-kkpds-manager', [
+            'belanjaKkpds' => $belanjas,
             'penerimas' => Penerima::all(),
             'sisaAnggaran' => $sisaAnggaran,
             'totalPenerimaan' => $this->totalPenerimaan,
@@ -95,7 +97,7 @@ class BelanjaManager extends Component
 
     public function toggleField($id, $field)
     {
-        $belanja = Belanja::findOrFail($id);
+        $belanja = BelanjaKkpd::findOrFail($id);
 
         if (in_array($field, ['is_transfer', 'is_sipd'])) {
             $belanja->update([
@@ -107,7 +109,7 @@ class BelanjaManager extends Component
     public function store()
     {
         // Ambil nomor bukti terakhir dari database
-        $lastNoBukti = Belanja::orderBy('no_bukti', 'desc')->first();
+        $lastNoBukti = BelanjaKkpd::orderBy('no_bukti', 'desc')->first();
 
         // Jika belum ada nomor bukti, mulai dari 1
         $newNoBukti = $lastNoBukti ? (int)$lastNoBukti->no_bukti + 1 : 1;
@@ -130,10 +132,12 @@ class BelanjaManager extends Component
                     }
                     // Hitung total transaksi GU dan LS (exclude transaksi yang sedang diedit)
                     $totalGU = Belanja::where('rka_id', $this->rka_id)->sum('nilai');
+                    $totalKkpd = BelanjaKkpd::where('rka_id', $this->rka_id)->sum('nilai');
                     $totalLS = \App\Models\BelanjaLsDetails::where('rka_id', $this->rka_id)
                         ->where('id', '!=', $this->belanja_id)
                         ->sum('nilai');
-                    $sisaAnggaran = $rka->anggaran - $totalGU - $totalLS;
+                    $sisaAnggaran = $rka->anggaran - $totalGU - $totalKkpd - $totalLS;
+
                     if ($value > $sisaAnggaran) {
                         $fail("Nilai tidak boleh melebihi sisa anggaran sebesar Rp " . number_format($sisaAnggaran, 2));
                     }
@@ -145,27 +149,27 @@ class BelanjaManager extends Component
         $validatedData['no_bukti'] = $formattedNoBukti;
 
         // Simpan data ke tabel Belanja
-        Belanja::create($validatedData);
+        BelanjaKkpd::create($validatedData);
 
         // Tampilkan notifikasi sukses
         $this->js(<<<'JS'
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
-            }
-        });
-        Toast.fire({
-            icon: "success",
-            title: "Data berhasil disimpan"
-        });
-        $('#belanjaModal').modal('hide');
-    JS);
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                icon: "success",
+                title: "Data berhasil disimpan"
+            });
+            $('#belanjaModal').modal('hide');
+        JS);
 
         // Reset input fields dan sembunyikan form
         $this->resetInputFields();
@@ -175,7 +179,7 @@ class BelanjaManager extends Component
 
     public function edit($id)
     {
-        $belanja = Belanja::findOrFail($id);
+        $belanja = BelanjaKkpd::findOrFail($id);
         $this->belanja_id = $belanja->id; // Periksa nama kolom yang benar
         $this->no_bukti = $belanja->no_bukti;
         $this->tanggal = $belanja->tanggal;
@@ -196,8 +200,8 @@ class BelanjaManager extends Component
         $this->formVisible = true;
         $this->rincian_subkegiatan = true;
         $this->js(<<<'JS'
-            $('#belanjaModal').modal('show');
-         JS);
+                $('#belanjaModal').modal('show');
+             JS);
     }
 
 
@@ -217,12 +221,12 @@ class BelanjaManager extends Component
                     $anggaran = Rka::find($this->rka_id)->anggaran;
 
                     // Hitung total belanja yang sudah digunakan untuk rka_id terkait
-                    $totalBelanja = Belanja::where('rka_id', $this->rka_id)
+                    $totalBelanjaKkpd = BelanjaKkpd::where('rka_id', $this->rka_id)
                         ->where('id', '!=', $this->belanja_id) // Exclude current belanja
                         ->sum('nilai');
 
                     // Hitung sisa anggaran
-                    $sisaAnggaran = $anggaran - $totalBelanja;
+                    $sisaAnggaran = $anggaran - $totalBelanjaKkpd;
 
                     if ($value > $sisaAnggaran) {
                         $fail("Nilai tidak boleh melebihi sisa anggaran sebesar Rp " . number_format($sisaAnggaran, 2));
@@ -234,7 +238,7 @@ class BelanjaManager extends Component
 
 
         // Temukan record belanja yang ingin diupdate
-        if ($belanja = Belanja::find($this->belanja_id)) {
+        if ($belanja = BelanjaKkpd::find($this->belanja_id)) {
             $belanja->update([
                 'no_bukti' => $this->no_bukti,
                 'tanggal' => $this->tanggal,
@@ -247,23 +251,23 @@ class BelanjaManager extends Component
             $this->isEdit = false;
             $this->formVisible = false;
             $this->js(<<<'JS'
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.onmouseenter = Swal.stopTimer;
-                        toast.onmouseleave = Swal.resumeTimer;
-                    }
-                });
-                Toast.fire({
-                    icon: "success",
-                    title: "Data berhasil diupdate"
-                });
-                $('#belanjaModal').modal('hide');
-             JS);
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "Data berhasil diupdate"
+                    });
+                    $('#belanjaModal').modal('hide');
+                 JS);
         } else {
             session()->flash('error', 'Record belanja tidak ditemukan.');
         }
@@ -298,8 +302,8 @@ class BelanjaManager extends Component
         $this->resetInputFields();
         $this->isEdit = false;
         $this->js(<<<'JS'
-            $('#belanjaModal').modal('hide');
-         JS);
+                $('#belanjaModal').modal('hide');
+             JS);
     }
 
 
@@ -307,22 +311,22 @@ class BelanjaManager extends Component
     public function openModal()
     {
         $this->js(<<<'JS'
-            $('#subkegiatanModal').modal('show');
-        JS);
+                $('#subkegiatanModal').modal('show');
+            JS);
         $this->dispatch('refresh');
     }
 
     public function closeModal()
     {
         $this->js(<<<'JS'
-            $('#subkegiatanModal').modal('hide');
-        JS);
+                $('#subkegiatanModal').modal('hide');
+            JS);
     }
     public function closeModalPdf()
     {
         $this->js(<<<'JS'
-        $('#viewBelanja').modal("hide")
-    JS);
+            $('#viewBelanja').modal("hide")
+        JS);
         Storage::disk('local')->delete('public/reports/laporan_belanja_' . $this->pathWord);
         Storage::disk('local')->delete('public/reports/laporan_belanja_' . $this->pathpdf);
     }
@@ -345,60 +349,60 @@ class BelanjaManager extends Component
 
         $this->belanjaId = $id;
         $this->js(<<<'JS'
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-                text: "Apakah kamu ingin menghapus data ini? proses ini tidak dapat dikembalikan.",
-                 icon: "warning",
-                // imageUrl: "/icon-warning.png",
-                // imageWidth: 90,
-                // imageHeight: 85,
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
-                if (result.isConfirmed) {
-                    $wire.delete()
-                }
-                });
-        JS);
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                    text: "Apakah kamu ingin menghapus data ini? proses ini tidak dapat dikembalikan.",
+                     icon: "warning",
+                    // imageUrl: "/icon-warning.png",
+                    // imageWidth: 90,
+                    // imageHeight: 85,
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                    if (result.isConfirmed) {
+                        $wire.delete()
+                    }
+                    });
+            JS);
     }
 
     public function delete()
     {
-        // ModelRekeningBelanja::find($id)->delete();
-        Belanja::destroy($this->belanjaId);
+        // ModelRekeningBelanjaKkpd::find($id)->delete();
+        BelanjaKkpd::destroy($this->belanjaId);
         $this->js(<<<'JS'
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
-            });
-            Toast.fire({
-                icon: "error",
-                title: "Data berhasil dihapus"
-            });
-    JS);
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "error",
+                    title: "Data berhasil dihapus"
+                });
+        JS);
     }
 
     public function printTai($id)
     {
-        $data = new LaporanBelanja;
+        $data = new LaporanBelanjaKkpd;
         $this->pathWord = $data->getKwitansiDinasPaths($id)['word_path'];
         $this->pathpdf = $data->getKwitansiDinasPaths($id)['pdf_path'];
         $this->js(<<<'JS'
-            $('#viewBelanja').modal("show")
-        JS);
+                $('#viewBelanja').modal("show")
+            JS);
     }
     public function downloadTai($id)
     {
-        $data = new LaporanBelanja;
+        $data = new LaporanBelanjaKkpd;
 
         return $data->downloadKwitansiDinas($id);
     }

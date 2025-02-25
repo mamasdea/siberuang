@@ -1,4 +1,0 @@
-<div>
-    laporan
-
-</div>

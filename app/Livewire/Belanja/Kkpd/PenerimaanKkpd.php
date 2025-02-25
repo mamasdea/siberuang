@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Livewire\Belanja;
+namespace App\Livewire\Belanja\Kkpd;
+
 
 use App\Models\Belanja;
+use App\Models\BelanjaKkpd;
 use Livewire\Component;
 use App\Models\Penerima;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
-use App\Models\Penerimaan as ModelsPenerimaan;
+use App\Models\PenerimaanKkpd as ModelsPenerimaanKkpd;
 
-#[Title('Penerimaan')]
-class Penerimaan extends Component
+#[Title('Penerimaan KKPD')]
+class PenerimaanKkpd extends Component
 {
     use WithPagination;
 
@@ -32,7 +34,7 @@ class Penerimaan extends Component
     public function mount($belanjaId = null)
     {
         $this->belanja_id = $belanjaId ?: 'default_value';
-        $belanja = Belanja::find($this->belanja_id);
+        $belanja = BelanjaKkpd::find($this->belanja_id);
         $this->no_bukti = $belanja->no_bukti;
         $this->uraian = $belanja->uraian;
         $this->nilai = $belanja->nilai;
@@ -40,10 +42,10 @@ class Penerimaan extends Component
 
     public function render()
     {
-        return view('livewire.belanja.penerimaan', [
-            'penerimaans' => ModelsPenerimaan::with('belanja', 'penerima')->where('belanja_id', $this->belanja_id)
+        return view('livewire.belanja.kkpd.penerimaan-kkpd', [
+            'penerimaans' => ModelsPenerimaanKkpd::with('belanjakkpd', 'penerima')->where('belanja_id', $this->belanja_id)
                 ->paginate(10),
-            'belanjas' => Belanja::all(),
+            'belanjas' => BelanjaKkpd::all(),
             'penerimas' => Penerima::all(),
             'no_bukti' => $this->no_bukti,
             'uraian' => $this->uraian,
@@ -58,8 +60,8 @@ class Penerimaan extends Component
             'penerima_id' => 'nullable|exists:penerimas,id',
             'nominal' => 'required|numeric|min:0',
         ]);
-        $belanja = Belanja::find($validatedData['belanja_id']);
-        $totalPenerimaan = ModelsPenerimaan::where('belanja_id', $validatedData['belanja_id'])->sum('nominal');
+        $belanja = BelanjaKkpd::find($validatedData['belanja_id']);
+        $totalPenerimaan = ModelsPenerimaanKkpd::where('belanja_id', $validatedData['belanja_id'])->sum('nominal');
         if ($totalPenerimaan + $validatedData['nominal'] > $belanja->nilai) {
             $this->js(<<<'JS'
             Swal.fire({
@@ -82,7 +84,7 @@ class Penerimaan extends Component
             $validatedData['penerima_id'] = $this->penerima_id;
         }
 
-        ModelsPenerimaan::create([
+        ModelsPenerimaanKkpd::create([
             'belanja_id' => $validatedData['belanja_id'],
             'penerima_id' => $validatedData['penerima_id'],
             'nominal' => $validatedData['nominal'],
@@ -119,8 +121,8 @@ class Penerimaan extends Component
             'penerima_id' => 'nullable|exists:penerimas,id',
             'nominal' => 'required|numeric|min:0',
         ]);
-        $belanja = Belanja::find($validatedData['belanja_id']);
-        $totalPenerimaan = ModelsPenerimaan::where('belanja_id', $validatedData['belanja_id'])->where('id', '!=', $this->penerimaanId)->sum('nominal');
+        $belanja = BelanjaKkpd::find($validatedData['belanja_id']);
+        $totalPenerimaan = ModelsPenerimaanKkpd::where('belanja_id', $validatedData['belanja_id'])->where('id', '!=', $this->penerimaanId)->sum('nominal');
         if ($totalPenerimaan + $validatedData['nominal'] > $belanja->nilai) {
             $this->js(<<<'JS'
                 Swal.fire({
@@ -142,7 +144,7 @@ class Penerimaan extends Component
         } else {
             $validatedData['penerima_id'] = $this->penerima_id;
         }
-        ModelsPenerimaan::updateOrCreate(
+        ModelsPenerimaanKkpd::updateOrCreate(
             ['id' => $this->penerimaanId],
             [
                 'belanja_id' => $validatedData['belanja_id'],
@@ -176,7 +178,7 @@ class Penerimaan extends Component
 
     public function edit($id)
     {
-        $penerimaan = ModelsPenerimaan::findOrFail($id);
+        $penerimaan = ModelsPenerimaanKkpd::findOrFail($id);
         $this->penerimaanId = $id;
         $this->belanja_id = $penerimaan->belanja_id;
         $this->penerima_id = $penerimaan->penerima_id;
@@ -215,7 +217,7 @@ class Penerimaan extends Component
 
     public function delete()
     {
-        ModelsPenerimaan::destroy($this->penerimaanId);
+        ModelsPenerimaanKkpd::destroy($this->penerimaanId);
         $this->js(<<<'JS'
             const Toast = Swal.mixin({
                 toast: true,

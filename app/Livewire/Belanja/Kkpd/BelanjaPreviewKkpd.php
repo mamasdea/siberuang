@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire\Belanja;
+namespace App\Livewire\Belanja\Kkpd;
 
-use App\Models\Pajak;
-use App\Models\Belanja;
+use App\Models\BelanjaKkpd;
+use App\Models\PajakKkpd;
 use Livewire\Component;
-use App\Models\Penerimaan;
+use App\Models\PenerimaanKkpd;
 
-class BelanjaPreview extends Component
+class BelanjaPreviewKkpd extends Component
 {
     public $belanja;
     public $pajaks = [];
@@ -21,9 +21,9 @@ class BelanjaPreview extends Component
 
     public function loadData($belanjaId)
     {
-        $this->belanja = Belanja::with('rka')->find($belanjaId);
-        $this->pajaks = Pajak::where('belanja_id', $belanjaId)->get();
-        $this->penerimaans = Penerimaan::where('belanja_id', $belanjaId)->with('penerima')->get();
+        $this->belanja = BelanjaKkpd::with('rka')->find($belanjaId);
+        $this->pajaks = PajakKkpd::where('belanja_id', $belanjaId)->get();
+        $this->penerimaans = PenerimaanKkpd::where('belanja_id', $belanjaId)->with('penerima')->get();
 
         // Ambil data RKA, Sub Kegiatan, dan Kegiatan
         $this->rka = $this->belanja->rka;
@@ -34,7 +34,7 @@ class BelanjaPreview extends Component
 
     public function render()
     {
-        return view('livewire.belanja.belanja-preview', [
+        return view('livewire.belanja.kkpd.belanja-preview-kkpd', [
             'belanja' => $this->belanja,
             'pajak' => $this->pajaks,
             'penerimaan' => $this->penerimaans,

@@ -1,31 +1,37 @@
 <?php
 
 use App\Livewire\Dashboard;
+use App\Models\BelanjaKkpd;
 use Illuminate\Http\Request;
 use App\Livewire\TabAnggaran;
-use App\Livewire\Belanja\Pajak;
-use App\Livewire\Belanja\PajakLs;
+use App\Livewire\Belanja\Gu\Pajak;
 use App\Livewire\ProgramHierarchy;
-use App\Livewire\Belanja\BelanjaLs;
-use App\Livewire\Belanja\Penerimaan;
-use App\Livewire\Laporan\LaporanNPD;
+use App\Livewire\Belanja\Ls\PajakLs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use App\Livewire\Laporan\LaporanPage;
 use App\Livewire\Persediaan\UangGiro;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Belanja\Ls\BelanjaLs;
 use App\Livewire\SubKegiatanHierarchy;
+use App\Livewire\Belanja\Gu\Penerimaan;
 use App\Livewire\Master\UserManagement;
-use App\Livewire\Belanja\BelanjaManager;
 use App\Livewire\Laporan\LaporanBelanja;
-use App\Livewire\Laporan\LaporanBkuGiro;
 use App\Livewire\Master\RekeningBelanja;
 use App\Livewire\Laporan\BukuKasUmumGiro;
 use App\Http\Controllers\HelperController;
+use App\Livewire\Laporan\LaporanRealisasi;
 use App\Livewire\Master\PengelolaKeuangan;
 use App\Livewire\Penerima\PenerimaRekanan;
+use App\Livewire\Belanja\Gu\BelanjaManager;
 use App\Http\Controllers\Auth\LoginController;
 use App\Livewire\Anggaran\ProgramKegiatanForm;
+use App\Livewire\Belanja\Kkpd\BelanjaKkpdsManager;
+use App\Livewire\Belanja\Kkpd\PajakKkpd;
+use App\Livewire\Belanja\Kkpd\PenerimaanKkpd;
+use App\Livewire\Laporan\BukuKasUmumKkpd;
+use App\Livewire\Laporan\LaporanBelanjaKkpd;
+use App\Livewire\Persediaan\UangKkpd;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,19 +71,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('show-picture', [HelperController::class, 'showPicture'])->name('helper.show-picture');
     Route::get('dashboard', Dashboard::class);
     Route::get('up-giro', UangGiro::class);
+    Route::get('up-kkpd', UangKkpd::class);
     Route::get('belanja', BelanjaManager::class);
     Route::get('belanja_ls', BelanjaLs::class);
+    Route::get('belanja-kkpd', BelanjaKkpdsManager::class)->name('belanja_kkpd');
     Route::get('hirarki', ProgramHierarchy::class);
     Route::get('sub_hirarki', SubKegiatanHierarchy::class);
     Route::get('laporan-page', LaporanPage::class)->name('laporan.page');
-    Route::get('laporan-bku-giro', LaporanBkuGiro::class)->name('laporan.bku.giro');
     Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
-
-    Route::get('laporan-npd', LaporanNPD::class)->name('laporan-npd');
+    Route::get('laporan-bkukkpd', BukuKasUmumKkpd::class)->name('laporan.bkukkpd');
+    Route::get('/laporan-realisasi', LaporanRealisasi::class)->name('laporan.realisasi');
     Route::get('penerimaan/{belanjaId}', Penerimaan::class)->name('penerimaan');
     Route::get('pajak/{belanjaId}', Pajak::class)->name('pajak');
+    Route::get('penerimaan_kkpd/{belanjaId}', PenerimaanKkpd::class)->name('penerimaan_kkpd');
+    Route::get('pajak_kkpd/{belanjaId}', PajakKkpd::class)->name('pajak_kkpd');
     Route::get('/pajakls/{belanjaLsId}', PajakLs::class)->name('pajakls');
     Route::get('laporanbelanja/{laporanId}', LaporanBelanja::class)->name('laporanbelanja');
+
+    Route::get('laporanbelanja-kkpd/{laporanId}', LaporanBelanjaKkpd::class)->name('laporanbelanja_kkpd');
 });
 
 // Halaman Login (GET)

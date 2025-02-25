@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Belanja;
+namespace App\Livewire\Belanja\Ls;
 
 use Livewire\Component;
 use App\Models\BelanjaLs;
@@ -38,7 +38,7 @@ class PajakLs extends Component
 
     public function render()
     {
-        return view('livewire.belanja.pajak-ls', [
+        return view('livewire.belanja.ls.pajak-ls', [
             'pajaks' => ModelsPajakLs::with('belanjaLs')
                 ->where('belanja_ls_id', $this->belanja_ls_id)
                 ->paginate(10),

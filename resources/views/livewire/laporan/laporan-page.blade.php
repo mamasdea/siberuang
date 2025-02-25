@@ -23,46 +23,34 @@
 
     <!-- Tampilkan detail sub kegiatan yang dipilih -->
     @if ($selectedSubKegiatan)
-
-        <!-- Tombol Download Laporan NPD -->
-        {{-- <button wire:click="exportLaporanNPD" class="btn btn-sm btn-primary mt-3">
-            <i class="fas fa-download"></i> Download Laporan NPD
-        </button> --}}
         <button onclick="printReport()" class="btn btn-sm btn-primary mt-3">
             <i class="fas fa-print"></i> Print Preview
         </button>
-        {{-- <button wire:click="printLaporanNPD" class="btn btn-sm btn-danger mt-3">
-            <i class="fas fa-print"></i> Print PDF
-        </button> --}}
 
         <div class="card p-4 mt-2" id="printArea">
-            <!-- Tampilkan laporan NPD -->
+            <!-- Laporan -->
             <h2 class="mt-4 text-center">NOTA PENCAIRAN DANA (NPD)</h2>
             <table class="program-info-table">
                 <tr>
-                    <td><strong>PROGRAM </strong></td>
-                    <td><strong>: </strong>
-                        {{ $dataArray->kegiatan->program->kode ?? '-' }} -
+                    <td><strong>PROGRAM</strong></td>
+                    <td>: {{ $dataArray->kegiatan->program->kode ?? '-' }} -
                         {{ $dataArray->kegiatan->program->nama ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td><strong>KEGIATAN</strong></td>
-                    <td><strong>: </strong>{{ $dataArray->kegiatan->kode ?? '-' }} -
-                        {{ $dataArray->kegiatan->nama ?? '-' }}</td>
+                    <td>: {{ $dataArray->kegiatan->kode ?? '-' }} - {{ $dataArray->kegiatan->nama ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td><strong>SUB KEGIATAN</strong></td>
-                    <td><strong>: </strong>
-                        {{ $dataArray->kode ?? '-' }} - {{ $dataArray->nama ?? '-' }}</td>
+                    <td>: {{ $dataArray->kode ?? '-' }} - {{ $dataArray->nama ?? '-' }}</td>
                 </tr>
                 <tr>
-                    <td><strong>PPTK / NIP </strong></td>
-                    <td><strong>: </strong> {{ $dataArray->pptk->nama ?? '-' }} / {{ $dataArray->pptk->nip ?? '-' }}
-                    </td>
+                    <td><strong>PPTK / NIP</strong></td>
+                    <td>: {{ $dataArray->pptk->nama ?? '-' }} / {{ $dataArray->pptk->nip ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td><strong>BULAN</strong></td>
-                    <td><strong>: </strong>{{ $bulanList[$selectedBulan] ?? '-' }} {{ date('Y') }}</td>
+                    <td>: {{ $bulanList[$selectedBulan] ?? '-' }} {{ date('Y') }}</td>
                 </tr>
             </table>
 
@@ -74,67 +62,90 @@
                         <th class="equal-width" rowspan="2">ANGGARAN</th>
                         <th class="equal-width" rowspan="2">AKUMULASI PENCAIRAN</th>
                         <th class="equal-width" rowspan="2">PENCAIRAN SAAT INI</th>
-                        <th class="equal-width-detail" colspan="2">RINCIAN SPJ</th>
-                        <!-- Gabungan subkolom GU dan LS -->
+                        <th class="equal-width-detail" colspan="3">RINCIAN SPJ</th> <!-- Tambahan KKPD -->
                         <th class="equal-width" rowspan="2">SISA ANGGARAN</th>
                     </tr>
                     <tr class="text-center">
                         <th class="equal-width">GU</th>
+                        <th class="equal-width">KKPD</th> <!-- Tambahan KKPD -->
                         <th class="equal-width">LS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        // Inisialisasi total untuk setiap kolom
                         $totalAnggaran = 0;
                         $totalLama = 0;
                         $totalBaru = 0;
                         $totalGu = 0;
+                        $totalKkpd = 0; // Tambahan KKPD
                         $totalLs = 0;
                         $totalSisaAnggaran = 0;
                     @endphp
+
                     @foreach ($dataArray->rkas ?? [] as $rka)
+                        @php
+                            $totalAnggaran += $rka->anggaran;
+                            $totalLama += $rka->lama;
+                            $totalBaru += $rka->baru;
+                            $totalGu += $rka->gu_baru ?? 0;
+                            $totalKkpd += $rka->kkpd_baru ?? 0;
+                            $totalLs += $rka->ls_baru ?? 0;
+                            $totalSisaAnggaran += $rka->anggaran - $rka->lama - $rka->baru;
+                        @endphp
+
                         <tr>
                             <td class="text-center"><strong>{{ $rka->kode_belanja }}</strong></td>
                             <td><strong>{{ $rka->nama_belanja }}</strong></td>
                             <td class="text-right"><strong>{{ number_format($rka->anggaran) }}</strong></td>
                             <td class="text-right"><strong>{{ number_format($rka->lama) }}</strong></td>
                             <td class="text-right"><strong>{{ number_format($rka->baru) }}</strong></td>
-                            <td class="text-right">{{ number_format($rka->gu_total ?? 0) }}</td> <!-- Total GU -->
-                            <td class="text-right">{{ number_format($rka->ls_total ?? 0) }}</td> <!-- Total LS -->
+                            <td class="text-right">{{ number_format($rka->gu_total ?? 0) }}</td>
+                            <td class="text-right">{{ number_format($rka->kkpd_total ?? 0) }}</td>
+                            <td class="text-right">{{ number_format($rka->ls_total ?? 0) }}</td>
                             <td class="text-right">
                                 <strong>{{ number_format($rka->anggaran - $rka->lama - $rka->baru) }}</strong>
                             </td>
                         </tr>
 
-                        @php
-                            $totalAnggaran += $rka->anggaran;
-                            $totalLama += $rka->lama;
-                            $totalBaru += $rka->baru;
-                            $totalGu += $rka->gu_total ?? 0;
-                            $totalLs += $rka->ls_total ?? 0;
-                            $totalSisaAnggaran += $rka->anggaran - $rka->lama - $rka->baru;
-                        @endphp
-
                         <!-- Detail transaksi GU -->
                         @foreach ($rka->belanjas ?? [] as $gu)
-                            <tr>
-                                <td></td>
-                                <td colspan="4"> - {{ $gu->uraian }}</td>
-                                <td class="text-right">{{ number_format($gu->nilai) }}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            @if (\Carbon\Carbon::parse($gu->tanggal)->month == $selectedBulan && \Carbon\Carbon::parse($gu->tanggal)->year == $tahun)
+                                <tr>
+                                    <td></td>
+                                    <td colspan="4"> - {{ $gu->uraian }}</td>
+                                    <td class="text-right">{{ number_format($gu->nilai) }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            @endif
+                        @endforeach
+
+                        <!-- Detail transaksi KKPD -->
+                        @foreach ($rka->belanjaKkpds ?? [] as $kkpd)
+                            @if (
+                                \Carbon\Carbon::parse($kkpd->tanggal)->month == $selectedBulan &&
+                                    \Carbon\Carbon::parse($kkpd->tanggal)->year == $tahun)
+                                <tr>
+                                    <td></td>
+                                    <td colspan="4"> - KKPD: {{ $kkpd->uraian }}</td>
+                                    <td></td>
+                                    <td class="text-right">{{ number_format($kkpd->nilai) }}</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            @endif
                         @endforeach
 
                         <!-- Detail transaksi LS -->
-                        @foreach ($rka->belanjaLsDetails as $ls)
+                        @foreach ($rka->belanjaLsDetails ?? [] as $ls)
                             @if (
                                 \Carbon\Carbon::parse($ls->belanjaLs->tanggal)->month == $selectedBulan &&
                                     \Carbon\Carbon::parse($ls->belanjaLs->tanggal)->year == $tahun)
                                 <tr>
                                     <td></td>
                                     <td colspan="4"> - LS: {{ $ls->belanjaLs->uraian }}</td>
+                                    <td></td>
                                     <td></td>
                                     <td class="text-right">{{ number_format($ls->nilai) }}</td>
                                     <td></td>
@@ -143,21 +154,19 @@
                         @endforeach
                     @endforeach
 
-                    <tr>
-                        <td></td>
-                        <td><strong>Jumlah Total</strong></td>
+                    <!-- Total Row -->
+                    <tr class="font-weight-bold bg-light">
+                        <td colspan="2" class="text-center"><strong>JUMLAH TOTAL</strong></td>
                         <td class="text-right"><strong>{{ number_format($totalAnggaran) }}</strong></td>
                         <td class="text-right"><strong>{{ number_format($totalLama) }}</strong></td>
                         <td class="text-right"><strong>{{ number_format($totalBaru) }}</strong></td>
-                        <td class="text-right"><strong>{{ number_format($totalGu) }}</strong></td>
-                        <td class="text-right"><strong>{{ number_format($totalLs) }}</strong></td>
+                        <td class="text-right"><strong>{{ number_format($totalGu, 0, ',', '.') }}</strong></td>
+                        <td class="text-right"><strong>{{ number_format($totalKkpd, 0, ',', '.') }}</strong></td>
+                        <td class="text-right"><strong>{{ number_format($totalLs, 0, ',', '.') }}</strong></td>
                         <td class="text-right"><strong>{{ number_format($totalSisaAnggaran) }}</strong></td>
                     </tr>
                 </tbody>
-
             </table>
-
-
         </div>
     @endif
 </div>

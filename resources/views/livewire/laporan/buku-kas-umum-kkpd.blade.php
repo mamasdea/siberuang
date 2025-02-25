@@ -1,7 +1,7 @@
 <div>
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Laporan Buku Kas Pengeluaran / GU Giro</h3>
+            <h3 class="card-title">Laporan Buku Kas Pengeluaran / GU KKPD</h3>
         </div>
         <div class="card-body">
             <div class="mb-3">
@@ -83,7 +83,7 @@
                                 {{ number_format($totalSaldo = $totalSaldo + ((int) $row->debet ?? 0) - ((int) $row->kredit ?? 0), 0, ',', '.') }}
                             </td>
                         </tr>
-                        @foreach ($row->pajak as $asu)
+                        @foreach ($row->pajakkkpd as $asu)
                             <tr>
                                 <td></td>
                                 <td></td>

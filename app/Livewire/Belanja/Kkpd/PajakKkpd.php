@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Livewire\Belanja;
+namespace App\Livewire\Belanja\Kkpd;
 
 use App\Models\Belanja;
+use App\Models\BelanjaKkpd;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
-use App\Models\Pajak as ModelsPajak;
+use App\Models\PajakKkpd as ModelsPajakKkpd;
 
-#[Title('Pajak GU')]
-class Pajak extends Component
+#[Title('Pajak KKPD')]
+class PajakKkpd extends Component
 {
     use WithPagination;
 
@@ -27,7 +28,7 @@ class Pajak extends Component
     public function mount($belanjaId = null)
     {
         $this->belanja_id = $belanjaId ?: 'default_value';
-        $belanja = Belanja::find($this->belanja_id);
+        $belanja = BelanjaKkpd::find($this->belanja_id);
         $this->no_bukti = $belanja->no_bukti;
         $this->uraian = $belanja->uraian;
         $this->nilai = $belanja->nilai;
@@ -35,10 +36,10 @@ class Pajak extends Component
 
     public function render()
     {
-        return view('livewire.belanja.pajak', [
-            'pajaks' => ModelsPajak::with('belanja')->where('belanja_id', $this->belanja_id)
+        return view('livewire.belanja.kkpd.pajak-kkpd', [
+            'pajaks' => ModelsPajakKkpd::with('belanjakkpd')->where('belanja_id', $this->belanja_id)
                 ->paginate(10),
-            'belanjas' => Belanja::all(),
+            'belanjas' => BelanjaKkpd::all(),
             'no_bukti' => $this->no_bukti,
             'uraian' => $this->uraian,
             'no_bukti' => $this->no_bukti,
@@ -54,7 +55,7 @@ class Pajak extends Component
             'nominal' => 'required|numeric|min:0',
         ]);
 
-        $existingPajak = ModelsPajak::where('belanja_id', $validatedData['belanja_id'])
+        $existingPajak = ModelsPajakKkpd::where('belanja_id', $validatedData['belanja_id'])
             ->where('jenis_pajak', $validatedData['jenis_pajak'])
             ->first();
 
@@ -69,7 +70,7 @@ class Pajak extends Component
         JS);
             return;
         }
-        ModelsPajak::create([
+        ModelsPajakKkpd::create([
             'belanja_id' => $validatedData['belanja_id'],
             'jenis_pajak' => $validatedData['jenis_pajak'],
             'no_billing' => $validatedData['no_billing'],
@@ -108,7 +109,7 @@ class Pajak extends Component
             'nominal' => 'required|numeric|min:0',
         ]);
 
-        $existingPajak = ModelsPajak::where('belanja_id', $validatedData['belanja_id'])
+        $existingPajak = ModelsPajakKkpd::where('belanja_id', $validatedData['belanja_id'])
             ->where('jenis_pajak', $validatedData['jenis_pajak'])
             ->where('id', '!=', $this->pajakId)
             ->first();
@@ -126,7 +127,7 @@ class Pajak extends Component
         }
 
         // Update atau buat data pajak baru jika tidak ada duplikat
-        ModelsPajak::updateOrCreate(
+        ModelsPajakKkpd::updateOrCreate(
             ['id' => $this->pajakId],
             [
                 'belanja_id' => $validatedData['belanja_id'],
@@ -161,7 +162,7 @@ class Pajak extends Component
 
     public function edit($id)
     {
-        $pajak = ModelsPajak::findOrFail($id);
+        $pajak = ModelsPajakKkpd::findOrFail($id);
         $this->pajakId = $id;
         $this->belanja_id = $pajak->belanja_id;
         $this->jenis_pajak = $pajak->jenis_pajak;
@@ -196,7 +197,7 @@ class Pajak extends Component
 
     public function delete()
     {
-        ModelsPajak::destroy($this->pajakId);
+        ModelsPajakKkpd::destroy($this->pajakId);
         $this->js(<<<'JS'
             const Toast = Swal.mixin({
                 toast: true,

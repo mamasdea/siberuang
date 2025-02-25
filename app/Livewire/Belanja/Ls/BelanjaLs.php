@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Belanja;
+namespace App\Livewire\Belanja\Ls;
 
 use App\Models\Rka;
 use Livewire\Component;
@@ -80,7 +80,7 @@ class BelanjaLs extends Component
             ->orderBy('id', 'asc')
             ->paginate($this->paginate);
 
-        return view('livewire.belanja.belanja-ls', [
+        return view('livewire.belanja.ls.belanja-ls', [
             'belanja'   => $belanjas,
             'penerimas' => Penerima::all(),
         ]);
@@ -101,9 +101,10 @@ class BelanjaLs extends Component
         $this->rkas = $rkasData->map(function ($rka) {
             // Total transaksi GU dari tabel belanjas
             $totalGU = \App\Models\Belanja::where('rka_id', $rka->id)->sum('nilai');
+            $totalKkpd = \App\Models\BelanjaKkpd::where('rka_id', $rka->id)->sum('nilai');
             // Total transaksi LS dari tabel belanja_ls_details
             $totalLS = BelanjaLsDetails::where('rka_id', $rka->id)->sum('nilai');
-            $sisa = $rka->anggaran - $totalGU - $totalLS;
+            $sisa = $rka->anggaran - $totalGU - $totalKkpd - $totalLS;
             return [
                 'id'            => $rka->id,
                 'nama_belanja'  => $rka->nama_belanja,

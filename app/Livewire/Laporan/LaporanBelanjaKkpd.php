@@ -8,13 +8,16 @@ use App\Models\Pajak;
 use App\Models\Belanja;
 use Livewire\Component;
 use App\Jobs\ConvertToPdf;
+use App\Models\BelanjaKkpd;
 use Illuminate\Support\Str;
+use App\Models\BelanjaLsDetails;
+use App\Models\PajakKkpd;
 use App\Models\PengelolaKeuangan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpWord\TemplateProcessor;
 
-class LaporanBelanja extends Component
+class LaporanBelanjaKkpd extends Component
 {
     public $laporan_id;
     public $pdfUrl;
@@ -27,7 +30,7 @@ class LaporanBelanja extends Component
     public function kwitansiDinas($laporanId)
     {
         $this->laporan_id = $laporanId ?: 'default_value';
-        $belanja = Belanja::with(['rka.subKegiatan.kegiatan', 'rka.subKegiatan.pptk', 'pajak', 'penerimaan.penerima'])->findOrFail($laporanId);
+        $belanja = BelanjaKkpd::with(['rka.subKegiatan.kegiatan', 'rka.subKegiatan.pptk', 'pajakkkpd', 'penerimaankkpd.penerima'])->findOrFail($laporanId);
 
         $templatePath = public_path('templates/kwitansi_dinas.docx');
 
@@ -36,10 +39,10 @@ class LaporanBelanja extends Component
             abort(404, 'Template tidak ditemukan.');
         }
         $templateProcessor = new TemplateProcessor($templatePath);
-        $ppn = $belanja->pajak->where('jenis_pajak', 'PPN')->sum('nominal');
-        $pph21 = $belanja->pajak->where('jenis_pajak', 'PPh 21')->sum('nominal');
-        $pph22 = $belanja->pajak->where('jenis_pajak', 'PPh 22')->sum('nominal');
-        $pph23 = $belanja->pajak->where('jenis_pajak', 'PPh 23')->sum('nominal');
+        $ppn = $belanja->pajakkkpd->where('jenis_pajak', 'PPN')->sum('nominal');
+        $pph21 = $belanja->pajakkkpd->where('jenis_pajak', 'PPh 21')->sum('nominal');
+        $pph22 = $belanja->pajakkkpd->where('jenis_pajak', 'PPh 22')->sum('nominal');
+        $pph23 = $belanja->pajakkkpd->where('jenis_pajak', 'PPh 23')->sum('nominal');
         $kotor = $belanja->nilai;
         $totalPajak = $ppn + $pph21 + $pph22 + $pph23;
         $totalBersih = $kotor - $totalPajak;
@@ -142,6 +145,8 @@ class LaporanBelanja extends Component
         $sisaSebelumnya = $anggaranAwal - $totalRealisasiSebelumnya;
 
 
+        // Hitung sisa anggaran
+
         $data = [
             'no_bukti' => $belanja->no_bukti,
             'tanggal' => $tanggalIndo,
@@ -177,14 +182,13 @@ class LaporanBelanja extends Component
             'sisa_sesudah' => number_format($sisaRealisasi, 0, ',', '.'),
         ];
 
-
         foreach ($data as $placeholder => $value) {
             $templateProcessor->setValue($placeholder, $value);
         }
 
-        $templateProcessor->cloneRow('no_urut', $belanja->penerimaan->count());
+        $templateProcessor->cloneRow('no_urut', $belanja->penerimaankkpd->count());
 
-        foreach ($belanja->penerimaan as $index => $penerimaan) {
+        foreach ($belanja->penerimaankkpd as $index => $penerimaan) {
             $indexPlusOne = $index + 1;
             $templateProcessor->setValue("no_urut#{$indexPlusOne}", $indexPlusOne);
             $templateProcessor->setValue("nama_penerima#{$indexPlusOne}", $penerimaan->penerima->nama);
@@ -193,7 +197,7 @@ class LaporanBelanja extends Component
             $templateProcessor->setValue("nominal_penerimaan#{$indexPlusOne}", number_format($penerimaan->nominal, 0, ',', '.'));
         }
 
-        $pajaks = Pajak::where('belanja_id', $laporanId)->get();
+        $pajaks = PajakKkpd::where('belanja_id', $laporanId)->get();
         $sortedPajaks = $pajaks->sortBy(function ($pajak) {
             $order = [
                 'PPN' => 1,
@@ -215,14 +219,14 @@ class LaporanBelanja extends Component
 
 
 
-        $jumlahPenerimaan = $belanja->penerimaan->sum('nominal');
-        $jumlahPajak = $belanja->pajak->sum('nominal');
+        $jumlahPenerimaan = $belanja->penerimaankkpd->sum('nominal');
+        $jumlahPajak = $belanja->pajakkkpd->sum('nominal');
         $totalNominal = $jumlahPenerimaan + $jumlahPajak;
         $templateProcessor->setValue('total_nominal', number_format($totalNominal, 0, ',', '.'));
         $totalTerbilang = $this->terbilang($totalNominal) . ' rupiah';
         $templateProcessor->setValue('total_terbilang', ucwords($totalTerbilang));
-        $jumlahPenerimaan = $belanja->penerimaan->sum('nominal');
-        $jumlahPajak = $belanja->pajak->sum('nominal');
+        $jumlahPenerimaan = $belanja->penerimaankkpd->sum('nominal');
+        $jumlahPajak = $belanja->pajakkkpd->sum('nominal');
         $totalNominal = $jumlahPenerimaan + $jumlahPajak;
         $templateProcessor->setValue('total_nominal', number_format($totalNominal, 0, ',', '.'));
 
@@ -301,6 +305,6 @@ class LaporanBelanja extends Component
 
     public function render()
     {
-        return view('livewire.laporan.laporan-belanja');
+        return view('livewire.laporan.laporan-belanja-kkpd');
     }
 }

@@ -1,7 +1,7 @@
 <div>
     <div class="card card-secondary">
         <div class="card-body bg-navy color-palette">
-            <h5 class="card-title">Bukti Pengeluaran / Belanja GU</h5>
+            <h5 class="card-title">Bukti Pengeluaran / Belanja KKPD</h5>
         </div>
         <div class="tab-content mt-2">
             <div class="tab-pane fade show active" id="bukti">
@@ -81,9 +81,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($belanja as $row)
+                                @foreach ($belanjaKkpds as $row)
                                     <tr>
-                                        <td>{{ $loop->index + $belanja->firstItem() }}</td>
+                                        <td>{{ $loop->index + $belanjaKkpds->firstItem() }}</td>
                                         <td>TBP-{{ $row->no_bukti }}</td>
                                         <td>{{ $row->tanggal }}</td>
                                         <td class="text-left">{{ $row->uraian }}</td>
@@ -98,13 +98,13 @@
                                         </td>
 
                                         <td>
-                                            <a href="{{ route('penerimaan', $row->id) }}"
+                                            <a href="{{ route('penerimaan_kkpd', $row->id) }}"
                                                 class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-coins"></i>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{ route('pajak', $row->id) }}"
+                                            <a href="{{ route('pajak_kkpd', $row->id) }}"
                                                 class="btn btn-sm btn-outline-secondary">
                                                 <i class="fas fa-receipt"></i>
                                             </a>
@@ -128,13 +128,11 @@
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <button class="btn btn-warning btn-sm"
-                                                    wire:click="edit({{ $row->id }})" data-toggle="tooltip"
-                                                    title="Edit">
+                                                    wire:click="edit({{ $row->id }})">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </button>
                                                 <button class="btn btn-danger btn-sm"
-                                                    wire:click="delete_confirmation({{ $row->id }})"
-                                                    data-toggle="tooltip" title="Hapus">
+                                                    wire:click="delete_confirmation({{ $row->id }})">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                                 <button wire:click="printTai({{ $row->id }})"
@@ -166,7 +164,7 @@
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-2">
-                        {{ $belanja->links('livewire::bootstrap') }}
+                        {{ $belanjaKkpds->links('livewire::bootstrap') }}
                     </div>
                 </div>
 
@@ -189,8 +187,7 @@
                         aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-
-                    <livewire:belanja.belanja-preview />
+                    <livewire:belanja.kkpd.belanja-preview-kkpd />
                 </div>
             </div>
         </div>

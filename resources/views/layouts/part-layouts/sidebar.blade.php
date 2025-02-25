@@ -25,12 +25,10 @@
             </div>
         </div>
 
-
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                data-accordion="false">
-
+                data-accordion="true">
                 <!-- Dashboard Menu -->
                 <li class="nav-item">
                     <a href="{{ url('dashboard') }}" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
@@ -38,6 +36,7 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
+
                 @if (Auth::user()->role == 'admin')
                     <!-- Anggaran Menu -->
                     <li class="nav-item">
@@ -47,8 +46,9 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('up-giro') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
+                    <!-- Uang Persediaan -->
+                    <li class="nav-item has-treeview {{ request()->is('up-giro', 'up-kkpd') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Uang Persediaan
@@ -56,28 +56,27 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <!-- Submenu GU -->
                             <li class="nav-item">
                                 <a href="{{ url('up-giro') }}"
                                     class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-dollar-sign"></i>
-                                    <p>Giro</p>
+                                    <p>UP/GU</p>
                                 </a>
                             </li>
-                            <!-- Submenu LS -->
                             <li class="nav-item">
-                                <a href="{{ url('up-giro') }}"
-                                    class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
+                                <a href="{{ url('up-kkpd') }}"
+                                    class="nav-link {{ request()->is('up-kkpd') ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-dollar-sign"></i>
-                                    <p>Kredit</p>
+                                    <p>KKPD</p>
                                 </a>
                             </li>
                         </ul>
                     </li>
                 @endif
-                <!-- Belanja Menu dengan Submenu -->
-                <li class="nav-item {{ request()->is('belanja*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ request()->is('belanja*') ? 'active' : '' }}">
+
+                <!-- Belanja Menu -->
+                <li class="nav-item has-treeview {{ request()->is('belanja*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-shopping-cart"></i>
                         <p>
                             Belanja
@@ -85,7 +84,6 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <!-- Submenu GU -->
                         <li class="nav-item">
                             <a href="{{ url('belanja') }}"
                                 class="nav-link {{ request()->is('belanja') ? 'active' : '' }}">
@@ -93,7 +91,13 @@
                                 <p>GU</p>
                             </a>
                         </li>
-                        <!-- Submenu LS -->
+                        <li class="nav-item">
+                            <a href="{{ url('belanja-kkpd') }}"
+                                class="nav-link {{ request()->is('belanja-kkpd') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>KPPD</p>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a href="{{ url('belanja_ls') }}"
                                 class="nav-link {{ request()->is('belanja_ls') ? 'active' : '' }}">
@@ -104,9 +108,9 @@
                     </ul>
                 </li>
 
-                <!-- Laporan Menu dengan Submenu -->
-                <li class="nav-item {{ request()->is('laporan*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ request()->is('laporan*') ? 'active' : '' }}">
+                <!-- Laporan Menu -->
+                <li class="nav-item has-treeview {{ request()->is('laporan*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-file-alt"></i>
                         <p>
                             Laporan
@@ -114,7 +118,6 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <!-- Submenu NPD -->
                         <li class="nav-item">
                             <a href="{{ url('laporan-page') }}"
                                 class="nav-link {{ request()->is('laporan-page') ? 'active' : '' }}">
@@ -122,7 +125,6 @@
                                 <p>NPD</p>
                             </a>
                         </li>
-                        <!-- Submenu BKU -->
                         <li class="nav-item">
                             <a href="{{ url('laporan-bkugiro') }}"
                                 class="nav-link {{ request()->is('laporan-bkugiro') ? 'active' : '' }}">
@@ -130,14 +132,27 @@
                                 <p>BKU GU GIRO</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ url('laporan-bkukkpd') }}"
+                                class="nav-link {{ request()->is('laporan-bkukkpd') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-book"></i>
+                                <p>BKU GU KKPD</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('laporan.realisasi') }}" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>Laporan Realisasi</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
+
                 @if (Auth::user()->role == 'admin')
-                    <!-- Master Menu dengan Submenu -->
+                    <!-- Master Menu -->
                     <li
-                        class="nav-item {{ request()->is('rekening-belanja', 'penerima', 'pengelola-keuangan', 'user-management') ? 'menu-open' : '' }}">
-                        <a href="#"
-                            class="nav-link {{ request()->is('rekening-belanja', 'penerima', 'pengelola-keuangan', 'user-management') ? 'active' : '' }}">
+                        class="nav-item has-treeview {{ request()->is('rekening-belanja', 'penerima', 'pengelola-keuangan', 'user-management') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-cogs"></i>
                             <p>
                                 Master
@@ -145,34 +160,31 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <!-- Submenu Rekening Belanja -->
                             <li class="nav-item">
                                 <a href="{{ url('rekening-belanja') }}"
                                     class="nav-link {{ request()->is('rekening-belanja') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
+                                    <i class="fas fa-receipt nav-icon"></i>
                                     <p>Rekening Belanja</p>
                                 </a>
                             </li>
-                            <!-- Submenu Penerima/Rekanan -->
                             <li class="nav-item">
                                 <a href="{{ url('penerima') }}"
                                     class="nav-link {{ request()->is('penerima') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
+                                    <i class="fas fa-hand-holding-usd nav-icon"></i>
                                     <p>Penerima/Rekanan</p>
                                 </a>
                             </li>
-                            <!-- Submenu Pengelola Keuangan -->
                             <li class="nav-item">
                                 <a href="{{ url('pengelola-keuangan') }}"
                                     class="nav-link {{ request()->is('pengelola-keuangan') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
+                                    <i class="fas fa-user-tie nav-icon"></i>
                                     <p>Pengelola Keuangan</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('user-management') }}"
                                     class="nav-link {{ request()->is('user-management') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
+                                    <i class="fas fa-users-cog nav-icon"></i>
                                     <p>User Management</p>
                                 </a>
                             </li>
