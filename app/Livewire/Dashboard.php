@@ -92,6 +92,7 @@ class Dashboard extends Component
             'labels' => $chartLabels,
             'values' => $chartValues,
         ];
+        // dd($this->chartData);
     }
 
     public function render()

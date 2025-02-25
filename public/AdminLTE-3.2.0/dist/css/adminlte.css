@@ -12700,7 +12700,7 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 
 .nav-sidebar > .nav-item .nav-icon {
   margin-left: .05rem;
-  font-size: 1.2rem;
+  font-size: 1.0rem;
   margin-right: .2rem;
   text-align: center;
   width: 1.6rem;
@@ -12735,7 +12735,7 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 
 .nav-sidebar.nav-child-indent.nav-legacy .nav-treeview .nav-treeview {
   padding-left: 2rem;
-  margin-left: -1rem;
+  margin-left: 1rem;
 }
 
 .text-sm .nav-sidebar.nav-child-indent.nav-legacy .nav-treeview .nav-treeview {

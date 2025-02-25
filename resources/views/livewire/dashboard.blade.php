@@ -73,8 +73,58 @@
         </div>
     </div>
 
-    <div class="mt-8 bg-white p-4 rounded-lg shadow">
-        <h2 class="text-lg font-bold mb-4">Realisasi Anggaran per Bulan</h2>
+    <div class="chart-container" style="position: relative; height: 350px; width: 100%;">
         <canvas id="realisasiChart"></canvas>
     </div>
+
+
 </div>
+
+
+@push('js')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('realisasiChart').getContext('2d');
+            var realisasiChart = new Chart(ctx, {
+                type: 'bar', // Tetap gunakan bar chart
+                data: {
+                    labels: @json($chartData['labels']), // Bulan di sumbu Y
+                    datasets: [{
+                        label: 'Realisasi Anggaran',
+                        data: @json($chartData['values']), // Realisasi di sumbu X
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Balik sumbu: bulan di Y, realisasi di X
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Realisasi Anggaran (Rp)'
+                            },
+                            beginAtZero: true
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Bulan'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+@endpush

@@ -49,7 +49,7 @@
                     <!-- Uang Persediaan -->
                     <li class="nav-item has-treeview {{ request()->is('up-giro', 'up-kkpd') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <i class="fas fa-money-check-alt nav-icon"></i>
                             <p>
                                 Uang Persediaan
                                 <i class="fas fa-angle-left right"></i>
@@ -59,14 +59,14 @@
                             <li class="nav-item">
                                 <a href="{{ url('up-giro') }}"
                                     class="nav-link {{ request()->is('up-giro') ? 'active' : '' }}">
-                                    <i class="nav-icon fas fa-dollar-sign"></i>
+                                    <i class="far fa-dot-circle nav-icon"></i>
                                     <p>UP/GU</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('up-kkpd') }}"
                                     class="nav-link {{ request()->is('up-kkpd') ? 'active' : '' }}">
-                                    <i class="nav-icon fas fa-dollar-sign"></i>
+                                    <i class="far fa-dot-circle nav-icon"></i>
                                     <p>KKPD</p>
                                 </a>
                             </li>
@@ -87,21 +87,21 @@
                         <li class="nav-item">
                             <a href="{{ url('belanja') }}"
                                 class="nav-link {{ request()->is('belanja') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>GU</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('belanja-kkpd') }}"
                                 class="nav-link {{ request()->is('belanja-kkpd') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>KPPD</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('belanja_ls') }}"
                                 class="nav-link {{ request()->is('belanja_ls') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>LS</p>
                             </a>
                         </li>
@@ -121,27 +121,27 @@
                         <li class="nav-item">
                             <a href="{{ url('laporan-page') }}"
                                 class="nav-link {{ request()->is('laporan-page') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-file"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>NPD</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('laporan-bkugiro') }}"
                                 class="nav-link {{ request()->is('laporan-bkugiro') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-book"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>BKU GU GIRO</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('laporan-bkukkpd') }}"
                                 class="nav-link {{ request()->is('laporan-bkukkpd') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-book"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>BKU GU KKPD</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('laporan.realisasi') }}" class="nav-link">
-                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>Laporan Realisasi</p>
                             </a>
                         </li>
@@ -163,28 +163,28 @@
                             <li class="nav-item">
                                 <a href="{{ url('rekening-belanja') }}"
                                     class="nav-link {{ request()->is('rekening-belanja') ? 'active' : '' }}">
-                                    <i class="fas fa-receipt nav-icon"></i>
+                                    <i class="far fa-dot-circle nav-icon"></i>
                                     <p>Rekening Belanja</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('penerima') }}"
                                     class="nav-link {{ request()->is('penerima') ? 'active' : '' }}">
-                                    <i class="fas fa-hand-holding-usd nav-icon"></i>
+                                    <i class="far fa-dot-circle nav-icon"></i>
                                     <p>Penerima/Rekanan</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('pengelola-keuangan') }}"
                                     class="nav-link {{ request()->is('pengelola-keuangan') ? 'active' : '' }}">
-                                    <i class="fas fa-user-tie nav-icon"></i>
+                                    <i class="far fa-dot-circle nav-icon"></i>
                                     <p>Pengelola Keuangan</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('user-management') }}"
                                     class="nav-link {{ request()->is('user-management') ? 'active' : '' }}">
-                                    <i class="fas fa-users-cog nav-icon"></i>
+                                    <i class="far fa-dot-circle nav-icon"></i>
                                     <p>User Management</p>
                                 </a>
                             </li>
