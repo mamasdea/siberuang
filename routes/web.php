@@ -30,6 +30,7 @@ use App\Livewire\Belanja\Kkpd\BelanjaKkpdsManager;
 use App\Livewire\Belanja\Kkpd\PajakKkpd;
 use App\Livewire\Belanja\Kkpd\PenerimaanKkpd;
 use App\Livewire\Laporan\BukuKasUmumKkpd;
+use App\Livewire\Laporan\BukuPajakGiro;
 use App\Livewire\Laporan\LaporanBelanjaKkpd;
 use App\Livewire\Persediaan\UangKkpd;
 
@@ -80,6 +81,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('laporan-page', LaporanPage::class)->name('laporan.page');
     Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
     Route::get('laporan-bkukkpd', BukuKasUmumKkpd::class)->name('laporan.bkukkpd');
+    Route::get('laporan-bukupajakgiro', BukuPajakGiro::class)->name('laporan.bukupajakgiro');
     Route::get('/laporan-realisasi', LaporanRealisasi::class)->name('laporan.realisasi');
     Route::get('penerimaan/{belanjaId}', Penerimaan::class)->name('penerimaan');
     Route::get('pajak/{belanjaId}', Pajak::class)->name('pajak');

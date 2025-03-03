@@ -140,6 +140,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ url('laporan-bukupajakgiro') }}"
+                                class="nav-link {{ request()->is('laporan-bukupajakgiro') ? 'active' : '' }}">
+                                <i class="far fa-dot-circle nav-icon"></i>
+                                <p>BKU PAJAK GIRO</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('laporan.realisasi') }}" class="nav-link">
                                 <i class="far fa-dot-circle nav-icon"></i>
                                 <p>Laporan Realisasi</p>
