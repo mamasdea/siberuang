@@ -49,7 +49,7 @@ class BukuPajakGiro extends Component
                     p.id AS pajak_id,
                     b.tanggal AS tgl_bukti,
                     CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-                    CONCAT('Penerimaan PFK - ', p.jenis_pajak) AS uraian,
+                    CONCAT('Penerimaan PFK - ', p.jenis_pajak, '(' , p.no_billing , ')' ) AS uraian,
                     p.nominal AS pemotongan,
                     NULL AS penyetoran
                 FROM pajaks p
@@ -61,7 +61,7 @@ class BukuPajakGiro extends Component
                     p.id AS pajak_id,
                     b.tanggal AS tgl_bukti,
                     CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-                    CONCAT('Pengeluaran PFK - ', p.jenis_pajak) AS uraian,
+                    CONCAT('Pengeluaran PFK - ', p.jenis_pajak, '(' , p.no_billing , ')' ) AS uraian,
                     NULL AS pemotongan,
                     p.nominal AS penyetoran
                 FROM pajaks p
