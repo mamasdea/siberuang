@@ -178,22 +178,22 @@
             text-align: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 11px;
         }
 
         .table td {
-            font-size: 12px;
+            font-size: 10px;
             /* Memastikan teks tidak keluar dari batas */
         }
 
         /* Penyesuaian lebar kolom */
         .kode-rekening {
-            width: 15%;
+            width: 12%;
             /* Lebar yang lebih proporsional */
         }
 
         .uraian {
-            width: 35%;
+            width: 40%;
             /* Lebar lebih besar untuk uraian */
         }
 
@@ -204,7 +204,7 @@
         }
 
         .equal-width-detail {
-            width: 20%;
+            width: 30%;
             /* Semua kolom equal-width termasuk GU dan LS memiliki lebar yang sama */
         }
     </style>
