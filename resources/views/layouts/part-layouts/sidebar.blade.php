@@ -143,7 +143,7 @@
                             <a href="{{ url('laporan-bukupajakgiro') }}"
                                 class="nav-link {{ request()->is('laporan-bukupajakgiro') ? 'active' : '' }}">
                                 <i class="far fa-dot-circle nav-icon"></i>
-                                <p>BKU PAJAK GIRO</p>
+                                <p>BUKU PAJAK GIRO</p>
                             </a>
                         </li>
                         <li class="nav-item">

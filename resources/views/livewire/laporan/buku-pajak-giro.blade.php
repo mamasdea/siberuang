@@ -54,7 +54,7 @@
                                 // Jika nilai null, diubah menjadi 0
                                 $pemotongan = $item->pemotongan ?? 0;
                                 $penyetoran = $item->penyetoran ?? 0;
-                                $runningSaldo += $penyetoran - $pemotongan;
+                                $runningSaldo += $pemotongan - $penyetoran;
                             @endphp
                             <tr>
                                 <td style="text-align: center;">
