@@ -82,7 +82,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($belanja as $row)
-                                    <tr>
+                                    <tr wire:key="{{ $row->id }}">
                                         <td>{{ $loop->index + $belanja->firstItem() }}</td>
                                         <td>TBP-{{ $row->no_bukti }}</td>
                                         <td>{{ $row->tanggal }}</td>
@@ -113,7 +113,6 @@
                                             <td>
                                                 <input type="checkbox"
                                                     wire:click="toggleField({{ $row->id }}, 'is_transfer')"
-                                                    wire:model.fill="{{ $row->id }}"
                                                     {{ $row->is_transfer ? 'checked' : '' }}>
                                             </td>
                                         @endif
