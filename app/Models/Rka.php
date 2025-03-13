@@ -35,14 +35,14 @@ class Rka extends Model
         return $this->hasMany(BelanjaLs::class, 'rka_id');
     }
 
-    // public function getSisaAnggaranAttribute()
-    // {
-    //     $totalGU = $this->belanjas()->sum('nilai');
-    //     $totalKkpd = $this->belanjaKkpds()->sum('nilai');
-    //     $totalLS = $this->belanjaLsDetails()->sum('nilai');
+    public function getSisaAnggaranAttribute()
+    {
+        $totalGU = $this->belanjas()->sum('nilai');
+        $totalKkpd = $this->belanjaKkpds()->sum('nilai');
+        $totalLS = $this->belanjaLsDetails()->sum('nilai');
 
-    //     return $this->anggaran - $totalGU - $totalKkpd - $totalLS;
-    // }
+        return $this->anggaran - $totalGU - $totalKkpd - $totalLS;
+    }
 
     public function getLamaAttribute()
     {
