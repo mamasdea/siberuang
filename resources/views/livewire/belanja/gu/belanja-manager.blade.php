@@ -113,6 +113,7 @@
                                             <td>
                                                 <input type="checkbox"
                                                     wire:click="toggleField({{ $row->id }}, 'is_transfer')"
+                                                    wire:model.fill="{{ $row->id }}"
                                                     {{ $row->is_transfer ? 'checked' : '' }}>
                                             </td>
                                         @endif
