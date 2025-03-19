@@ -11,16 +11,25 @@ use Carbon\Carbon;
 class BukuPajakGiro extends Component
 {
     public $bulan = '';
+    public $jenis = 'ALL';
     public $laporan = [];
     public $ppnTotal = 0;
     public $pph21Total = 0;
     public $pph22Total = 0;
     public $pph23Total = 0;
-    public $pajakBulanIni = 0; // Jumlah total dari PPN, PPh 21, PPh 22, dan PPh 23
-    public $pajakBulanLalu = 0; // Jumlah pajak bulan lalu (PPN+PPh21,22,23)
+    public $pajakBulanIni = 0;
+    public $pajakBulanLalu = 0;
 
     // Ketika properti 'bulan' diperbarui, ambil data laporan
     public function updatedBulan()
+    {
+        if ($this->bulan) {
+            $this->ambilLaporan();
+        }
+    }
+
+    // Ketika properti 'jenis' diperbarui, juga ambil data laporan
+    public function updatedJenis()
     {
         if ($this->bulan) {
             $this->ambilLaporan();
@@ -31,56 +40,99 @@ class BukuPajakGiro extends Component
     public function ambilLaporan()
     {
         if (!$this->bulan) {
-            $this->laporan = [];
-            $this->ppnTotal = 0;
-            $this->pph21Total = 0;
-            $this->pph22Total = 0;
-            $this->pph23Total = 0;
-            $this->pajakBulanIni = 0;
-            $this->pajakBulanLalu = 0;
+            $this->resetData();
             return;
         }
 
         $tahun = date('Y'); // Ambil tahun dari sesi atau default ke tahun ini
+        $bulan = (int)$this->bulan;
 
-        $this->laporan = DB::select("
-            WITH PajakUtama AS (
-                SELECT
-                    p.id AS pajak_id,
-                    b.tanggal AS tgl_bukti,
-                    CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-                    CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', LEFT(p.no_billing, 15), ')') AS uraian,
-                    p.nominal AS pemotongan,
-                    NULL AS penyetoran
-                FROM pajaks p
-                JOIN belanjas b ON p.belanja_id = b.id
-                WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
-            ),
-            PajakSetor AS (
-                SELECT
-                    p.id AS pajak_id,
-                    b.tanggal AS tgl_bukti,
-                    CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-                    CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , RIGHT(p.no_billing, 15), ')' ) AS uraian,
-                    NULL AS pemotongan,
-                    p.nominal AS penyetoran
-                FROM pajaks p
-                JOIN belanjas b ON p.belanja_id = b.id
-                WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
-            )
-            SELECT * FROM (
-                SELECT * FROM PajakUtama
-                UNION ALL
-                SELECT * FROM PajakSetor
-            ) AS laporan
-            ORDER BY tgl_bukti, no_bukti;
-        ", [$this->bulan, $tahun, $this->bulan, $tahun]);
+        // Ambil data laporan untuk bulan dan jenis pajak yang dipilih
+        if ($this->jenis == 'ALL') {
+            $this->laporan = DB::select("
+    WITH PajakUtama AS (
+        SELECT
+            p.id AS pajak_id,
+            b.tanggal AS tgl_bukti,
+            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+            CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
+            p.nominal AS pemotongan,
+            NULL AS penyetoran
+        FROM pajaks p
+        JOIN belanjas b ON p.belanja_id = b.id
+        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
+    ),
+    PajakSetor AS (
+        SELECT
+            p.id AS pajak_id,
+            b.tanggal AS tgl_bukti,
+            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+            CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(RIGHT(p.no_billing, 15), ''), ')' ) AS uraian,
+            NULL AS pemotongan,
+            p.nominal AS penyetoran
+        FROM pajaks p
+        JOIN belanjas b ON p.belanja_id = b.id
+        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
+    )
+    SELECT * FROM (
+        SELECT * FROM PajakUtama
+        UNION ALL
+        SELECT * FROM PajakSetor
+    ) AS laporan
+    ORDER BY tgl_bukti, no_bukti;
+", [$bulan, $tahun, $bulan, $tahun]);
+        } else {
+            $this->laporan = DB::select("
+    WITH PajakUtama AS (
+        SELECT
+            p.id AS pajak_id,
+            b.tanggal AS tgl_bukti,
+            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+            CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
+            p.nominal AS pemotongan,
+            NULL AS penyetoran
+        FROM pajaks p
+        JOIN belanjas b ON p.belanja_id = b.id
+        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
+    ),
+    PajakSetor AS (
+        SELECT
+            p.id AS pajak_id,
+            b.tanggal AS tgl_bukti,
+            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+            CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(RIGHT(p.no_billing, 15), ''), ')' ) AS uraian,
+            NULL AS pemotongan,
+            p.nominal AS penyetoran
+        FROM pajaks p
+        JOIN belanjas b ON p.belanja_id = b.id
+        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
+    )
+    SELECT * FROM (
+        SELECT * FROM PajakUtama
+        UNION ALL
+        SELECT * FROM PajakSetor
+    ) AS laporan
+    ORDER BY tgl_bukti, no_bukti;
+", [$bulan, $tahun, $this->jenis, $bulan, $tahun, $this->jenis]);
+        }
+        // Hitung total untuk semua jenis pajak
+        $this->hitungTotalPajak($tahun, $bulan);
 
+        // Hitung total untuk jenis pajak saat ini di bulan ini
+        $this->hitungPajakBulanIni($tahun, $bulan);
+
+        // Hitung total untuk jenis pajak saat ini di bulan-bulan sebelumnya
+        $this->hitungPajakBulanLalu($tahun, $bulan);
+    }
+
+    // Fungsi untuk menghitung total semua jenis pajak
+    private function hitungTotalPajak($tahun, $bulan)
+    {
         // Hitung total PPN
         $this->ppnTotal = DB::table('pajaks')
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPN')
-            ->whereMonth('belanjas.tanggal', $this->bulan)
+            ->whereMonth('belanjas.tanggal', $bulan)
             ->whereYear('belanjas.tanggal', $tahun)
             ->sum('pajaks.nominal');
 
@@ -88,7 +140,7 @@ class BukuPajakGiro extends Component
         $this->pph21Total = DB::table('pajaks')
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPh 21')
-            ->whereMonth('belanjas.tanggal', $this->bulan)
+            ->whereMonth('belanjas.tanggal', $bulan)
             ->whereYear('belanjas.tanggal', $tahun)
             ->sum('pajaks.nominal');
 
@@ -96,7 +148,7 @@ class BukuPajakGiro extends Component
         $this->pph22Total = DB::table('pajaks')
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPh 22')
-            ->whereMonth('belanjas.tanggal', $this->bulan)
+            ->whereMonth('belanjas.tanggal', $bulan)
             ->whereYear('belanjas.tanggal', $tahun)
             ->sum('pajaks.nominal');
 
@@ -104,33 +156,63 @@ class BukuPajakGiro extends Component
         $this->pph23Total = DB::table('pajaks')
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPh 23')
-            ->whereMonth('belanjas.tanggal', $this->bulan)
+            ->whereMonth('belanjas.tanggal', $bulan)
             ->whereYear('belanjas.tanggal', $tahun)
             ->sum('pajaks.nominal');
+    }
 
-        // Jumlahkan Pajak Bulan Ini
-        $this->pajakBulanIni = $this->ppnTotal + $this->pph21Total + $this->pph22Total + $this->pph23Total;
+    // Fungsi untuk menghitung total pajak bulan ini sesuai jenis pajak yang dipilih
+    private function hitungPajakBulanIni($tahun, $bulan)
+    {
+        $data = DB::table('pajaks')
+            ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id');
+        if ($this->jenis != 'ALL') {
+            $data->where('pajaks.jenis_pajak', $this->jenis);
+        }
 
-        // Hitung Jumlah Pajak Bulan Lalu
-        // Jika bulan yang dipilih adalah Januari, bulan lalu adalah Desember tahun sebelumnya
-        $selectedMonth = (int)$this->bulan;
-        if ($selectedMonth === 1) {
+        $data->whereMonth('belanjas.tanggal', $bulan)
+            ->whereYear('belanjas.tanggal', $tahun);
+        $this->pajakBulanIni = $data->sum('pajaks.nominal');
+    }
+
+    // Fungsi untuk menghitung total pajak bulan lalu sesuai jenis pajak yang dipilih
+    private function hitungPajakBulanLalu($tahun, $bulan)
+    {
+        if ($bulan === 1) {
             // Jika bulan yang dipilih adalah Januari, ambil data dari bulan Desember tahun sebelumnya
-            $this->pajakBulanLalu = DB::table('pajaks')
-                ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
-                ->whereIn('pajaks.jenis_pajak', ['PPN', 'PPh 21', 'PPh 22', 'PPh 23'])
-                ->whereMonth('belanjas.tanggal', 12)
-                ->whereYear('belanjas.tanggal', $tahun - 1)
-                ->sum('pajaks.nominal');
+            $data = DB::table('pajaks')
+                ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id');
+            if ($this->jenis != 'ALL') {
+                $data->where('pajaks.jenis_pajak', $this->jenis);
+            }
+
+            $data->whereMonth('belanjas.tanggal', 12)
+                ->whereYear('belanjas.tanggal', $tahun - 1);
+            $this->pajakBulanLalu = $data->sum('pajaks.nominal');
         } else {
             // Jika bulan yang dipilih > Januari, ambil data dari bulan Januari sampai bulan sebelum bulan yang dipilih
-            $this->pajakBulanLalu = DB::table('pajaks')
-                ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
-                ->whereIn('pajaks.jenis_pajak', ['PPN', 'PPh 21', 'PPh 22', 'PPh 23'])
-                ->whereMonth('belanjas.tanggal', '<', $selectedMonth)
-                ->whereYear('belanjas.tanggal', $tahun)
-                ->sum('pajaks.nominal');
+            $data = DB::table('pajaks')
+                ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id');
+            if ($this->jenis != 'ALL') {
+                $data->where('pajaks.jenis_pajak', $this->jenis);
+            }
+
+            $data->whereMonth('belanjas.tanggal', '<', $bulan)
+                ->whereYear('belanjas.tanggal', $tahun);
+            $this->pajakBulanLalu = $data->sum('pajaks.nominal');
         }
+    }
+
+    // Reset data ketika tidak ada bulan yang dipilih
+    private function resetData()
+    {
+        $this->laporan = [];
+        $this->ppnTotal = 0;
+        $this->pph21Total = 0;
+        $this->pph22Total = 0;
+        $this->pph23Total = 0;
+        $this->pajakBulanIni = 0;
+        $this->pajakBulanLalu = 0;
     }
 
     public function render()
