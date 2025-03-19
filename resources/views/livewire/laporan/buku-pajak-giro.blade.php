@@ -108,8 +108,7 @@
                                 <td colspan="6" style="text-align: center; text-bold"> Data Tidak Ada</td>
                             </tr>
                         @endif
-                    </tbody>
-                    <tfoot>
+
                         <tr>
                             <td colspan="3" class="text-right"><strong>Total:</strong></td>
                             <td class="text-right">
@@ -120,7 +119,8 @@
                             </td>
                             <td class="text-right">{{ number_format($runningSaldo, 0, ',', '.') }}</td>
                         </tr>
-                    </tfoot>
+                    </tbody>
+
                 </table>
 
                 {{-- Tampilkan jumlah masing-masing pajak dan total Pajak Bulan Ini --}}
