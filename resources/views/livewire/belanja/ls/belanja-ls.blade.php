@@ -93,12 +93,12 @@
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                     <button wire:loading.remove
-                                                        wire:target="printTai({{ $row->id }})"
-                                                        wire:click="printTai({{ $row->id }})"
+                                                        wire:target="printTaiLs({{ $row->id }})"
+                                                        wire:click="printTaiLs({{ $row->id }})"
                                                         class="btn btn-sm btn-secondary" title="Print">
                                                         <i class="fas fa-print"></i>
                                                     </button>
-                                                    <button wire:click="downloadTai({{ $row->id }})"
+                                                    <button wire:click="downloadTaiLs({{ $row->id }})"
                                                         class="btn btn-sm btn-success" title="Download">
                                                         <i class="fas fa-download"></i>
                                                     </button>

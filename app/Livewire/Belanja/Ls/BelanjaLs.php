@@ -10,9 +10,10 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Title;
 use App\Models\BelanjaLsDetails;
 use Illuminate\Support\Facades\DB;
+use App\Livewire\Laporan\LaporanLs;
 use Illuminate\Support\Facades\Storage;
 use App\Models\BelanjaLs as ModelBelanjaLs;
-use App\Models\Belanja; // Model transaksi GU (untuk menghitung total penggunaan)
+
 #[Title('Belanja LS')]
 class BelanjaLs extends Component
 {
@@ -408,5 +409,30 @@ class BelanjaLs extends Component
         $this->js(<<<'JS'
             $('#subkegiatanModal').modal('hide');
         JS);
+    }
+    public function closeModalPdf()
+    {
+        $this->js(<<<'JS'
+        $('#viewBelanja').modal("hide")
+    JS);
+        Storage::disk('local')->delete('public/reports/ls/ls_' . $this->pathWord);
+        Storage::disk('local')->delete('public/reports/ls/ls_' . $this->pathpdf);
+    }
+
+    public function printTaiLs($id)
+    {
+        $data = new LaporanLs;
+        $this->pathWord = $data->getLaporanlsPaths($id)['word_path'];
+        $this->pathpdf = $data->getLaporanlsPaths($id)['pdf_path'];
+        $this->js(<<<'JS'
+                $('#viewBelanja').modal("show")
+            JS);
+    }
+
+    public function downloadTaiLs($id)
+    {
+        $data = new LaporanLs;
+
+        return $data->downloadLaporanLs($id);
     }
 }

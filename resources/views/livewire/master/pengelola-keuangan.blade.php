@@ -114,6 +114,7 @@
                                 <select wire:model="jabatan" class="form-control form-control-sm" id="jabatan">
                                     <option value="">Pilih</option>
                                     <option value="PENGGUNA ANGGARAN">PENGGUNA ANGGARAN</option>
+                                    <option value="PPK-SKPD">PPK-SKPD</option>
                                     <option value="BENDAHARA PENGELUARAN">BENDAHARA PENGELUARAN</option>
                                     <option value="PPTK">PPTK</option>
                                     <option value="PENGURUS BARANG">PENGURUS BARANG</option>

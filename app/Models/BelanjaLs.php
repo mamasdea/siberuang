@@ -15,9 +15,12 @@ class BelanjaLs extends Model
         'total_nilai',
     ];
 
-    /**
-     * Relasi dengan tabel detail transaksi LS.
-     */
+
+    public function rka()
+    {
+        return $this->belongsTo(Rka::class);
+    }
+
     public function details()
     {
         return $this->hasMany(BelanjaLsDetails::class);
