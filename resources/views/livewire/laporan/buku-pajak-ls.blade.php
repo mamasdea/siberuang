@@ -42,7 +42,7 @@
             {{-- Header Laporan --}}
             <div id="print-area">
                 <h2 class="text-center">PEMERINTAH KABUPATEN WONOSOBO</h2>
-                <h3 class="text-center">BUKU PEMBANTU PAJAK (GU)</h3>
+                <h3 class="text-center">BUKU PEMBANTU PAJAK (LS)</h3>
                 {{-- <h4 class="text-center">Bendahara Pengeluaran</h4> --}}
                 @if ($jenis === 'PPN')
                     <h4 class="text-center">Per Jenis Pajak : PPN</h4>

@@ -118,6 +118,7 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
+                        <!-- NPD -->
                         <li class="nav-item">
                             <a href="{{ url('laporan-page') }}"
                                 class="nav-link {{ request()->is('laporan-page') ? 'active' : '' }}">
@@ -125,35 +126,82 @@
                                 <p>NPD</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ url('laporan-bkugiro') }}"
-                                class="nav-link {{ request()->is('laporan-bkugiro') ? 'active' : '' }}">
+
+                        <!-- Group BKU -->
+                        <li
+                            class="nav-item has-treeview {{ request()->is('laporan-bkugiro', 'laporan-bkukkpd') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-dot-circle nav-icon"></i>
-                                <p>BKU GU GIRO</p>
+                                <p>
+                                    BKU
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-bkugiro') }}"
+                                        class="nav-link {{ request()->is('laporan-bkugiro') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>BKU GU GIRO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-bkukkpd') }}"
+                                        class="nav-link {{ request()->is('laporan-bkukkpd') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>BKU GU KKPD</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ url('laporan-bkukkpd') }}"
-                                class="nav-link {{ request()->is('laporan-bkukkpd') ? 'active' : '' }}">
+
+                        <!-- Group Pajak -->
+                        <li
+                            class="nav-item has-treeview {{ request()->is('laporan-bukupajakgiro', 'laporan-bukupajakkkpd', 'laporan-bukupajakls') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-dot-circle nav-icon"></i>
-                                <p>BKU GU KKPD</p>
+                                <p>
+                                    Pajak
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-bukupajakgiro') }}"
+                                        class="nav-link {{ request()->is('laporan-bukupajakgiro') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>BUKU PAJAK GIRO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-bukupajakkkpd') }}"
+                                        class="nav-link {{ request()->is('laporan-bukupajakkkpd') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>BUKU PAJAK KKPD</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-bukupajakls') }}"
+                                        class="nav-link {{ request()->is('laporan-bukupajakls') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>BUKU PAJAK LS</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+
+                        <!-- Realisasi -->
                         <li class="nav-item">
-                            <a href="{{ url('laporan-bukupajakgiro') }}"
-                                class="nav-link {{ request()->is('laporan-bukupajakgiro') ? 'active' : '' }}">
-                                <i class="far fa-dot-circle nav-icon"></i>
-                                <p>BUKU PAJAK GIRO</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('laporan.realisasi') }}" class="nav-link">
+                            <a href="{{ route('laporan.realisasi') }}"
+                                class="nav-link {{ request()->is('laporan-realisasi') ? 'active' : '' }}">
                                 <i class="far fa-dot-circle nav-icon"></i>
                                 <p>Laporan Realisasi</p>
                             </a>
                         </li>
+
                     </ul>
                 </li>
+
 
                 @if (Auth::user()->role == 'admin')
                     <!-- Master Menu -->
