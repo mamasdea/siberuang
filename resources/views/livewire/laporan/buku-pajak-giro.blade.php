@@ -148,19 +148,19 @@
                             @endif
                             @if ($jenis === 'ALL' || $jenis === 'PPh 21')
                                 <tr>
-                                    <td style="padding-left: 20px;">- PPh 21</td>
+                                    <td style="padding-left: 20px;">- Pajak PPh 21</td>
                                     <td class="text-right">{{ number_format($pph21Total, 0, ',', '.') }}</td>
                                 </tr>
                             @endif
                             @if ($jenis === 'ALL' || $jenis === 'PPh 22')
                                 <tr>
-                                    <td style="padding-left: 20px;">- PPh 22</td>
+                                    <td style="padding-left: 20px;">- Pajak PPh 22</td>
                                     <td class="text-right">{{ number_format($pph22Total, 0, ',', '.') }}</td>
                                 </tr>
                             @endif
                             @if ($jenis === 'ALL' || $jenis === 'PPh 23')
                                 <tr>
-                                    <td style="padding-left: 20px;">- PPh 23</td>
+                                    <td style="padding-left: 20px;">- Pajak PPh 23</td>
                                     <td class="text-right">{{ number_format($pph23Total, 0, ',', '.') }}</td>
                                 </tr>
                             @endif

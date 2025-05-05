@@ -1,22 +1,24 @@
 <div>
-    <!-- Form untuk memilih bulan -->
-    <div class="form-group mt-3">
-        <label for="bulan">Pilih Bulan</label>
-        <select id="bulan" wire:model.live="selectedBulan" class="form-control">
-            <option value="">-- Pilih Bulan --</option>
-            @foreach ($bulanList as $key => $bulan)
-                <option value="{{ $key }}">{{ $bulan }}</option>
-            @endforeach
-        </select>
+    <div class="card p-4">
+        <!-- Form untuk memilih bulan -->
+        <div class="form-group mt-3">
+            <label for="bulan">Pilih Bulan</label>
+            <select id="bulan" wire:model.live="selectedBulan" class="form-control">
+                <option value="">-- Pilih Bulan --</option>
+                @foreach ($bulanList as $key => $bulan)
+                    <option value="{{ $key }}">{{ $bulan }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Tombol Cetak Seluruh Laporan -->
+        <button class="btn btn-primary mt-3" onclick="printAll()">
+            <i class="fas fa-print"></i> Cetak Semua Laporan
+        </button>
+
     </div>
-
-    <!-- Tombol Cetak Seluruh Laporan -->
-    <button class="btn btn-primary mt-3" onclick="printAll()">
-        <i class="fas fa-print"></i> Cetak Semua Laporan
-    </button>
-
     <!-- Wrapper untuk semua halaman cetak -->
-    <div id="printArea">
+    <div class="bg-white p-2 mt-3" id="printArea">
         <!-- Loop per Sub Kegiatan -->
         @foreach ($subKegiatans as $index => $subKegiatan)
             <div class="print-page">

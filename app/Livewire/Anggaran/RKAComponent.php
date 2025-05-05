@@ -122,7 +122,7 @@ class RkaComponent extends Component
         $this->perubahan = $rka->perubahan;
         $this->selisih = $rka->selisih;
         $this->anggaran = $rka->anggaran;
-        $this->selectedRekeningBelanja = $rka->kode_belanja . '|' . $rka->nama_belanja;
+        $this->selectedRekeningBelanja = $rka->kode_belanja;
 
         $this->isEditMode = true;
 
@@ -135,12 +135,13 @@ class RkaComponent extends Component
     {
         $this->validate();
 
-        list($kode, $uraian) = explode('|', $this->selectedRekeningBelanja);
+
+        $nama = RekeningBelanja::where('kode', $this->selectedRekeningBelanja)->first();
 
         $rka = Rka::findOrFail($this->rkaId);
         $rka->update([
-            'kode_belanja' => $kode,
-            'nama_belanja' => $uraian,
+            'kode_belanja' => $this->selectedRekeningBelanja,
+            'nama_belanja' => $nama->uraian_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
             'selisih' => $this->perubahan - $this->penetapan,
