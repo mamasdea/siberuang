@@ -123,7 +123,7 @@ class BelanjaLs extends Component
         // $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
 
         $validatedData = $this->validate([
-            'no_bukti'         => 'required|unique:belanja_ls, no_bukti',
+            'no_bukti'         => 'required|unique:belanja_ls,no_bukti',
             'tanggal'         => 'required|date',
             'uraian'          => 'required',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
