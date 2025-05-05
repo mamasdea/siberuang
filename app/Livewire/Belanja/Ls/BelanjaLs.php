@@ -191,6 +191,7 @@ class BelanjaLs extends Component
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            dd($e);
         }
     }
 
