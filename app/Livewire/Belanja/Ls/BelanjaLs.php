@@ -78,7 +78,7 @@ class BelanjaLs extends Component
                 $query->where('uraian', 'like', '%' . $this->search . '%')
                     ->orWhere('no_bukti', 'like', '%' . $this->search . '%');
             })
-            ->orderBy('id', 'asc')
+            ->orderBy('no_bukti', 'asc')
             ->paginate($this->paginate);
 
         return view('livewire.belanja.ls.belanja-ls', [
