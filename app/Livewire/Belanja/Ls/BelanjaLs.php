@@ -118,11 +118,12 @@ class BelanjaLs extends Component
 
     public function store()
     {
-        $lastNoBukti = ModelBelanjaLs::orderBy('no_bukti', 'desc')->first();
-        $newNoBukti = $lastNoBukti ? (int)$lastNoBukti->no_bukti + 1 : 1;
-        $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
+        // $lastNoBukti = ModelBelanjaLs::orderBy('no_bukti', 'desc')->first();
+        // $newNoBukti = $lastNoBukti ? (int)$lastNoBukti->no_bukti + 1 : 1;
+        // $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
 
         $validatedData = $this->validate([
+            'no_bukti'         => 'required|unique:belanja_ls, no_bukti',
             'tanggal'         => 'required|date',
             'uraian'          => 'required',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
@@ -137,7 +138,7 @@ class BelanjaLs extends Component
         DB::beginTransaction();
         try {
             $belanjaLS = ModelBelanjaLs::create([
-                'no_bukti'        => $formattedNoBukti,
+                'no_bukti'        => $this->no_bukti,
                 'tanggal'         => $this->tanggal,
                 'uraian'          => $this->uraian,
                 'total_nilai'     => $this->total_nilai,
@@ -246,7 +247,7 @@ class BelanjaLs extends Component
     public function update()
     {
         $validatedData = $this->validate([
-            'no_bukti'         => 'required',
+            'no_bukti'         => 'required|unique:belanja_ls,no_bukti,except,' . $this->no_bukti,
             'tanggal'          => 'required|date',
             'uraian'           => 'required',
             'sub_kegiatan_id'  => 'required|exists:sub_kegiatans,id',
