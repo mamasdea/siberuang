@@ -70,8 +70,8 @@ class RkaComponent extends Component
     public function updatedPerubahan()
     {
         // Hitung otomatis nilai selisih dan anggaran
-        $this->selisih = $this->perubahan - $this->penetapan;
-        $this->anggaran = $this->perubahan > 0 ? $this->perubahan : $this->penetapan;
+        $this->selisih = isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0;
+        $this->anggaran = isset($this->perubahan) ? $this->perubahan : $this->penetapan;
     }
 
     public function store()
@@ -86,8 +86,8 @@ class RkaComponent extends Component
             'nama_belanja' => $uraian,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
-            'selisih' => $this->perubahan - $this->penetapan,
-            'anggaran' => $this->perubahan > 0 ? $this->perubahan : $this->penetapan,
+            'selisih' => isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0,
+            'anggaran' => $this->perubahan  ? $this->perubahan : $this->penetapan,
         ]);
 
         $this->js(<<<'JS'
@@ -144,8 +144,8 @@ class RkaComponent extends Component
             'nama_belanja' => $nama->uraian_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
-            'selisih' => $this->perubahan - $this->penetapan,
-            'anggaran' => $this->perubahan > 0 ? $this->perubahan : $this->penetapan,
+            'selisih' => isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0,
+            'anggaran' => isset($this->perubahan) ? $this->perubahan : $this->penetapan,
         ]);
 
         $this->js(<<<'JS'
