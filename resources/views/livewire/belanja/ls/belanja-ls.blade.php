@@ -136,7 +136,7 @@
                         wire:click="closeForm">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                </div>git
+                </div>
                 <div class="modal-body">
                     <!-- Form Belanja LS -->
                     <form>
@@ -158,7 +158,15 @@
                                     readonly>
                             </div>
                         </div>
-
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
                         <!-- Tanggal -->
                         <div class="form-group row mb-3">

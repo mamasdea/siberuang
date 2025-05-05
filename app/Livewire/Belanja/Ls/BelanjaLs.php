@@ -87,10 +87,7 @@ class BelanjaLs extends Component
         ]);
     }
 
-    /**
-     * Memuat data RKAS berdasarkan Sub Kegiatan yang dipilih.
-     * Serta menyimpan nilai awal sisa anggaran ke field initial_sisa.
-     */
+
     public function setSubKegiatan($id, $kode, $nama)
     {
         $this->sub_kegiatan_id  = $id;
