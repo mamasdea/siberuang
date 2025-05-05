@@ -247,11 +247,12 @@ class BelanjaLs extends Component
     public function update()
     {
         $validatedData = $this->validate([
-            'no_bukti'         => 'required|min:4|unique:belanja_ls,no_bukti,except,' . $this->no_bukti,
-            'tanggal'          => 'required|date',
-            'uraian'           => 'required',
-            'sub_kegiatan_id'  => 'required|exists:sub_kegiatans,id',
+            'no_bukti' => 'required|min:4|unique:belanja_ls,no_bukti,' . $this->belanja_id,
+            'tanggal' => 'required|date',
+            'uraian' => 'required',
+            'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
         ]);
+
 
         $sumDetails = array_sum(array_column($this->rkas, 'nilai'));
         if ($sumDetails <= 0) {
