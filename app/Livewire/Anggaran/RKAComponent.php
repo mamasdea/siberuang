@@ -78,12 +78,13 @@ class RkaComponent extends Component
     {
         $this->validate();
 
-        list($kode, $uraian) = explode('|', $this->selectedRekeningBelanja);
+        $nama = RekeningBelanja::where('kode', $this->selectedRekeningBelanja)->first();
+
 
         Rka::create([
             'sub_kegiatan_id' => $this->sub_kegiatan_id,
-            'kode_belanja' => $kode,
-            'nama_belanja' => $uraian,
+            'kode_belanja' => $this->selectedRekeningBelanja,
+            'nama_belanja' => $nama->uraian_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
             'selisih' => isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0,
