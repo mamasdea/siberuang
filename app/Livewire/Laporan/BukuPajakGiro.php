@@ -50,70 +50,70 @@ class BukuPajakGiro extends Component
         // Ambil data laporan untuk bulan dan jenis pajak yang dipilih
         if ($this->jenis == 'ALL') {
             $this->laporan = DB::select("
-    WITH PajakUtama AS (
-        SELECT
-            p.id AS pajak_id,
-            b.tanggal AS tgl_bukti,
-            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-            CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
-            p.nominal AS pemotongan,
-            NULL AS penyetoran
-        FROM pajaks p
-        JOIN belanjas b ON p.belanja_id = b.id
-        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
-    ),
-    PajakSetor AS (
-        SELECT
-            p.id AS pajak_id,
-            b.tanggal AS tgl_bukti,
-            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-            CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(RIGHT(p.no_billing, 15), ''), ')' ) AS uraian,
-            NULL AS pemotongan,
-            p.nominal AS penyetoran
-        FROM pajaks p
-        JOIN belanjas b ON p.belanja_id = b.id
-        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
-    )
-    SELECT * FROM (
-        SELECT * FROM PajakUtama
-        UNION ALL
-        SELECT * FROM PajakSetor
-    ) AS laporan
-    ORDER BY tgl_bukti, no_bukti;
-", [$bulan, $tahun, $bulan, $tahun]);
+            WITH PajakUtama AS (
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+                    CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL((p.no_billing), ''), ')') AS uraian,
+                    p.nominal AS pemotongan,
+                    NULL AS penyetoran
+                FROM pajaks p
+                JOIN belanjas b ON p.belanja_id = b.id
+                WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
+            ),
+            PajakSetor AS (
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+                    CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), ''), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), ''), ')' ) AS uraian,
+                    NULL AS pemotongan,
+                    p.nominal AS penyetoran
+                FROM pajaks p
+                JOIN belanjas b ON p.belanja_id = b.id
+                WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ?
+            )
+            SELECT * FROM (
+                SELECT * FROM PajakUtama
+                UNION ALL
+                SELECT * FROM PajakSetor
+            ) AS laporan
+            ORDER BY tgl_bukti, no_bukti;
+        ", [$bulan, $tahun, $bulan, $tahun]);
         } else {
             $this->laporan = DB::select("
-    WITH PajakUtama AS (
-        SELECT
-            p.id AS pajak_id,
-            b.tanggal AS tgl_bukti,
-            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-            CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
-            p.nominal AS pemotongan,
-            NULL AS penyetoran
-        FROM pajaks p
-        JOIN belanjas b ON p.belanja_id = b.id
-        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
-    ),
-    PajakSetor AS (
-        SELECT
-            p.id AS pajak_id,
-            b.tanggal AS tgl_bukti,
-            CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-            CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(RIGHT(p.no_billing, 15), ''), ')' ) AS uraian,
-            NULL AS pemotongan,
-            p.nominal AS penyetoran
-        FROM pajaks p
-        JOIN belanjas b ON p.belanja_id = b.id
-        WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
-    )
-    SELECT * FROM (
-        SELECT * FROM PajakUtama
-        UNION ALL
-        SELECT * FROM PajakSetor
-    ) AS laporan
-    ORDER BY tgl_bukti, no_bukti;
-", [$bulan, $tahun, $this->jenis, $bulan, $tahun, $this->jenis]);
+            WITH PajakUtama AS (
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+                    CONCAT('Penerimaan PFK - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL((p.no_billing), ''), ')') AS uraian,
+                    p.nominal AS pemotongan,
+                    NULL AS penyetoran
+                FROM pajaks p
+                JOIN belanjas b ON p.belanja_id = b.id
+                WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
+            ),
+            PajakSetor AS (
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('TBP - ', b.no_bukti) AS no_bukti,
+                     CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), ''), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), ''), ')' ) AS uraian,
+                    NULL AS pemotongan,
+                    p.nominal AS penyetoran
+                FROM pajaks p
+                JOIN belanjas b ON p.belanja_id = b.id
+                WHERE MONTH(b.tanggal) = ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
+            )
+            SELECT * FROM (
+                SELECT * FROM PajakUtama
+                UNION ALL
+                SELECT * FROM PajakSetor
+            ) AS laporan
+            ORDER BY tgl_bukti, no_bukti;
+        ", [$bulan, $tahun, $this->jenis, $bulan, $tahun, $this->jenis]);
         }
         // Hitung total untuk semua jenis pajak
         $this->hitungTotalPajak($tahun, $bulan);

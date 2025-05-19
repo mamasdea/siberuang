@@ -13,7 +13,7 @@ class Pajak extends Component
 {
     use WithPagination;
 
-    public $belanja_id, $jenis_pajak, $no_billing, $nominal, $pajakId;
+    public $belanja_id, $jenis_pajak, $no_billing, $ntpn, $ntb, $nominal, $pajakId;
     public $updateMode = false;
 
     public $belanja;
@@ -51,6 +51,8 @@ class Pajak extends Component
             'belanja_id' => 'required|exists:belanjas,id',
             'jenis_pajak' => 'required|string',
             'no_billing' => 'required|string',
+            'ntpn' => 'required|string',
+            'ntb' => 'required|string',
             'nominal' => 'required|numeric|min:0',
         ]);
 
@@ -73,6 +75,8 @@ class Pajak extends Component
             'belanja_id' => $validatedData['belanja_id'],
             'jenis_pajak' => $validatedData['jenis_pajak'],
             'no_billing' => $validatedData['no_billing'],
+            'ntpn' => $validatedData['ntpn'],
+            'ntb' => $validatedData['ntb'],
             'nominal' => $validatedData['nominal'],
         ]);
         $this->js(<<<'JS'
@@ -105,6 +109,8 @@ class Pajak extends Component
             'belanja_id' => 'required|exists:belanjas,id',
             'jenis_pajak' => 'required|string',
             'no_billing' => 'required|string',
+            'ntpn' => 'required|string',
+            'ntb' => 'required|string',
             'nominal' => 'required|numeric|min:0',
         ]);
 
@@ -132,6 +138,8 @@ class Pajak extends Component
                 'belanja_id' => $validatedData['belanja_id'],
                 'jenis_pajak' => $validatedData['jenis_pajak'],
                 'no_billing' => $validatedData['no_billing'],
+                'ntpn' => $validatedData['ntpn'],
+                'ntb' => $validatedData['ntb'],
                 'nominal' => $validatedData['nominal'],
             ]
         );
@@ -166,6 +174,8 @@ class Pajak extends Component
         $this->belanja_id = $pajak->belanja_id;
         $this->jenis_pajak = $pajak->jenis_pajak;
         $this->no_billing = $pajak->no_billing;
+        $this->ntpn = $pajak->ntpn;
+        $this->ntb = $pajak->ntb;
         $this->nominal = $pajak->nominal;
 
         $this->updateMode = true;
@@ -226,6 +236,8 @@ class Pajak extends Component
     {
         $this->jenis_pajak = '';
         $this->no_billing = '';
+        $this->ntpn = '';
+        $this->ntb = '';
         $this->nominal = '';
         $this->pajakId = null;
         $this->updateMode = false;
