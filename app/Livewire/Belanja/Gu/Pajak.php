@@ -51,8 +51,8 @@ class Pajak extends Component
             'belanja_id' => 'required|exists:belanjas,id',
             'jenis_pajak' => 'required|string',
             'no_billing' => 'required|string',
-            'ntpn' => 'required|string',
-            'ntb' => 'required|string',
+            'ntpn' => 'nullable|string',
+            'ntb' => 'nullable|string',
             'nominal' => 'required|numeric|min:0',
         ]);
 
@@ -109,8 +109,8 @@ class Pajak extends Component
             'belanja_id' => 'required|exists:belanjas,id',
             'jenis_pajak' => 'required|string',
             'no_billing' => 'required|string',
-            'ntpn' => 'required|string',
-            'ntb' => 'required|string',
+            'ntpn' => 'nullable|string',
+            'ntb' => 'nullable|string',
             'nominal' => 'required|numeric|min:0',
         ]);
 
