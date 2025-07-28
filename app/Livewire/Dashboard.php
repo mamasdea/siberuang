@@ -50,9 +50,20 @@ class Dashboard extends Component
         })->sum('anggaran');
 
         // Hitung total realisasi anggaran berdasarkan tahun anggaran
-        $this->totalRealisasi = Belanja::whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
+        $totalGu = Belanja::whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
             $query->where('tahun_anggaran', $tahun);
         })->sum('nilai');
+
+        $totalKkpd = BelanjaKkpd::whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
+            $query->where('tahun_anggaran', $tahun);
+        })->sum('nilai');
+
+        $totalLs = BelanjaLsDetails::whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
+            $query->where('tahun_anggaran', $tahun);
+        })->sum('nilai'); // ambil dari detail, bukan belanja_ls
+
+        $this->totalRealisasi = $totalGu + $totalKkpd + $totalLs;
+
 
         // Hitung persentase realisasi anggaran
         $this->persentaseRealisasi = $this->totalAnggaran > 0
@@ -73,9 +84,10 @@ class Dashboard extends Component
         )->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
             $query->where('tahun_anggaran', $tahun);
         })->groupBy('bulan')->orderBy('bulan')->get();
+
         $datals = BelanjaLsDetails::select(
             DB::raw('MONTH(belanja_ls.tanggal) as bulan'),
-            DB::raw('SUM(belanja_ls.total_nilai) as total')
+            DB::raw('SUM(belanja_ls_details.nilai) as total')
         )
             ->join('belanja_ls', 'belanja_ls_details.belanja_ls_id', '=', 'belanja_ls.id')
             ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
@@ -85,7 +97,7 @@ class Dashboard extends Component
             ->orderBy('bulan')
             ->get();
 
-        // Gabungkan semua data ke dalam chartData
+
         $bulanIndo = [
             1 => "Januari",
             2 => "Februari",
@@ -117,6 +129,7 @@ class Dashboard extends Component
             'labels' => $chartLabels,
             'values' => $chartValues,
         ];
+
         // dd($this->chartData);
     }
 
