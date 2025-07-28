@@ -7,8 +7,11 @@ use App\Models\Belanja;
 use App\Models\Program;
 use Livewire\Component;
 use App\Models\Kegiatan;
+use App\Models\BelanjaLs;
+use App\Models\BelanjaKkpd;
 use App\Models\SubKegiatan;
 use Livewire\Attributes\Title;
+use App\Models\BelanjaLsDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -57,14 +60,32 @@ class Dashboard extends Component
             : 0;
 
         // Ambil data realisasi anggaran per bulan berdasarkan tahun anggaran
-        $data = Belanja::select(
+        $datagu = Belanja::select(
             DB::raw('MONTH(tanggal) as bulan'),
             DB::raw('SUM(nilai) as total')
         )->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
             $query->where('tahun_anggaran', $tahun);
         })->groupBy('bulan')->orderBy('bulan')->get();
 
-        // Konversi bulan ke nama bulan (Bahasa Indonesia)
+        $datakppd = BelanjaKkpd::select(
+            DB::raw('MONTH(tanggal) as bulan'),
+            DB::raw('SUM(nilai) as total')
+        )->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
+            $query->where('tahun_anggaran', $tahun);
+        })->groupBy('bulan')->orderBy('bulan')->get();
+        $datals = BelanjaLsDetails::select(
+            DB::raw('MONTH(belanja_ls.tanggal) as bulan'),
+            DB::raw('SUM(belanja_ls.total_nilai) as total')
+        )
+            ->join('belanja_ls', 'belanja_ls_details.belanja_ls_id', '=', 'belanja_ls.id')
+            ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
+                $query->where('tahun_anggaran', $tahun);
+            })
+            ->groupBy('bulan')
+            ->orderBy('bulan')
+            ->get();
+
+        // Gabungkan semua data ke dalam chartData
         $bulanIndo = [
             1 => "Januari",
             2 => "Februari",
@@ -80,12 +101,16 @@ class Dashboard extends Component
             12 => "Desember"
         ];
 
-        // Pastikan semua bulan muncul di chart meskipun realisasi 0
         $chartLabels = [];
         $chartValues = [];
+
         foreach ($bulanIndo as $num => $name) {
+            $totalGU = $datagu->firstWhere('bulan', $num)?->total ?? 0;
+            $totalKKPD = $datakppd->firstWhere('bulan', $num)?->total ?? 0;
+            $totalLS = $datals->firstWhere('bulan', $num)?->total ?? 0;
+
             $chartLabels[] = $name;
-            $chartValues[] = $data->where('bulan', $num)->first()->total ?? 0;
+            $chartValues[] = $totalGU + $totalKKPD + $totalLS;
         }
 
         $this->chartData = [
