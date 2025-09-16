@@ -25,7 +25,7 @@
             </div>
 
             <div class="card-body table-responsive">
-                <table class="table table-striped table-bordered ">
+                <table class="table table-striped table-bordered">
                     <thead>
                         <tr class="thead-dark text-center">
                             <th width="100">Kode Belanja</th>
@@ -82,13 +82,13 @@
                 </div>
                 <div class="modal-body">
                     <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'store' }}">
-                        <div class="mb-3">
+                        <div class="mb-3" wire:ignore>
                             <label for="rekening_belanja" class="form-label">Kode & Nama Belanja</label>
-                            <select id="rekening_belanja" class="form-control select2"
-                                wire:model="selectedRekeningBelanja">
+                            <select id="rekening_belanja" class="form-control select2" style="width: 100%;">
                                 <option value="">-- Pilih Kode Belanja --</option>
                                 @foreach ($rekeningBelanjaList as $rekening)
-                                    <option value="{{ $rekening->kode }}">
+                                    <option value="{{ $rekening->kode }}"
+                                        {{ $selectedRekeningBelanja == $rekening->kode ? 'selected' : '' }}>
                                         {{ $rekening->kode }} - {{ $rekening->uraian_belanja }}
                                     </option>
                                 @endforeach
@@ -96,11 +96,17 @@
                             @error('selectedRekeningBelanja')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
+
+                            <!-- Debug info (remove in production) -->
+                            @if ($isEditMode)
+                                <small class="text-muted">Selected: {{ $selectedRekeningBelanja }}</small>
+                            @endif
                         </div>
 
                         <div class="mb-3">
                             <label for="penetapan" class="form-label">Penetapan</label>
-                            <input type="text" class="form-control" id="penetapan" wire:model="penetapan">
+                            <input type="number" step="0.01" class="form-control" id="penetapan"
+                                wire:model.live="penetapan" placeholder="0">
                             @error('penetapan')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -108,7 +114,8 @@
 
                         <div class="mb-3">
                             <label for="perubahan" class="form-label">Perubahan</label>
-                            <input type="text" class="form-control" id="perubahan" wire:model="perubahan">
+                            <input type="number" step="0.01" class="form-control" id="perubahan"
+                                wire:model.live="perubahan" placeholder="0">
                             @error('perubahan')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -116,12 +123,14 @@
 
                         <div class="mb-3">
                             <label for="selisih" class="form-label">Selisih</label>
-                            <input type="text" class="form-control" id="selisih" wire:model="selisih" readonly>
+                            <input type="number" step="0.01" class="form-control" id="selisih"
+                                wire:model="selisih" readonly>
                         </div>
 
                         <div class="mb-3">
                             <label for="anggaran" class="form-label">Anggaran</label>
-                            <input type="text" class="form-control" id="anggaran" wire:model="anggaran" readonly>
+                            <input type="number" step="0.01" class="form-control" id="anggaran"
+                                wire:model="anggaran" readonly>
                         </div>
 
                         <div class="modal-footer">
@@ -141,33 +150,97 @@
 
 @push('js')
     <script>
-        function initSelect2() {
-            $('.select2').select2({
-                theme: 'bootstrap4',
-                width: '100%'
-            }).on('change', function() {
-                Livewire.emit('updateSelectedRekeningBelanja', $(this).val());
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            initSelect2();
-        });
+            let select2Initialized = false;
+            let isEditMode = false;
+            let editValue = '';
 
-        document.addEventListener('livewire:load', function() {
-            Livewire.hook('message.processed', (message, component) => {
-                initSelect2();
+            function initializeSelect2() {
+                if (!select2Initialized) {
+                    $('#rekening_belanja').select2({
+                        theme: 'bootstrap4',
+                        dropdownParent: $('#rkaModal'),
+                        width: '100%',
+                        placeholder: '-- Pilih Kode Belanja --',
+                        allowClear: true
+                    });
+
+                    // Handle Select2 change event
+                    $('#rekening_belanja').on('change', function(e) {
+                        const selectedValue = $(this).val();
+                        @this.call('updateSelect2Value', selectedValue);
+                    });
+
+                    select2Initialized = true;
+
+                    // If edit mode, set the value
+                    if (isEditMode && editValue) {
+                        setTimeout(function() {
+                            $('#rekening_belanja').val(editValue).trigger('change.select2');
+                            isEditMode = false;
+                            editValue = '';
+                        }, 100);
+                    }
+                }
+            }
+
+            function destroySelect2() {
+                if (select2Initialized) {
+                    $('#rekening_belanja').select2('destroy');
+                    select2Initialized = false;
+                }
+            }
+
+            // Initialize Select2 when modal is shown
+            $('#rkaModal').on('shown.bs.modal', function() {
+                initializeSelect2();
             });
-        });
 
-        $(function() {
-            $('[data-toggle="tooltip"]').tooltip();
-        });
+            // Clean up Select2 when modal is hidden
+            $('#rkaModal').on('hidden.bs.modal', function() {
+                destroySelect2();
+                isEditMode = false;
+                editValue = '';
+            });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var myModal = document.getElementById('rkaModal');
-            myModal.addEventListener('shown.bs.modal', function() {
-                $('#rekening_belanja').select2('open');
+            // Listen for Livewire events
+            window.addEventListener('setSelect2Value', function(e) {
+                editValue = e.detail;
+                isEditMode = true;
+
+                if (select2Initialized) {
+                    setTimeout(function() {
+                        $('#rekening_belanja').val(editValue).trigger('change.select2');
+                        isEditMode = false;
+                        editValue = '';
+                    }, 100);
+                }
+            });
+
+            window.addEventListener('modalClosed', function(e) {
+                setTimeout(function() {
+                    if (select2Initialized) {
+                        $('#rekening_belanja').val('').trigger('change.select2');
+                    }
+                }, 100);
+            });
+
+            window.addEventListener('valuesCalculated', function(e) {
+                // Values are automatically updated via Livewire binding
+                // This event can be used for additional UI updates if needed
+            });
+
+            // Listen to Livewire updates for edit mode
+            document.addEventListener('livewire:updated', function() {
+                // Check if we're in edit mode and modal is visible
+                if ($('#rkaModal').hasClass('show') && @this.isEditMode && @this.selectedRekeningBelanja) {
+                    setTimeout(function() {
+                        if (select2Initialized) {
+                            $('#rekening_belanja').val(@this.selectedRekeningBelanja).trigger(
+                                'change.select2');
+                        }
+                    }, 50);
+                }
             });
         });
     </script>

@@ -30,6 +30,8 @@ class RkaComponent extends Component
         'anggaran' => 'numeric|min:0',
     ];
 
+    protected $listeners = ['select2Updated' => 'updateSelect2Value'];
+
     public function mount($subKegiatanId)
     {
         $this->sub_kegiatan_id = $subKegiatanId;
@@ -67,11 +69,36 @@ class RkaComponent extends Component
         $this->rekeningBelanjaList = RekeningBelanja::all();
     }
 
+    // Method untuk update nilai dari Select2
+    public function updateSelect2Value($value)
+    {
+        $this->selectedRekeningBelanja = $value;
+    }
+
+    public function updatedPenetapan()
+    {
+        $this->calculateValues();
+    }
+
     public function updatedPerubahan()
     {
+        $this->calculateValues();
+    }
+
+    private function calculateValues()
+    {
         // Hitung otomatis nilai selisih dan anggaran
-        $this->selisih = isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0;
-        $this->anggaran = isset($this->perubahan) ? $this->perubahan : $this->penetapan;
+        $penetapan = (float) $this->penetapan;
+        $perubahan = (float) $this->perubahan;
+
+        $this->selisih = $perubahan - $penetapan;
+        $this->anggaran = $perubahan > 0 ? $perubahan : $penetapan;
+
+        // Emit untuk update tampilan
+        $this->dispatch('valuesCalculated', [
+            'selisih' => $this->selisih,
+            'anggaran' => $this->anggaran
+        ]);
     }
 
     public function store()
@@ -80,15 +107,14 @@ class RkaComponent extends Component
 
         $nama = RekeningBelanja::where('kode', $this->selectedRekeningBelanja)->first();
 
-
         Rka::create([
             'sub_kegiatan_id' => $this->sub_kegiatan_id,
             'kode_belanja' => $this->selectedRekeningBelanja,
             'nama_belanja' => $nama->uraian_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
-            'selisih' => isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0,
-            'anggaran' => $this->perubahan  ? $this->perubahan : $this->penetapan,
+            'selisih' => (float) $this->perubahan - (float) $this->penetapan,
+            'anggaran' => $this->perubahan > 0 ? $this->perubahan : $this->penetapan,
         ]);
 
         $this->js(<<<'JS'
@@ -111,6 +137,7 @@ class RkaComponent extends Component
         JS);
 
         $this->resetInput();
+        $this->dispatch('modalClosed');
     }
 
     public function edit($id)
@@ -127,15 +154,36 @@ class RkaComponent extends Component
 
         $this->isEditMode = true;
 
-        $this->js(<<<'JS'
+        $selectedValue = $this->selectedRekeningBelanja;
+
+        $this->js(<<<JS
             $('#rkaModal').modal('show');
+
+            // Multiple attempts to set Select2 value
+            setTimeout(function() {
+                if ($('#rekening_belanja').hasClass('select2-hidden-accessible')) {
+                    $('#rekening_belanja').val('$selectedValue').trigger('change.select2');
+                } else {
+                    // If Select2 not initialized yet, wait for it
+                    var checkSelect2 = setInterval(function() {
+                        if ($('#rekening_belanja').hasClass('select2-hidden-accessible')) {
+                            $('#rekening_belanja').val('$selectedValue').trigger('change.select2');
+                            clearInterval(checkSelect2);
+                        }
+                    }, 100);
+
+                    // Clear interval after 5 seconds to prevent infinite loop
+                    setTimeout(function() {
+                        clearInterval(checkSelect2);
+                    }, 5000);
+                }
+            }, 300);
         JS);
     }
 
     public function update()
     {
         $this->validate();
-
 
         $nama = RekeningBelanja::where('kode', $this->selectedRekeningBelanja)->first();
 
@@ -145,8 +193,8 @@ class RkaComponent extends Component
             'nama_belanja' => $nama->uraian_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
-            'selisih' => isset($this->perubahan) ? ($this->perubahan ?? 0) - $this->penetapan : 0,
-            'anggaran' => isset($this->perubahan) ? $this->perubahan : $this->penetapan,
+            'selisih' => (float) $this->perubahan - (float) $this->penetapan,
+            'anggaran' => $this->perubahan > 0 ? $this->perubahan : $this->penetapan,
         ]);
 
         $this->js(<<<'JS'
@@ -169,6 +217,7 @@ class RkaComponent extends Component
         JS);
 
         $this->resetInput();
+        $this->dispatch('modalClosed');
     }
 
     public function delete_confirmation($id)
@@ -218,6 +267,7 @@ class RkaComponent extends Component
     public function resetAndCloseModal()
     {
         $this->resetInput();
+        $this->dispatch('modalClosed');
         $this->js(<<<'JS'
             $('#rkaModal').modal('hide');
         JS);
