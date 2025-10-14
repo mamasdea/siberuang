@@ -19,28 +19,14 @@
      <script src="{{ asset('AdminLTE-3.2.0/dist/js/adminlte.min.js') }}"></script>
 
      <!-- OPTIONAL SCRIPTS -->
-     <script src="{{ asset('AdminLTE-3.2.0/plugins/chart.js/Chart.min.js') }}"></script>
-     <!-- AdminLTE for demo purposes -->
-     {{-- <script src="{{ asset('AdminLTE-3.2.0/dist/js/demo.js') }}"></script> --}}
+     <script src="{{ asset('AdminLTE-3.2.0/plugins/chart.js/Chart.min.js') }}" defer></script>
+
      <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-     <script src="{{ asset('AdminLTE-3.2.0/dist/js/pages/dashboard3.js') }}"></script>
+     <script src="{{ asset('AdminLTE-3.2.0/dist/js/pages/dashboard3.js') }}" data-navigate></script>
      {{-- @stack('js') --}}
      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
      <!-- Select2 -->
      <script src="{{ asset('AdminLTE-3.2.0/plugins/select2/js/select2.full.min.js') }}"></script>
-
-     {{-- <script>
-         $(function() {
-             //Initialize Select2 Elements
-             $('.select2').select2()
-
-             //Initialize Select2 Elements
-             $('.select2bs4').select2({
-                 theme: 'bootstrap4'
-             })
-
-         })
-     </script> --}}
 
 
      @livewireScripts

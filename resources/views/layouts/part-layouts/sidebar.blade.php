@@ -2,7 +2,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{{ url('dashboard') }}" class="brand-link">
-        <img src="assets/logo/beruang.png" alt="AdminLTE Logo" class="brand-image">
+        <img src="{{ asset('assets/logo/beruang.png') }}" alt="Logo"class="brand-image">
         <span class="brand-text font-weight-light">SiberUANG</span>
     </a>
 
@@ -106,6 +106,13 @@
                             </a>
                         </li>
                     </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url('kontrak') }}" class="nav-link {{ request()->is('kontrak') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-file-invoice"></i>
+                        <p>Kontrak</p>
+                    </a>
                 </li>
 
                 <!-- Laporan Menu -->

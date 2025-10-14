@@ -17,12 +17,14 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Belanja\Ls\BelanjaLs;
 use App\Livewire\SubKegiatanHierarchy;
 use App\Livewire\Belanja\Gu\Penerimaan;
+use App\Livewire\Kontrak\KontrakManage;
 use App\Livewire\Laporan\BukuPajakGiro;
 use App\Livewire\Laporan\BukuPajakKkpd;
 use App\Livewire\Master\UserManagement;
 use App\Livewire\Belanja\Kkpd\PajakKkpd;
 use App\Livewire\Laporan\LaporanBelanja;
 use App\Livewire\Master\RekeningBelanja;
+use App\Livewire\Kontrak\RealisasiManage;
 use App\Livewire\Laporan\BukuKasUmumGiro;
 use App\Livewire\Laporan\BukuKasUmumKkpd;
 use App\Http\Controllers\HelperController;
@@ -35,26 +37,13 @@ use App\Livewire\Belanja\Kkpd\PenerimaanKkpd;
 use App\Http\Controllers\Auth\LoginController;
 use App\Livewire\Anggaran\ProgramKegiatanForm;
 use App\Livewire\Belanja\Kkpd\BelanjaKkpdsManager;
+use App\Http\Controllers\BeritaAcaraHtmlController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::get('/', fn() => view('auth.login'));
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('template', fn() => File::get(public_path() . '/documentation.html'));
 
-Route::get('template', function () {
-    return File::get(public_path() . '/documentation.html');
-});
-
+// Admin only
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('program', ProgramKegiatanForm::class);
     Route::get('pengelola-keuangan', PengelolaKeuangan::class);
@@ -64,7 +53,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('penerima', PenerimaRekanan::class);
 });
 
-// Middleware untuk user dan admin (wajib login)
+// ==== BA HTML PRINT (FIXED) ====
+// HAPUS rute lama /realisasi/{realisasi}/ba/{jenis}, ganti dengan yang di bawah:
+// routes/web.php
+Route::middleware(['auth'])->group(function () {
+    Route::get(
+        '/kontrak/{kontrak}/realisasi/{realisasi}/ba/{jenis}',
+        [\App\Http\Controllers\BeritaAcaraHtmlController::class, 'show']
+    )
+        ->whereNumber('kontrak')
+        ->where('realisasi', '[0-9]+') // izinkan 0 untuk preview
+        ->where('jenis', 'pemeriksaan|serah_terima|pekerjaan|penerimaan|administratif|pembayaran')
+        ->name('realisasi.ba.html');
+});
+
+// Logged-in
 Route::middleware(['auth'])->group(function () {
     Route::get('/set-tahun-anggaran', function (Request $request) {
         session(['tahun_anggaran' => $request->tahun]);
@@ -94,15 +97,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pajakls/{belanjaLsId}', PajakLs::class)->name('pajakls');
     Route::get('laporanbelanja/{laporanId}', LaporanBelanja::class)->name('laporanbelanja');
     Route::get('laporanbelanja-kkpd/{laporanId}', LaporanBelanjaKkpd::class)->name('laporanbelanja_kkpd');
+    Route::get('kontrak', KontrakManage::class)->name('kontrak');
+    Route::get('/kontrak/{kontrak}/realisasi', RealisasiManage::class)->name('kontrak.realisasi');
 });
-
-// Halaman Login (GET)
+Route::middleware(['auth'])
+    ->get('/realisasi/{kontrak}/{realisasi}/ba/semua', [BeritaAcaraHtmlController::class, 'printAll'])
+    ->name('realisasi.ba.all');
+// Auth
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
-
-// Proses Login (POST)
 Route::post('/login', [LoginController::class, 'login']);
-
-// Logout (POST)
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
