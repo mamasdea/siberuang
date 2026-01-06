@@ -1,3 +1,4 @@
+@push('css')
 <style>
     :root {
         --primary-color: #2563eb;
@@ -202,54 +203,73 @@
     }
 
     .btn-action-edit {
-        background: white;
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        padding: 6px 10px;
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        color: var(--warning-color);
+        padding: 8px 12px;
         border-radius: 6px;
         transition: all 0.15s ease;
-        margin: 0 2px;
+        margin: 0 3px;
         font-size: 14px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .btn-action-edit:hover {
-        background: #fffbeb;
+        background: var(--warning-color);
         border-color: var(--warning-color);
-        color: var(--warning-color);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);
     }
 
     .btn-action-delete {
-        background: white;
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        padding: 6px 10px;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: var(--danger-color);
+        padding: 8px 12px;
         border-radius: 6px;
         transition: all 0.15s ease;
-        margin: 0 2px;
+        margin: 0 3px;
         font-size: 14px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .btn-action-delete:hover {
-        background: #fef2f2;
+        background: var(--danger-color);
         border-color: var(--danger-color);
-        color: var(--danger-color);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
     }
 
     .btn-action-next {
-        background: white;
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        padding: 6px 10px;
+        background: #eff6ff;
+        border: 1px solid #93c5fd;
+        color: var(--primary-color);
+        padding: 8px 12px;
         border-radius: 6px;
         transition: all 0.15s ease;
-        margin: 0 2px;
+        margin: 0 3px;
         font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .btn-action-next:hover {
-        background: #eff6ff;
+        background: var(--primary-color);
         border-color: var(--primary-color);
-        color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-group {
+        display: inline-flex;
+        gap: 6px;
+    }
+
+    .btn-group .btn {
+        margin: 0 !important;
     }
 
     .empty-state {
@@ -503,11 +523,174 @@
         .btn-action-edit,
         .btn-action-delete,
         .btn-action-next {
-            padding: 6px 8px;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 13px;
+            margin: 0 2px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
         }
     }
+
+    /* Custom File Upload Styles */
+    .custom-file-upload-area {
+        margin: 20px 0;
+    }
+
+    .file-upload-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        background: var(--light-bg);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 0;
+    }
+
+    .file-upload-label:hover {
+        border-color: var(--primary-color);
+        background: #f0f7ff;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: var(--primary-color);
+        margin-bottom: 16px;
+    }
+
+    .upload-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .upload-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .upload-subtitle {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .btn-browse {
+        display: inline-block;
+        padding: 10px 24px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-browse:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .file-input-hidden {
+        display: none;
+    }
+
+    .selected-file-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        margin-top: 16px;
+    }
+
+    .selected-file-info i.fa-file-excel {
+        font-size: 24px;
+    }
+
+    .selected-file-info .file-name {
+        flex: 1;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .btn-remove-file {
+        background: none;
+        border: none;
+        color: var(--danger-color);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove-file:hover {
+        background: #fee2e2;
+    }
+
+    .file-error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        color: var(--danger-color);
+        font-size: 14px;
+        margin-top: 12px;
+    }
+
+    .btn-modern-primary {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-modern-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-modern-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .file-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        color: var(--primary-color);
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 16px;
+    }
 </style>
+@endpush
 
 <div>
     <div class="modern-card fade-in-up">
@@ -605,7 +788,7 @@
                                     <th width="140">Kode Program</th>
                                     <th>Nama Program</th>
                                     <th width="180">Pagu Program</th>
-                                    <th width="140" class="text-center">Aksi</th>
+                                    <th width="200" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -623,18 +806,18 @@
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
                                                 <button wire:click="edit({{ $program->id }})"
-                                                    class="btn btn-action-edit" data-toggle="tooltip"
-                                                    data-placement="top" title="Edit">
+                                                    class="btn btn-action-edit" title="Edit"
+                                                    type="button">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <button wire:click="delete_confirmation({{ $program->id }})"
-                                                    class="btn btn-action-delete" data-toggle="tooltip"
-                                                    data-placement="top" title="Hapus">
+                                                    class="btn btn-action-delete" title="Hapus"
+                                                    type="button">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                                 <button wire:click="next({{ $program->id }})"
-                                                    class="btn btn-action-next" data-toggle="tooltip"
-                                                    data-placement="top" title="Lihat Kegiatan">
+                                                    class="btn btn-action-next" title="Lihat Kegiatan"
+                                                    type="button">
                                                     <i class="fas fa-arrow-right"></i>
                                                 </button>
                                             </div>
@@ -746,26 +929,54 @@
                 <div class="modal-body">
                     <!-- Step 1: Upload File -->
                     @if (!$fileDetected)
-                        <div class="form-group">
-                            <label for="file"><i class="fas fa-upload"></i> Pilih File Excel</label>
-                            <input type="file" wire:model="file" id="file"
-                                class="form-control @error('file') is-invalid @enderror">
+                        <div class="custom-file-upload-area">
+                            @if (!$fileName)
+                                <label for="file" class="file-upload-label">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">
+                                        <span class="upload-title">Pilih file Excel atau drag & drop disini</span>
+                                        <span class="upload-subtitle">Format: .xlsx, .xls (Maksimal 10MB)</span>
+                                    </div>
+                                    <div class="upload-button-area">
+                                        <span class="btn-browse">Browse File</span>
+                                    </div>
+                                </label>
+                                <input type="file" wire:model="file" id="file" class="file-input-hidden" accept=".xlsx,.xls">
+
+                                <!-- Loading indicator for file upload -->
+                                <div wire:loading wire:target="file" class="file-loading">
+                                    <i class="fas fa-spinner fa-spin"></i> Uploading file...
+                                </div>
+                            @else
+                                <div class="selected-file-info">
+                                    <i class="fas fa-file-excel text-success"></i>
+                                    <span class="file-name">{{ $fileName }} ({{ $fileSize }} MB)</span>
+                                    <button type="button" class="btn-remove-file" wire:click="removeFile">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            @endif
+
                             @error('file')
-                                <span class="text-danger">{{ $message }}</span>
+                                <div class="file-error">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
                             @enderror
-                            <small class="form-text text-muted">
-                                Format yang didukung: .xlsx, .xls
-                            </small>
                         </div>
-                        <button type="button" class="btn btn-primary" wire:click="uploadAndDetect"
-                            wire:loading.attr="disabled">
-                            <span wire:loading.remove wire:target="uploadAndDetect">
-                                <i class="fas fa-search"></i> Upload & Detect Format
-                            </span>
-                            <span wire:loading wire:target="uploadAndDetect">
-                                <i class="fas fa-spinner fa-spin"></i> Memproses...
-                            </span>
-                        </button>
+
+                        <div class="text-right mt-3">
+                            <button type="button" class="btn btn-modern-primary" wire:click="uploadAndDetect"
+                                wire:loading.attr="disabled" @if(!$fileName) disabled @endif>
+                                <span wire:loading.remove wire:target="uploadAndDetect">
+                                    <i class="fas fa-search"></i> Upload & Detect Format
+                                </span>
+                                <span wire:loading wire:target="uploadAndDetect">
+                                    <i class="fas fa-spinner fa-spin"></i> Memproses...
+                                </span>
+                            </button>
+                        </div>
                     @endif
 
                     <!-- Step 2: Show Detection Result & Preview -->
@@ -920,11 +1131,49 @@
                     namaInput.focus();
                 }
             });
+
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Debug: Check if jQuery and Bootstrap loaded
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('Bootstrap loaded:', typeof $.fn.tab !== 'undefined');
         });
-    </script>
-    <script>
-        $(function() {
-            $('[data-toggle="tooltip"]').tooltip()
+
+        // Livewire 3 hook to reinitialize tooltips after updates
+        document.addEventListener('livewire:init', function () {
+            console.log('Livewire initialized successfully');
+
+            Livewire.hook('morph.updated', ({ component, cleanup }) => {
+                // Reinitialize tooltips after Livewire updates
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            // Debug: Listen to all Livewire events
+            Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                console.log('Livewire commit:', component);
+            });
+        });
+
+        // Tab switching function
+        function switchToTab(tabId) {
+            console.log('Switching to tab:', tabId);
+
+            // Remove active class from all tabs
+            $('.nav-link').removeClass('active');
+            $('.tab-pane').removeClass('show active');
+
+            // Add active class to target tab
+            $('a[href="#' + tabId + '"]').addClass('active');
+            $('#' + tabId).addClass('show active');
+
+            console.log('Tab switched successfully');
+        }
+
+        // Listen for custom events from Livewire
+        window.addEventListener('switch-tab', event => {
+            console.log('Custom switch-tab event received:', event.detail.tab);
+            switchToTab(event.detail.tab);
         });
     </script>
 @endpush

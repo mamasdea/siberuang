@@ -33,6 +33,8 @@ class ProgramKegiatanForm extends Component
     public $formatInfo = [];
     public $previewData = [];
     public $uploadedFilePath = null;
+    public $fileName = null;
+    public $fileSize = null;
 
     protected $listeners = ['resetInput'];
 
@@ -57,9 +59,19 @@ class ProgramKegiatanForm extends Component
     public function next($id)
     {
         $this->programId = $id;
+
+        // Dispatch browser event to switch tab
+        $this->dispatch('switch-tab', tab: 'sasaran');
+
+        // Also use JS for backup
         $this->js(<<<'JS'
         setTimeout(function() {
-            $('#kegiatan').trigger("click");
+            console.log('Attempting to switch tab to Kegiatan');
+            if (typeof switchToTab === 'function') {
+                switchToTab('sasaran');
+            } else {
+                $('#kegiatan').trigger("click");
+            }
         }, 100);
     JS);
     }
@@ -323,12 +335,35 @@ class ProgramKegiatanForm extends Component
         $this->formatInfo = [];
         $this->previewData = [];
         $this->file = null;
+        $this->fileName = null;
+        $this->fileSize = null;
 
         // Clean up uploaded file
         if ($this->uploadedFilePath) {
             @unlink(storage_path('app/' . $this->uploadedFilePath));
             $this->uploadedFilePath = null;
         }
+    }
+
+    /**
+     * Handle file update
+     */
+    public function updatedFile()
+    {
+        if ($this->file) {
+            $this->fileName = $this->file->getClientOriginalName();
+            $this->fileSize = round($this->file->getSize() / 1024 / 1024, 2); // Convert to MB
+        }
+    }
+
+    /**
+     * Remove selected file
+     */
+    public function removeFile()
+    {
+        $this->file = null;
+        $this->fileName = null;
+        $this->fileSize = null;
     }
 
     public function render()
