@@ -344,10 +344,32 @@ class ProgramKegiatanForm extends Component
             ->groupBy('a.id', 'a.kode', 'a.nama')
             ->get();
 
+        // Statistics
+        $totalPrograms = DB::table('programs')->where('tahun_anggaran', $tahun)->count();
+        $totalKegiatans = DB::table('kegiatans')
+            ->join('programs', 'programs.id', '=', 'kegiatans.program_id')
+            ->where('programs.tahun_anggaran', $tahun)
+            ->count();
+        $totalSubKegiatans = DB::table('sub_kegiatans')
+            ->join('kegiatans', 'kegiatans.id', '=', 'sub_kegiatans.kegiatan_id')
+            ->join('programs', 'programs.id', '=', 'kegiatans.program_id')
+            ->where('programs.tahun_anggaran', $tahun)
+            ->count();
+        $totalAnggaran = DB::table('rkas')
+            ->join('sub_kegiatans', 'sub_kegiatans.id', '=', 'rkas.sub_kegiatan_id')
+            ->join('kegiatans', 'kegiatans.id', '=', 'sub_kegiatans.kegiatan_id')
+            ->join('programs', 'programs.id', '=', 'kegiatans.program_id')
+            ->where('programs.tahun_anggaran', $tahun)
+            ->sum('rkas.anggaran');
+
         return view('livewire.anggaran.program-kegiatan-form', [
             'programs' => $results,
             'tahun_anggaran' => $tahun,
             'tahun_list' => DB::table('programs')->select('tahun_anggaran')->distinct()->pluck('tahun_anggaran'),
+            'totalPrograms' => $totalPrograms,
+            'totalKegiatans' => $totalKegiatans,
+            'totalSubKegiatans' => $totalSubKegiatans,
+            'totalAnggaran' => $totalAnggaran,
         ]);
     }
 

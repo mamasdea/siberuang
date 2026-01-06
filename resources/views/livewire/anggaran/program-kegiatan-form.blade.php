@@ -1,21 +1,572 @@
-<div>
-    <div class="card">
-        <div class="card-header">
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-dark: #1e40af;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --light-bg: #f8fafc;
+        --border-color: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+    }
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="card-title">Data Rencana Kerja Anggaran Perangkat Daerah</h3>
+    body {
+        background: var(--light-bg);
+        color: var(--text-primary);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .card-header-modern {
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        padding: 32px;
+    }
+
+    .page-title {
+        color: var(--text-primary);
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.025em;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-top: 4px;
+        font-weight: 400;
+    }
+
+    .btn-modern-import {
+        background: var(--primary-color);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-modern-import:hover {
+        background: var(--primary-dark);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+    }
+
+    .modern-tabs {
+        background: transparent;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--border-color);
+        margin: 0;
+    }
+
+    .modern-tabs .nav-link {
+        border: none;
+        border-radius: 0;
+        padding: 16px 24px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 14px;
+        transition: all 0.2s ease;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        margin: 0;
+    }
+
+    .modern-tabs .nav-link:hover {
+        color: var(--primary-color);
+        background: transparent;
+        border-bottom-color: var(--primary-color);
+    }
+
+    .modern-tabs .nav-link.active {
+        color: var(--primary-color);
+        background: transparent;
+        border-bottom-color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .content-card {
+        background: transparent;
+        padding: 32px;
+    }
+
+    .section-header {
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .section-subtitle {
+        color: var(--text-secondary);
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .btn-add-modern {
+        background: var(--primary-color);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-add-modern:hover {
+        background: var(--primary-dark);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+    }
+
+    .modern-table {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+    }
+
+    .modern-table thead {
+        background: #f8fafc;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modern-table thead th {
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 12px 16px;
+        border: none;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .modern-table tbody tr {
+        transition: background 0.15s ease;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modern-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .modern-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .modern-table tbody td {
+        padding: 16px;
+        vertical-align: middle;
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .code-badge {
+        background: #f1f5f9;
+        color: var(--text-primary);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    .amount-badge {
+        background: #f0fdf4;
+        color: #166534;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        border: 1px solid #bbf7d0;
+    }
+
+    .btn-action-edit {
+        background: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+        margin: 0 2px;
+        font-size: 14px;
+    }
+
+    .btn-action-edit:hover {
+        background: #fffbeb;
+        border-color: var(--warning-color);
+        color: var(--warning-color);
+    }
+
+    .btn-action-delete {
+        background: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+        margin: 0 2px;
+        font-size: 14px;
+    }
+
+    .btn-action-delete:hover {
+        background: #fef2f2;
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    .btn-action-next {
+        background: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+        margin: 0 2px;
+        font-size: 14px;
+    }
+
+    .btn-action-next:hover {
+        background: #eff6ff;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+        color: var(--text-secondary);
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        color: #cbd5e1;
+        margin-bottom: 16px;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        margin: 8px 0 16px 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        background: white;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 12px 12px 0 0;
+        padding: 20px 24px;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        font-size: 18px;
+        color: var(--text-primary);
+    }
+
+    .modal-header .close {
+        color: var(--text-secondary);
+        opacity: 1;
+        text-shadow: none;
+        font-size: 24px;
+        padding: 0;
+        margin: 0;
+    }
+
+    .modal-header .close:hover {
+        color: var(--text-primary);
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        padding: 10px 12px;
+        transition: all 0.15s ease;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-secondary {
+        background: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+        background: #f8fafc;
+        border-color: var(--text-secondary);
+        color: var(--text-primary);
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        padding: 0 32px 24px 32px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .stat-icon.blue {
+        background: #eff6ff;
+        color: var(--primary-color);
+    }
+
+    .stat-icon.green {
+        background: #f0fdf4;
+        color: var(--success-color);
+    }
+
+    .stat-icon.purple {
+        background: #faf5ff;
+        color: #9333ea;
+    }
+
+    .stat-icon.orange {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+    .stat-description {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-header-modern {
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 20px;
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+        }
+
+        .stats-container {
+            padding: 0 20px 20px 20px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+        }
+
+        .modern-tabs {
+            padding: 0 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .modern-tabs .nav-link {
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+
+        .content-card {
+            padding: 20px;
+        }
+
+        .btn-action-edit,
+        .btn-action-delete,
+        .btn-action-next {
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div>
+    <div class="modern-card fade-in-up">
+        <div class="card-header-modern">
+            <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div>
-                        <button type="button" class="btn btn-success btn-sm mr-2" data-toggle="modal"
-                            data-target="#importModalProgram">
-                            <i class="fas fa-file-import"></i> Import
-                        </button>
-                    </div>
+                    <h3 class="page-title">Data Rencana Kerja Anggaran</h3>
+                    <p class="page-subtitle mb-0">Kelola Program, Kegiatan, dan Anggaran Perangkat Daerah</p>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-modern-import" data-toggle="modal"
+                        data-target="#importModalProgram">
+                        <i class="fas fa-file-import mr-2"></i>Import
+                    </button>
                 </div>
             </div>
         </div>
-        <!-- Nav tabs -->
-        <ul class="nav nav-pills nav-fill p-4">
+
+        <!-- Statistics Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <div class="stat-label">Total Program</div>
+                <div class="stat-value">{{ $totalPrograms }}</div>
+                <div class="stat-description">Program aktif tahun {{ $tahun_anggaran }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-label">Total Kegiatan</div>
+                <div class="stat-value">{{ $totalKegiatans }}</div>
+                <div class="stat-description">Kegiatan yang terdaftar</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <div class="stat-label">Sub Kegiatan</div>
+                <div class="stat-value">{{ $totalSubKegiatans }}</div>
+                <div class="stat-description">Sub kegiatan yang terdaftar</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="stat-label">Total Anggaran</div>
+                <div class="stat-value">{{ number_format($totalAnggaran / 1000000, 1) }}M</div>
+                <div class="stat-description">Rp {{ number_format($totalAnggaran, 0, ',', '.') }}</div>
+            </div>
+        </div>
+
+        <!-- Modern Nav tabs -->
+        <ul class="nav modern-tabs">
             <li class="nav-item">
                 <a class="nav-link active" href="#dokumen" data-toggle="tab">Program</a>
             </li>
@@ -30,88 +581,101 @@
             </li>
         </ul>
         <!-- Tab content -->
-        <div class="tab-content mt-2">
+        <div class="tab-content">
             <!-- Program Tab -->
-            <div class="tab-pane active" id="dokumen">
-                <!-- Konten untuk Dokumen RKA SKPD -->
-                <div class="card-body">
-                    <div class="card">
-                        <div class="col-md-12">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div>
-                                            <button class="btn btn-outline-primary btn-sm" data-toggle="modal"
-                                                data-target="#programModal"> <i class="fas fa-plus"></i> Tambah Program
-                                                RKA</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="thead-dark">
-                                        <tr class="thead-dark text-center">
-                                            <th width="100">Kode Program</th>
-                                            <th width="300">Nama Program</th>
-                                            <th width="150">Pagu Program</th>
-                                            <th width="100">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($programs as $program)
-                                            <tr>
-                                                <td>{{ $program->kode }}</td>
-                                                <td>{{ $program->nama }}</td>
-                                                <td class="text-right">{{ number_format($program->total, 2, ',', '.') }}
-                                                </td>
-                                                <td class="text-center">
-                                                    <button wire:click="edit({{ $program->id }})"
-                                                        class="btn btn-warning btn-sm" data-toggle="tooltip"
-                                                        data-placement="top" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button wire:click="delete_confirmation({{ $program->id }})"
-                                                        class="btn btn-danger btn-sm" data-toggle="tooltip"
-                                                        data-placement="top" title="Hapus">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                    <button wire:click="next({{ $program->id }})"
-                                                        class="btn btn-primary btn-sm" data-toggle="tooltip"
-                                                        data-placement="top" title="Next">
-                                                        <i class="fas fa-arrow-right"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+            <div class="tab-pane active fade show" id="dokumen">
+                <div class="content-card">
+                    <div class="d-flex justify-content-between align-items-center section-header">
+                        <div>
+                            <h5 class="section-title">Daftar Program</h5>
+                            <p class="section-subtitle mb-0">Kelola semua program kerja anggaran</p>
                         </div>
+                        <div>
+                            <button class="btn btn-add-modern" data-toggle="modal"
+                                data-target="#programModal">
+                                <i class="fas fa-plus mr-2"></i>Tambah Program
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table modern-table">
+                            <thead>
+                                <tr>
+                                    <th width="140">Kode Program</th>
+                                    <th>Nama Program</th>
+                                    <th width="180">Pagu Program</th>
+                                    <th width="140" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($programs as $program)
+                                    <tr>
+                                        <td>
+                                            <span class="code-badge">{{ $program->kode }}</span>
+                                        </td>
+                                        <td style="font-weight: 500;">{{ $program->nama }}</td>
+                                        <td>
+                                            <span class="amount-badge">
+                                                Rp {{ number_format($program->total, 0, ',', '.') }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <button wire:click="edit({{ $program->id }})"
+                                                    class="btn btn-action-edit" data-toggle="tooltip"
+                                                    data-placement="top" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button wire:click="delete_confirmation({{ $program->id }})"
+                                                    class="btn btn-action-delete" data-toggle="tooltip"
+                                                    data-placement="top" title="Hapus">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                                <button wire:click="next({{ $program->id }})"
+                                                    class="btn btn-action-next" data-toggle="tooltip"
+                                                    data-placement="top" title="Lihat Kegiatan">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="empty-state">
+                                                <i class="fas fa-folder-open"></i>
+                                                <p>Belum ada data program</p>
+                                                <button class="btn btn-add-modern btn-sm" data-toggle="modal"
+                                                    data-target="#programModal">
+                                                    <i class="fas fa-plus mr-2"></i>Tambah Program Pertama
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
             <!-- Kegiatan Tab -->
-            <div class="tab-pane" id="sasaran">
-                <!-- Konten untuk Sasaran -->
-                <div class="card-body">
+            <div class="tab-pane fade" id="sasaran">
+                <div class="content-card">
                     <livewire:anggaran.kegiatan-component :program_id="$programId" />
                 </div>
             </div>
 
             <!-- Sub Kegiatan Tab -->
-            <div class="tab-pane" id="subKegiatan">
-                <!-- Konten untuk Sub Kegiatan -->
-                <div class="card-body">
+            <div class="tab-pane fade" id="subKegiatan">
+                <div class="content-card">
                     <livewire:anggaran.sub-kegiatan-component :kegiatan_id="$kegiatanId" />
                 </div>
             </div>
 
             <!-- RKA Tab -->
-            <div class="tab-pane" id="rka">
-                <!-- Konten untuk RKA -->
-                <div class="card-body">
+            <div class="tab-pane fade" id="rka">
+                <div class="content-card">
                     <livewire:anggaran.r-k-a-component :sub_kegiatan_id="$subKegiatanId" />
                 </div>
             </div>
@@ -121,7 +685,7 @@
     <!-- Modal Form -->
     <div wire:ignore.self class="modal fade" id="programModal" tabindex="-1" aria-labelledby="programModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="programModalLabel">
@@ -137,26 +701,28 @@
                         <div class="form-group">
                             <label for="kode">Kode Program</label>
                             <input type="text" class="form-control @error('kode') is-invalid @enderror"
-                                id="kode" wire:model="kode">
+                                id="kode" wire:model="kode" placeholder="Contoh: 2.16.01">
                             @error('kode')
-                                <span class="text-danger">{{ $message }}</span>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="nama">Nama Program</label>
-                            <input type="text" class="form-control @error('nama') is-invalid @enderror"
-                                id="nama" wire:model="nama">
+                            <textarea class="form-control @error('nama') is-invalid @enderror"
+                                id="nama" wire:model="nama" rows="3" placeholder="Masukkan nama program..."></textarea>
                             @error('nama')
-                                <span class="text-danger">{{ $message }}</span>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit"
-                            class="btn btn-primary">{{ $isEditMode ? 'Update' : 'Simpan' }}</button>
-                        {{-- <button type="button" wire:click="resetInput" class="btn btn-secondary"
-                            data-dismiss="modal">Batal</button> --}}
-                        <button type="button" wire:click="resetAndCloseModal"
-                            class="btn btn-secondary">Batal</button>
-
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" wire:click="resetAndCloseModal"
+                                class="btn btn-secondary mr-2">
+                                Batal
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                {{ $isEditMode ? 'Update' : 'Simpan' }}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
