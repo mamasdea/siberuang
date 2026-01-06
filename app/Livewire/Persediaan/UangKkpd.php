@@ -5,39 +5,70 @@ namespace App\Livewire\Persediaan;
 use App\Models\UangKkpd as ModelUangKkpd;
 use Livewire\Component;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\DB;
 
 #[Title('Uang KKPD')]
 class UangKkpd extends Component
 {
-    public $uangGiros, $no_bukti, $tanggal, $uraian, $nominal, $uangGiroId;
+    public $uangKkpds, $no_bukti, $tanggal, $uraian, $nominal, $uangKkpdId;
     public $isEditMode = false;
+
+    // ===== Filter Tahun =====
+    public ?int $tahun = null; // null = semua tahun
+    public array $listTahun = [];
 
     protected $rules = [
         'no_bukti' => 'required|string|max:255',
-        'tanggal' => 'required|date',
-        'uraian' => 'required|string|max:255',
-        'nominal' => 'required|numeric|min:0',
+        'tanggal'  => 'required|date',
+        'uraian'   => 'required|string|max:255',
+        'nominal'  => 'required|numeric|min:0',
     ];
 
     public function mount()
     {
-        $this->uangGiros = ModelUangKkpd::orderBy('tanggal', 'desc')->get();
+        // default dari session tahun anggaran, fallback tahun sekarang
+        $this->tahun = (int) session('tahun_anggaran', date('Y'));
+
+        $this->refreshListTahun();
+        $this->loadData();
     }
 
     public function render()
     {
-        $this->uangGiros = ModelUangKkpd::orderBy('tanggal', 'desc')->get();
+        $this->loadData();
         return view('livewire.persediaan.uang-kkpd');
+    }
+
+    protected function refreshListTahun(): void
+    {
+        $this->listTahun = ModelUangKkpd::query()
+            ->selectRaw('YEAR(tanggal) as tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun')
+            ->map(fn($t) => (int) $t)
+            ->toArray();
+    }
+
+    protected function loadData(): void
+    {
+        $this->uangKkpds = ModelUangKkpd::query()
+            ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+            ->orderBy('tanggal', 'desc')
+            ->get();
+    }
+
+    public function updatedTahun()
+    {
+        $this->loadData();
     }
 
     public function resetInput()
     {
         $this->no_bukti = '';
-        $this->tanggal = '';
-        $this->uraian = '';
-        $this->nominal = '';
-        $this->uangGiroId = null;
+        $this->tanggal  = '';
+        $this->uraian   = '';
+        $this->nominal  = '';
+        $this->uangKkpdId = null;
         $this->isEditMode = false;
     }
 
@@ -47,26 +78,32 @@ class UangKkpd extends Component
 
         ModelUangKkpd::create([
             'no_bukti' => $this->no_bukti,
-            'tanggal' => $this->tanggal,
-            'uraian' => $this->uraian,
-            'nominal' => $this->nominal,
+            'tanggal'  => $this->tanggal,
+            'uraian'   => $this->uraian,
+            'nominal'  => $this->nominal,
         ]);
 
+        $this->refreshListTahun();
+        $this->loadData();
+
         $this->resetInput();
+
         $this->js(<<<'JS'
             Swal.fire({ icon: 'success', title: 'Data berhasil disimpan!', timer: 1500, showConfirmButton: false });
-            $('#uangGiroModal').modal('hide');
+            $('#uangKkpdModal').modal('hide');
         JS);
     }
 
     public function edit($id)
     {
-        $uangGiro = ModelUangKkpd::findOrFail($id);
-        $this->no_bukti = $uangGiro->no_bukti;
-        $this->tanggal = $uangGiro->tanggal;
-        $this->uraian = $uangGiro->uraian;
-        $this->nominal = $uangGiro->nominal;
-        $this->uangGiroId = $uangGiro->id;
+        $row = ModelUangKkpd::findOrFail($id);
+
+        $this->no_bukti  = $row->no_bukti;
+        $this->tanggal   = $row->tanggal;
+        $this->uraian    = $row->uraian;
+        $this->nominal   = $row->nominal;
+        $this->uangKkpdId = $row->id;
+
         $this->isEditMode = true;
     }
 
@@ -74,24 +111,29 @@ class UangKkpd extends Component
     {
         $this->validate();
 
-        $uangGiro = ModelUangKkpd::findOrFail($this->uangGiroId);
-        $uangGiro->update([
+        $row = ModelUangKkpd::findOrFail($this->uangKkpdId);
+        $row->update([
             'no_bukti' => $this->no_bukti,
-            'tanggal' => $this->tanggal,
-            'uraian' => $this->uraian,
-            'nominal' => $this->nominal,
+            'tanggal'  => $this->tanggal,
+            'uraian'   => $this->uraian,
+            'nominal'  => $this->nominal,
         ]);
 
+        $this->refreshListTahun();
+        $this->loadData();
+
         $this->resetInput();
+
         $this->js(<<<'JS'
             Swal.fire({ icon: 'success', title: 'Data berhasil diperbarui!', timer: 1500, showConfirmButton: false });
-            $('#uangGiroModal').modal('hide');
+            $('#uangKkpdModal').modal('hide');
         JS);
     }
 
     public function deleteConfirmation($id)
     {
-        $this->uangGiroId = $id;
+        $this->uangKkpdId = $id;
+
         $this->js(<<<'JS'
             Swal.fire({
                 title: 'Apakah Anda yakin?',
@@ -111,7 +153,10 @@ class UangKkpd extends Component
 
     public function delete()
     {
-        ModelUangKkpd::destroy($this->uangGiroId);
+        ModelUangKkpd::destroy($this->uangKkpdId);
+
+        $this->refreshListTahun();
+        $this->loadData();
 
         $this->js(<<<'JS'
             Swal.fire({ icon: 'error', title: 'Data berhasil dihapus!', timer: 1500, showConfirmButton: false });

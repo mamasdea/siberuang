@@ -5,7 +5,6 @@ namespace App\Livewire\Persediaan;
 use App\Models\UangGiro as ModelUangGiro;
 use Livewire\Component;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\DB;
 
 #[Title('Uang Giro')]
 class UangGiro extends Component
@@ -13,30 +12,65 @@ class UangGiro extends Component
     public $uangGiros, $no_bukti, $tanggal, $uraian, $nominal, $uangGiroId;
     public $isEditMode = false;
 
+    // ===== Filter Tahun =====
+    public ?int $tahun = null; // null = semua tahun
+    public array $listTahun = [];
+
     protected $rules = [
         'no_bukti' => 'required|string|max:255',
-        'tanggal' => 'required|date',
-        'uraian' => 'required|string|max:255',
-        'nominal' => 'required|numeric|min:0',
+        'tanggal'  => 'required|date',
+        'uraian'   => 'required|string|max:255',
+        'nominal'  => 'required|numeric|min:0',
     ];
 
     public function mount()
     {
-        $this->uangGiros = ModelUangGiro::orderBy('tanggal', 'desc')->get();
+        // default dari session kalau ada, kalau tidak pakai tahun sekarang
+        $this->tahun = (int) session('tahun_anggaran', date('Y'));
+
+        $this->refreshListTahun();
+        $this->loadData();
     }
 
     public function render()
     {
-        $this->uangGiros = ModelUangGiro::orderBy('tanggal', 'desc')->get();
+        // aman: kalau Anda ingin hemat query, bisa dihapus dan hanya load saat perubahan
+        $this->loadData();
+
         return view('livewire.persediaan.uang-giro');
+    }
+
+    protected function refreshListTahun(): void
+    {
+        // Daftar tahun yang ada pada data uang giro
+        $this->listTahun = ModelUangGiro::query()
+            ->selectRaw('YEAR(tanggal) as tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun')
+            ->map(fn($t) => (int) $t)
+            ->toArray();
+    }
+
+    protected function loadData(): void
+    {
+        $this->uangGiros = ModelUangGiro::query()
+            ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+            ->orderBy('tanggal', 'desc')
+            ->get();
+    }
+
+    public function updatedTahun()
+    {
+        $this->loadData();
     }
 
     public function resetInput()
     {
         $this->no_bukti = '';
-        $this->tanggal = '';
-        $this->uraian = '';
-        $this->nominal = '';
+        $this->tanggal  = '';
+        $this->uraian   = '';
+        $this->nominal  = '';
         $this->uangGiroId = null;
         $this->isEditMode = false;
     }
@@ -47,12 +81,17 @@ class UangGiro extends Component
 
         ModelUangGiro::create([
             'no_bukti' => $this->no_bukti,
-            'tanggal' => $this->tanggal,
-            'uraian' => $this->uraian,
-            'nominal' => $this->nominal,
+            'tanggal'  => $this->tanggal,
+            'uraian'   => $this->uraian,
+            'nominal'  => $this->nominal,
         ]);
 
+        // refresh tahun list (kalau input tahun baru)
+        $this->refreshListTahun();
+        $this->loadData();
+
         $this->resetInput();
+
         $this->js(<<<'JS'
             Swal.fire({ icon: 'success', title: 'Data berhasil disimpan!', timer: 1500, showConfirmButton: false });
             $('#uangGiroModal').modal('hide');
@@ -62,12 +101,17 @@ class UangGiro extends Component
     public function edit($id)
     {
         $uangGiro = ModelUangGiro::findOrFail($id);
+
         $this->no_bukti = $uangGiro->no_bukti;
-        $this->tanggal = $uangGiro->tanggal;
-        $this->uraian = $uangGiro->uraian;
-        $this->nominal = $uangGiro->nominal;
+        $this->tanggal  = $uangGiro->tanggal;
+        $this->uraian   = $uangGiro->uraian;
+        $this->nominal  = $uangGiro->nominal;
         $this->uangGiroId = $uangGiro->id;
+
         $this->isEditMode = true;
+
+        // jika Anda pakai modal bootstrap, biasanya perlu show modal dari JS di blade
+        // $this->js("$('#uangGiroModal').modal('show');");
     }
 
     public function update()
@@ -77,12 +121,16 @@ class UangGiro extends Component
         $uangGiro = ModelUangGiro::findOrFail($this->uangGiroId);
         $uangGiro->update([
             'no_bukti' => $this->no_bukti,
-            'tanggal' => $this->tanggal,
-            'uraian' => $this->uraian,
-            'nominal' => $this->nominal,
+            'tanggal'  => $this->tanggal,
+            'uraian'   => $this->uraian,
+            'nominal'  => $this->nominal,
         ]);
 
+        $this->refreshListTahun();
+        $this->loadData();
+
         $this->resetInput();
+
         $this->js(<<<'JS'
             Swal.fire({ icon: 'success', title: 'Data berhasil diperbarui!', timer: 1500, showConfirmButton: false });
             $('#uangGiroModal').modal('hide');
@@ -92,6 +140,7 @@ class UangGiro extends Component
     public function deleteConfirmation($id)
     {
         $this->uangGiroId = $id;
+
         $this->js(<<<'JS'
             Swal.fire({
                 title: 'Apakah Anda yakin?',
@@ -112,6 +161,9 @@ class UangGiro extends Component
     public function delete()
     {
         ModelUangGiro::destroy($this->uangGiroId);
+
+        $this->refreshListTahun();
+        $this->loadData();
 
         $this->js(<<<'JS'
             Swal.fire({ icon: 'error', title: 'Data berhasil dihapus!', timer: 1500, showConfirmButton: false });
