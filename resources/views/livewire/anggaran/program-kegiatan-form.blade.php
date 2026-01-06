@@ -166,29 +166,174 @@
     <!-- Modal Form Import Excel-->
     <div wire:ignore.self class="modal fade" id="importModalProgram" tabindex="-1" role="dialog"
         aria-labelledby="importModalProgramLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="importModalProgramLabel">Import Data Excel</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h5 class="modal-title" id="importModalProgramLabel">
+                        <i class="fas fa-file-excel"></i> Import Data Anggaran Excel
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        wire:click="resetImportState">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form wire:submit.prevent="import">
+                    <!-- Step 1: Upload File -->
+                    @if (!$fileDetected)
                         <div class="form-group">
-                            <label for="file">Pilih File Excel</label>
+                            <label for="file"><i class="fas fa-upload"></i> Pilih File Excel</label>
                             <input type="file" wire:model="file" id="file"
                                 class="form-control @error('file') is-invalid @enderror">
                             @error('file')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
+                            <small class="form-text text-muted">
+                                Format yang didukung: .xlsx, .xls
+                            </small>
                         </div>
-                    </form>
+                        <button type="button" class="btn btn-primary" wire:click="uploadAndDetect"
+                            wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="uploadAndDetect">
+                                <i class="fas fa-search"></i> Upload & Detect Format
+                            </span>
+                            <span wire:loading wire:target="uploadAndDetect">
+                                <i class="fas fa-spinner fa-spin"></i> Memproses...
+                            </span>
+                        </button>
+                    @endif
+
+                    <!-- Step 2: Show Detection Result & Preview -->
+                    @if ($fileDetected)
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Informasi File</h6>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tr>
+                                    <td width="150"><strong>Format Terdeteksi:</strong></td>
+                                    <td>{{ $formatInfo['format_name'] ?? '' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jumlah Sheet:</strong></td>
+                                    <td>{{ $formatInfo['sheet_count'] ?? '' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        @if ($formatInfo['needs_conversion'] ?? false)
+                                            <span class="badge badge-warning">Perlu Konversi</span>
+                                        @elseif (($formatInfo['format'] ?? '') == 'template')
+                                            <span class="badge badge-success">Siap Import</span>
+                                        @else
+                                            <span class="badge badge-danger">Format Tidak Dikenal</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </table>
+                            <hr>
+                            <p class="mb-0">{{ $formatInfo['message'] ?? '' }}</p>
+                        </div>
+
+                        <!-- Preview Data (jika perlu konversi) -->
+                        @if ($showPreview && !empty($previewData))
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-eye"></i> Preview Hasil Konversi</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <div class="info-box bg-success">
+                                                <span class="info-box-icon"><i class="fas fa-folder"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Programs</span>
+                                                    <span
+                                                        class="info-box-number">{{ $previewData['programs_count'] ?? 0 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="info-box bg-info">
+                                                <span class="info-box-icon"><i class="fas fa-tasks"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Kegiatans</span>
+                                                    <span
+                                                        class="info-box-number">{{ $previewData['kegiatans_count'] ?? 0 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="info-box bg-warning">
+                                                <span class="info-box-icon"><i class="fas fa-list"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Sub Kegiatans</span>
+                                                    <span
+                                                        class="info-box-number">{{ $previewData['sub_kegiatans_count'] ?? 0 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="info-box bg-danger">
+                                                <span class="info-box-icon"><i class="fas fa-money-bill"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Belanjas</span>
+                                                    <span
+                                                        class="info-box-number">{{ $previewData['belanjas_count'] ?? 0 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Action Buttons -->
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-secondary" wire:click="resetImportState">
+                                <i class="fas fa-redo"></i> Upload File Lain
+                            </button>
+                        </div>
+                    @endif
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" wire:click="import">Import</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        wire:click="resetImportState">
+                        <i class="fas fa-times"></i> Tutup
+                    </button>
+
+                    @if ($fileDetected)
+                        @if ($formatInfo['needs_conversion'] ?? false)
+                            <!-- Opsi untuk file yang perlu konversi -->
+                            <button type="button" class="btn btn-info" wire:click="downloadConverted"
+                                wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="downloadConverted">
+                                    <i class="fas fa-download"></i> Convert & Download
+                                </span>
+                                <span wire:loading wire:target="downloadConverted">
+                                    <i class="fas fa-spinner fa-spin"></i> Processing...
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-success" wire:click="importConverted"
+                                wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="importConverted">
+                                    <i class="fas fa-check"></i> Import Langsung
+                                </span>
+                                <span wire:loading wire:target="importConverted">
+                                    <i class="fas fa-spinner fa-spin"></i> Importing...
+                                </span>
+                            </button>
+                        @elseif (($formatInfo['format'] ?? '') == 'template')
+                            <!-- Opsi untuk file yang sudah dalam format template -->
+                            <button type="button" class="btn btn-success" wire:click="import"
+                                wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="import">
+                                    <i class="fas fa-check"></i> Import Data
+                                </span>
+                                <span wire:loading wire:target="import">
+                                    <i class="fas fa-spinner fa-spin"></i> Importing...
+                                </span>
+                            </button>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>

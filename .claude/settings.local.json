@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php analyze_excel.php:*)",
+      "Bash(php convert_anggaran_2026.php:*)",
+      "Bash(php:*)",
+      "Bash(mysql:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

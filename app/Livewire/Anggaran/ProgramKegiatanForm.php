@@ -27,6 +27,13 @@ class ProgramKegiatanForm extends Component
     public $subKegiatanId;
     public $isEditMode = false;
 
+    // Properties for import with preview
+    public $showPreview = false;
+    public $fileDetected = false;
+    public $formatInfo = [];
+    public $previewData = [];
+    public $uploadedFilePath = null;
+
     protected $listeners = ['resetInput'];
 
     protected $rules = [
@@ -200,6 +207,130 @@ class ProgramKegiatanForm extends Component
             });
             JS);
     }
+    /**
+     * Upload file and detect format
+     */
+    public function uploadAndDetect()
+    {
+        $this->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        // Store file temporarily
+        $this->uploadedFilePath = $this->file->store('temp');
+        $fullPath = storage_path('app/' . $this->uploadedFilePath);
+
+        // Detect format
+        $converterService = new \App\Services\ExcelConverterService();
+        $this->formatInfo = $converterService->detectFormat($fullPath);
+        $this->fileDetected = true;
+
+        // If needs conversion, get preview data
+        if ($this->formatInfo['needs_conversion']) {
+            $convertedData = $converterService->convertAndPreview($fullPath);
+            $this->previewData = $convertedData['summary'];
+            $this->showPreview = true;
+        } else if ($this->formatInfo['format'] == 'template') {
+            $this->showPreview = false;
+            // File sudah dalam format yang benar, bisa langsung import
+        }
+    }
+
+    /**
+     * Download converted file
+     */
+    public function downloadConverted()
+    {
+        if (!$this->uploadedFilePath) {
+            return;
+        }
+
+        $fullPath = storage_path('app/' . $this->uploadedFilePath);
+        $converterService = new \App\Services\ExcelConverterService();
+
+        // Convert and create file
+        $convertedData = $converterService->convertAndPreview($fullPath);
+        $outputPath = storage_path('app/temp/converted_' . time() . '.xlsx');
+
+        $converterService->createExcelFile($convertedData, $outputPath);
+
+        // Return download response
+        return response()->download($outputPath, 'anggaran_converted.xlsx')->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Import converted file directly
+     */
+    public function importConverted()
+    {
+        if (!$this->uploadedFilePath) {
+            return;
+        }
+
+        $fullPath = storage_path('app/' . $this->uploadedFilePath);
+        $converterService = new \App\Services\ExcelConverterService();
+
+        // If file needs conversion, convert it first
+        if ($this->formatInfo['needs_conversion']) {
+            $convertedData = $converterService->convertAndPreview($fullPath);
+            $tempPath = storage_path('app/temp/temp_converted_' . time() . '.xlsx');
+            $converterService->createExcelFile($convertedData, $tempPath);
+
+            // Import the converted file
+            Excel::import(new MultipleImportProgram, $tempPath);
+
+            // Clean up temp file
+            @unlink($tempPath);
+        } else {
+            // Import directly
+            Excel::import(new MultipleImportProgram, $fullPath);
+        }
+
+        // Reset state
+        $this->resetImportState();
+
+        // Hide modal and show success notification
+        $this->js(<<<'JS'
+            $('#importModalProgram').modal('hide');
+        JS);
+
+        $this->js(<<<'JS'
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+        Toast.fire({
+            icon: "success",
+            title: "Data berhasil diimport"
+        });
+        JS);
+    }
+
+    /**
+     * Reset import state
+     */
+    public function resetImportState()
+    {
+        $this->showPreview = false;
+        $this->fileDetected = false;
+        $this->formatInfo = [];
+        $this->previewData = [];
+        $this->file = null;
+
+        // Clean up uploaded file
+        if ($this->uploadedFilePath) {
+            @unlink(storage_path('app/' . $this->uploadedFilePath));
+            $this->uploadedFilePath = null;
+        }
+    }
+
     public function render()
     {
         $tahun = session('tahun_anggaran', date('Y')); // Ambil tahun anggaran dari session
