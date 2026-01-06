@@ -96,7 +96,10 @@ class KontrakManage extends Component
 
     public function render()
     {
+        $tahun = session('tahun_anggaran', date('Y'));
+
         $rows = Kontrak::query()
+            ->whereYear('tanggal_kontrak', $tahun)   // ✅ FILTER TAHUN
             ->when($this->search, function ($q) {
                 $s = "%{$this->search}%";
                 $q->where(function ($w) use ($s) {
@@ -114,6 +117,7 @@ class KontrakManage extends Component
 
         return view('livewire.kontrak.kontrak-manage', compact('rows'));
     }
+
 
     /* =====================  Rincian helpers  ===================== */
 
