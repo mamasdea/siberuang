@@ -89,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('laporan-bukupajakgiro', BukuPajakGiro::class)->name('laporan.bukupajakgiro');
     Route::get('laporan-bukupajakkkpd', BukuPajakKkpd::class)->name('laporan.bukupajakkkpd');
     Route::get('laporan-bukupajakls', BukuPajakLs::class)->name('laporan.bukupajakls');
+    Route::get('laporan-bukupajakall', \App\Livewire\Laporan\BukuPajakAll::class)->name('laporan.bukupajakall');
     Route::get('laporan-realisasi', LaporanRealisasi::class)->name('laporan.realisasi');
     Route::get('penerimaan/{belanjaId}', Penerimaan::class)->name('penerimaan');
     Route::get('pajak/{belanjaId}', Pajak::class)->name('pajak');

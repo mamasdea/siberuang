@@ -212,76 +212,87 @@
 
     <div wire:ignore.self class="modal fade" id="belanjaModal" tabindex="-1" aria-labelledby="belanjaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ $isEdit ? 'Edit Belanja' : 'Tambah Belanja' }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" wire:click="closeForm" aria-label="Close">
+            <div class="modal-content modern-card border-0" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 bg-white">
+                    <h5 class="modal-title font-weight-bold text-dark" style="font-size: 1.25rem;">
+                        {{ $isEdit ? 'Edit Data Belanja KKPD' : 'Tambah Belanja KKPD Baru' }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" wire:click="closeForm" aria-label="Close" style="opacity: 0.5;">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4 bg-white">
                     <form>
-                        <div class="form-group row mb-3">
-                            <label for="tanggal" class="col-md-3 form-label" style="min-width: 150px;">Tanggal</label>
-                            <div class="col-md-9">
-                                <input wire:model="tanggal" type="date" class="form-control" id="tanggal">
-                                @error('tanggal') <span class="text-danger">{{ $message }}</span> @enderror
+                        <div class="form-group mb-4">
+                            <label for="tanggal" class="font-weight-bold text-secondary text-uppercase small mb-2" style="letter-spacing: 0.5px;">Tanggal Transaksi</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-calendar-alt text-muted"></i></span>
+                                </div>
+                                <input wire:model="tanggal" type="date" class="form-control bg-light border-0 text-dark font-weight-500" id="tanggal" style="height: 48px;">
+                            </div>
+                            @error('tanggal') <span class="text-danger small mt-1 pl-1 d-block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-secondary text-uppercase small mb-2" style="letter-spacing: 0.5px;">Rekening Belanja</label>
+                            <div class="card bg-light border-0 p-3" style="border-radius: 12px;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-start">
+                                        <div class="mr-3 mt-1">
+                                            <div class="bg-white rounded p-2 shadow-sm text-primary">
+                                                <i class="fas fa-file-invoice-dollar fa-lg"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            @if ($rincian_subkegiatan && $rka)
+                                                <h5 class="font-weight-bold text-dark mb-1">{{ $rka->subKegiatan->nama }}</h5>
+                                                <p class="mb-2 text-secondary font-weight-bold" style="font-size: 1rem;">{{ $rka->kode_belanja }} - {{ $rka->nama_belanja }}</p>
+                                                <span class="badge badge-success px-2 py-1" style="font-weight: 600; font-size: 14px;">
+                                                    Sisa Anggaran: Rp {{ number_format($rka->sisaanggaran, 2, ',', '.') }}
+                                                </span>
+                                            @else
+                                                <div class="text-muted font-weight-500 mt-1">Belum ada rekening yang dipilih</div>
+                                                <small class="text-secondary">Silakan pilih rekening belanja terlebih dahulu</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <button type="button" wire:click='openModal' class="btn btn-primary shadow-sm px-3 py-2" style="border-radius: 8px; font-weight: 500; font-size: 13px;">
+                                        <i class="fas fa-search mr-1"></i> {{ $rincian_subkegiatan ? 'Ganti' : 'Pilih' }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="form-group row mb-3">
-                            <label for="rekening" class="col-md-3 form-label" style="min-width: 150px;">Rekening</label>
-                            <div class="col-md-9">
-                                <button type="button" wire:click='openModal' class="btn btn-primary">Pilih Rekening</button>
-                            </div>
-                        </div>
-                        
-                        @if ($rincian_subkegiatan)
-                            <div class="form-group row mb-3">
-                                <label class="col-md-3 form-label" style="min-width: 150px;">Sub Kegiatan</label>
-                                <div class="col-md-9">
-                                    <textarea class="form-control" readonly>{{ $rka && $rka->subKegiatan ? $rka->subKegiatan->kode . ' - ' . $rka->subKegiatan->nama : '' }}</textarea>
+                        <div class="form-group mb-4">
+                            <label for="nilai" class="font-weight-bold text-secondary text-uppercase small mb-2" style="letter-spacing: 0.5px;">Nominal Belanja</label>
+                            <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white border-0 font-weight-bold text-dark pl-3">Rp</span>
                                 </div>
+                                <input wire:model.live="nilai" type="number" class="form-control border-0 pl-1" id="nilai" placeholder="0" style="height: 50px; font-size: 1.25rem; font-weight: 600;">
                             </div>
-
-                            <div class="form-group row mb-3">
-                                <label class="col-md-3 form-label" style="min-width: 150px;">Rekening Belanja</label>
-                                <div class="col-md-9">
-                                    <textarea class="form-control" readonly>{{ $rka ? $rka->kode_belanja . ' - ' . $rka->nama_belanja : '' }}</textarea>
-                                </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                                <small class="text-muted">Masukkan nominal tanpa titik/koma</small>
+                                <small class="text-dark font-weight-bold" style="font-size: 13px;">
+                                    Terbilang: Rp {{ number_format((float) ($nilai ?? 0), 2, ',', '.') }}
+                                </small>
                             </div>
-
-                            <div class="form-group row mb-3">
-                                <label class="col-md-3 form-label" style="min-width: 150px;">Sisa Anggaran</label>
-                                <div class="col-md-9">
-                                    <input type="text" class="form-control" readonly value="{{ number_format($rka->sisaanggaran, 2, ',', '.') }}">
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="form-group row mb-3">
-                            <label for="nilai" class="col-md-3 form-label" style="min-width: 150px;">Nilai</label>
-                            <div class="col-md-5">
-                                <input wire:model.live="nilai" type="number" class="form-control" id="nilai" placeholder="Enter Nilai">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" value="{{ number_format((float) ($nilai ?? 0), 2, ',', '.') }}" readonly>
-                            </div>
-                            @error('nilai') <span class="text-danger">{{ $message }}</span> @enderror
+                            @error('nilai') <span class="text-danger small mt-1 pl-1 d-block">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="form-group row mb-3">
-                            <label for="uraian" class="col-md-3 form-label" style="min-width: 150px;">Uraian</label>
-                            <div class="col-md-9">
-                                <textarea wire:model="uraian" class="form-control" id="uraian"></textarea>
-                                @error('uraian') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
+                        <div class="form-group mb-2">
+                            <label for="uraian" class="font-weight-bold text-secondary text-uppercase small mb-2" style="letter-spacing: 0.5px;">Uraian Belanja</label>
+                            <textarea wire:model="uraian" class="form-control bg-light border-0" id="uraian" rows="3" style="border-radius: 12px; resize: none; padding: 16px;" placeholder="Tuliskan keterangan detail belanja disini..."></textarea>
+                            @error('uraian') <span class="text-danger small mt-1 pl-1 d-block">{{ $message }}</span> @enderror
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" wire:click.prevent="{{ $isEdit ? 'update' : 'store' }}" class="btn btn-primary">{{ $isEdit ? 'Update' : 'Save' }}</button>
-                    <button type="button" wire:click="closeForm" class="btn btn-secondary">Cancel</button>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4 bg-white d-flex justify-content-end">
+                    <button type="button" wire:click="closeForm" class="btn btn-light text-secondary font-weight-600 mr-2 py-2 px-4" style="border-radius: 8px;">Batal</button>
+                    <button type="button" wire:click.prevent="{{ $isEdit ? 'update' : 'store' }}" class="btn btn-primary font-weight-bold shadow-sm py-2 px-4" style="border-radius: 8px; background: var(--primary-color); border: none;">
+                        <i class="fas fa-save mr-2"></i> {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Data' }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -289,16 +300,26 @@
 
     <div wire:ignore.self class="modal fade" id="subkegiatanModal" tabindex="-1" aria-labelledby="subkegiatanModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Program - Kegiatan - Sub Kegiatan</h5>
-                    <button type="button" class="btn-close" wire:click="closeModal" aria-label="Close"><i class="fas fa-times"></i></button>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-white border-bottom p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded mr-3" style="background: #eff6ff; color: #2563eb;">
+                            <i class="fas fa-sitemap fa-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-weight-bold text-dark m-0">Pilih Rekening</h5>
+                            <small class="text-muted">Pilih program, kegiatan, dan rekening belanja</small>
+                        </div>
+                    </div>
+                    <button type="button" class="close" wire:click="closeModal" aria-label="Close" style="opacity: 0.5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-0 bg-light">
                     <livewire:program-hierarchy>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" wire:click="closeModal">Close</button>
+                <div class="modal-footer bg-white border-top p-3" style="border-radius: 0 0 16px 16px;">
+                    <button type="button" class="btn btn-light font-weight-600 px-4 text-secondary" wire:click="closeModal" style="border-radius: 8px;">Tutup</button>
                 </div>
             </div>
         </div>

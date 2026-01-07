@@ -258,9 +258,9 @@
                                         </div>
                                         <div>
                                             @if ($rincian_subkegiatan && $rka)
-                                                <h6 class="font-weight-bold text-dark mb-1">{{ $rka->subKegiatan->nama }}</h6>
-                                                <p class="mb-2 text-secondary small">{{ $rka->kode_belanja }} - {{ $rka->nama_belanja }}</p>
-                                                <span class="badge badge-success px-2 py-1" style="font-weight: 500; font-size: 11px;">
+                                                <h5 class="font-weight-bold text-dark mb-1">{{ $rka->subKegiatan->nama }}</h5>
+                                                <p class="mb-2 text-secondary font-weight-bold" style="font-size: 1rem;">{{ $rka->kode_belanja }} - {{ $rka->nama_belanja }}</p>
+                                                <span class="badge badge-success px-2 py-1" style="font-weight: 600; font-size: 14px;">
                                                     Sisa Anggaran: Rp {{ number_format($rka->sisaanggaran, 2, ',', '.') }}
                                                 </span>
                                             @else
@@ -299,21 +299,7 @@
                             @error('uraian') <span class="text-danger small mt-1 pl-1 d-block">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="form-group mb-4">
-                            <label class="font-weight-bold text-secondary text-uppercase small mb-2" style="letter-spacing: 0.5px;">Upload Arsip (PDF)</label>
-                            <input type="file" wire:model="fileArsip" class="form-control bg-light border-0" accept=".pdf" style="height: auto; padding: 12px; border-radius: 12px;">
-                            <div wire:loading wire:target="fileArsip" class="text-info small mt-1 pl-1">
-                                <i class="fas fa-spinner fa-spin mr-1"></i> Uploading...
-                            </div>
-                            @if($existingArsip && !$fileArsip)
-                                <div class="mt-2 pl-1">
-                                    <a href="{{ $this->getArsipUrl($existingArsip) }}" target="_blank" class="text-info font-weight-bold small">
-                                       <i class="fas fa-check-circle mr-1"></i> File PDF Tersimpan
-                                    </a>
-                                </div>
-                            @endif
-                            @error('fileArsip') <span class="text-danger small mt-1 pl-1 d-block">{{ $message }}</span> @enderror
-                        </div>
+
                     </form>
                 </div>
                 <div class="modal-footer border-top-0 pt-0 pb-4 px-4 bg-white d-flex justify-content-end">

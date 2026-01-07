@@ -123,14 +123,7 @@ class BelanjaKkpdsManager extends Component
 
     public function store()
     {
-        // Ambil nomor bukti terakhir dari database
-        $lastNoBukti = BelanjaKkpd::orderBy('no_bukti', 'desc')->first();
 
-        // Jika belum ada nomor bukti, mulai dari 1
-        $newNoBukti = $lastNoBukti ? (int) $lastNoBukti->no_bukti + 1 : 1;
-
-        // Format nomor bukti menjadi 4 digit (contoh: 0001)
-        $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
 
         // Validasi data yang diterima dari form
         $validatedData = $this->validate([
@@ -159,6 +152,15 @@ class BelanjaKkpdsManager extends Component
                 }
             ],
         ]);
+
+        // Generate Nomor Bukti per Tahun
+        $year = date('Y', strtotime($validatedData['tanggal']));
+        $lastBelanja = BelanjaKkpd::whereYear('tanggal', $year)
+            ->orderBy('no_bukti', 'desc')
+            ->first();
+
+        $newNoBukti = $lastBelanja ? (int) $lastBelanja->no_bukti + 1 : 1;
+        $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
 
         // Tambahkan nomor bukti yang sudah diformat ke dalam data yang divalidasi
         $validatedData['no_bukti'] = $formattedNoBukti;

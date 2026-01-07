@@ -164,7 +164,7 @@
 
                         <!-- Group Pajak -->
                         <li
-                            class="nav-item has-treeview {{ request()->is('laporan-bukupajakgiro', 'laporan-bukupajakkkpd', 'laporan-bukupajakls') ? 'menu-open' : '' }}">
+                            class="nav-item has-treeview {{ request()->is('laporan-bukupajakgiro', 'laporan-bukupajakkkpd', 'laporan-bukupajakls', 'laporan-bukupajakall') ? 'menu-open' : '' }}">
                             <a href="#" class="nav-link">
                                 <i class="far fa-dot-circle nav-icon"></i>
                                 <p>
@@ -192,6 +192,13 @@
                                         class="nav-link {{ request()->is('laporan-bukupajakls') ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>BUKU PAJAK LS</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-bukupajakall') }}"
+                                        class="nav-link {{ request()->is('laporan-bukupajakall') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>BUKU PAJAK ALL</p>
                                     </a>
                                 </li>
                             </ul>
