@@ -64,10 +64,10 @@
             <div class="modern-stat-card bg-gradient-primary-soft h-100">
                 <div class="card-body p-4 content d-flex flex-column justify-content-between h-100">
                     <div>
-                        <h6 class="text-uppercase mb-2 opacity-75" style="letter-spacing: 1px;">Program</h6>
+                        <h5 class="text-uppercase mb-2 font-weight-bold" style="letter-spacing: 1px;">Program</h5>
                         <h2 class="display-4 font-weight-bold mb-0">{{ $jumlahProgram ?? 0 }}</h2>
                     </div>
-                    <div class="mt-3 opacity-75 small">Total Program Terdaftar</div>
+                    <div class="mt-3 font-weight-bold" style="font-size: 1.2rem;">Total Program Terdaftar</div>
                 </div>
                 <i class="fas fa-project-diagram icon-bg"></i>
             </div>
@@ -77,10 +77,10 @@
             <div class="modern-stat-card bg-gradient-success-soft h-100">
                 <div class="card-body p-4 content d-flex flex-column justify-content-between h-100">
                     <div>
-                        <h6 class="text-uppercase mb-2 opacity-75" style="letter-spacing: 1px;">Kegiatan</h6>
+                        <h5 class="text-uppercase mb-2 font-weight-bold" style="letter-spacing: 1px;">Kegiatan</h5>
                         <h2 class="display-4 font-weight-bold mb-0">{{ $jumlahKegiatan ?? 0 }}</h2>
                     </div>
-                    <div class="mt-3 opacity-75 small">Total Kegiatan Aktif</div>
+                    <div class="mt-3 font-weight-bold" style="font-size: 1.2rem;">Total Kegiatan Aktif</div>
                 </div>
                 <i class="fas fa-tasks icon-bg"></i>
             </div>
@@ -90,10 +90,10 @@
             <div class="modern-stat-card bg-gradient-warning-soft h-100">
                 <div class="card-body p-4 content d-flex flex-column justify-content-between h-100">
                     <div>
-                        <h6 class="text-uppercase mb-2 opacity-75" style="letter-spacing: 1px;">Sub Kegiatan</h6>
+                        <h5 class="text-uppercase mb-2 font-weight-bold" style="letter-spacing: 1px;">Sub Kegiatan</h5>
                         <h2 class="display-4 font-weight-bold mb-0">{{ $jumlahSubKegiatan ?? 0 }}</h2>
                     </div>
-                    <div class="mt-3 opacity-75 small">Rincian Pelaksanaan</div>
+                    <div class="mt-3 font-weight-bold" style="font-size: 1.2rem;">Rincian Pelaksanaan</div>
                 </div>
                 <i class="fas fa-list icon-bg"></i>
             </div>
@@ -109,8 +109,8 @@
                             <i class="fas fa-money-bill-wave fa-2x"></i>
                         </div>
                         <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Total Anggaran</div>
-                            <h3 class="font-weight-bold mb-0 text-dark">Rp {{ number_format($totalAnggaran ?? 0, 0, ',', '.') }}</h3>
+                            <h5 class="text-muted text-uppercase font-weight-bold mb-1">Total Anggaran</h5>
+                            <h2 class="font-weight-bold mb-0 text-dark">Rp {{ number_format($totalAnggaran ?? 0, 0, ',', '.') }}</h2>
                         </div>
                     </div>
                     <div class="progress" style="height: 6px; border-radius: 3px;">
@@ -127,8 +127,8 @@
                             <i class="fas fa-chart-line fa-2x"></i>
                         </div>
                         <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Total Realisasi</div>
-                            <h3 class="font-weight-bold mb-0 text-dark">Rp {{ number_format($totalRealisasi ?? 0, 0, ',', '.') }}</h3>
+                            <h5 class="text-muted text-uppercase font-weight-bold mb-1">Total Realisasi</h5>
+                            <h2 class="font-weight-bold mb-0 text-dark">Rp {{ number_format($totalRealisasi ?? 0, 0, ',', '.') }}</h2>
                         </div>
                     </div>
                     <div class="progress" style="height: 6px; border-radius: 3px;">
@@ -141,8 +141,8 @@
             <div class="modern-stat-card bg-gradient-dark-soft h-100 text-white">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-white-50 small text-uppercase font-weight-bold">Capaian Realisasi</div>
-                        <h2 class="font-weight-bold mb-0">{{ $persentaseRealisasi ?? 0 }}%</h2>
+                        <h5 class="text-white-50 text-uppercase font-weight-bold mb-1">Capaian Realisasi</h5>
+                        <h2 class="font-weight-bold mb-0" style="font-size: 2.5rem;">{{ $persentaseRealisasi ?? 0 }}%</h2>
                     </div>
                     <div style="width: 80px; height: 80px; position:relative;">
                         <svg viewBox="0 0 36 36" class="circular-chart text-success">
