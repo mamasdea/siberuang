@@ -5,22 +5,28 @@ namespace App\Livewire\Persediaan;
 use App\Models\UangGiro as ModelUangGiro;
 use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\WithPagination;
 
 #[Title('Uang Giro')]
 class UangGiro extends Component
 {
-    public $uangGiros, $no_bukti, $tanggal, $uraian, $nominal, $uangGiroId;
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
+    public $no_bukti, $tanggal, $uraian, $nominal, $uangGiroId;
     public $isEditMode = false;
 
-    // ===== Filter Tahun =====
+    // ===== Filter & Search =====
+    public $search = '';
     public ?int $tahun = null; // null = semua tahun
     public array $listTahun = [];
 
     protected $rules = [
         'no_bukti' => 'required|string|max:255',
-        'tanggal'  => 'required|date',
-        'uraian'   => 'required|string|max:255',
-        'nominal'  => 'required|numeric|min:0',
+        'tanggal' => 'required|date',
+        'uraian' => 'required|string|max:255',
+        'nominal' => 'required|numeric|min:0',
     ];
 
     public function mount()
@@ -29,15 +35,45 @@ class UangGiro extends Component
         $this->tahun = (int) session('tahun_anggaran', date('Y'));
 
         $this->refreshListTahun();
-        $this->loadData();
     }
 
     public function render()
     {
-        // aman: kalau Anda ingin hemat query, bisa dihapus dan hanya load saat perubahan
-        $this->loadData();
+        $uangGiros = ModelUangGiro::query()
+            ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+            ->when($this->search, function ($q) {
+                $q->where(function ($query) {
+                    $query->where('no_bukti', 'like', '%' . $this->search . '%')
+                        ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                        ->orWhere('tanggal', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
 
-        return view('livewire.persediaan.uang-giro');
+        return view('livewire.persediaan.uang-giro', [
+            'uangGiros' => $uangGiros,
+            'totalTransaksi' => ModelUangGiro::query()
+                ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+                ->when($this->search, function ($q) {
+                    $q->where(function ($query) {
+                        $query->where('no_bukti', 'like', '%' . $this->search . '%')
+                            ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                            ->orWhere('tanggal', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->count(),
+            'totalNominal' => ModelUangGiro::query()
+                ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+                ->when($this->search, function ($q) {
+                    $q->where(function ($query) {
+                        $query->where('no_bukti', 'like', '%' . $this->search . '%')
+                            ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                            ->orWhere('tanggal', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->sum('nominal'),
+        ]);
     }
 
     protected function refreshListTahun(): void
@@ -52,25 +88,22 @@ class UangGiro extends Component
             ->toArray();
     }
 
-    protected function loadData(): void
-    {
-        $this->uangGiros = ModelUangGiro::query()
-            ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
-            ->orderBy('tanggal', 'desc')
-            ->get();
-    }
-
     public function updatedTahun()
     {
-        $this->loadData();
+        $this->resetPage();
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     public function resetInput()
     {
         $this->no_bukti = '';
-        $this->tanggal  = '';
-        $this->uraian   = '';
-        $this->nominal  = '';
+        $this->tanggal = '';
+        $this->uraian = '';
+        $this->nominal = '';
         $this->uangGiroId = null;
         $this->isEditMode = false;
     }
@@ -81,14 +114,13 @@ class UangGiro extends Component
 
         ModelUangGiro::create([
             'no_bukti' => $this->no_bukti,
-            'tanggal'  => $this->tanggal,
-            'uraian'   => $this->uraian,
-            'nominal'  => $this->nominal,
+            'tanggal' => $this->tanggal,
+            'uraian' => $this->uraian,
+            'nominal' => $this->nominal,
         ]);
 
         // refresh tahun list (kalau input tahun baru)
         $this->refreshListTahun();
-        $this->loadData();
 
         $this->resetInput();
 
@@ -103,9 +135,9 @@ class UangGiro extends Component
         $uangGiro = ModelUangGiro::findOrFail($id);
 
         $this->no_bukti = $uangGiro->no_bukti;
-        $this->tanggal  = $uangGiro->tanggal;
-        $this->uraian   = $uangGiro->uraian;
-        $this->nominal  = $uangGiro->nominal;
+        $this->tanggal = $uangGiro->tanggal;
+        $this->uraian = $uangGiro->uraian;
+        $this->nominal = $uangGiro->nominal;
         $this->uangGiroId = $uangGiro->id;
 
         $this->isEditMode = true;
@@ -121,9 +153,9 @@ class UangGiro extends Component
         $uangGiro = ModelUangGiro::findOrFail($this->uangGiroId);
         $uangGiro->update([
             'no_bukti' => $this->no_bukti,
-            'tanggal'  => $this->tanggal,
-            'uraian'   => $this->uraian,
-            'nominal'  => $this->nominal,
+            'tanggal' => $this->tanggal,
+            'uraian' => $this->uraian,
+            'nominal' => $this->nominal,
         ]);
 
         $this->refreshListTahun();

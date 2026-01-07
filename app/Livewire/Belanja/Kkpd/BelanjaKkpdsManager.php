@@ -21,8 +21,15 @@ class BelanjaKkpdsManager extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public $search = '';
     public $paginate = 10;
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
     public $belanjas;
     public $belanja_id, $no_bukti, $tanggal, $uraian, $rka_id, $nilai;
     public $isEdit = false;
@@ -64,7 +71,8 @@ class BelanjaKkpdsManager extends Component
         $bulan = $this->bulan ?? date('m'); // Ambil bulan yang dipilih, default ke bulan sekarang
 
         // Query belanja sesuai tahun anggaran dan bulan
-        $belanjas = BelanjaKkpd::with(['penerimaankkpd', 'pajakkkpd', 'rka.subKegiatan.kegiatan.program'])
+        // Query belanja sesuai tahun anggaran dan bulan
+        $query = BelanjaKkpd::with(['penerimaankkpd', 'pajakkkpd', 'rka.subKegiatan.kegiatan.program'])
             ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
                 $query->where('tahun_anggaran', $tahun);
             })
@@ -74,8 +82,13 @@ class BelanjaKkpdsManager extends Component
                     ->orWhere('uraian', 'like', '%' . $this->search . '%')
                     ->orWhere('nilai', 'like', '%' . $this->search . '%')
                     ->orWhere('no_bukti', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('id', 'desc')
+            });
+
+        // Hitung Statistik
+        $totalTransaksi = (clone $query)->count();
+        $totalNominal = (clone $query)->sum('nilai');
+
+        $belanjas = $query->orderBy('id', 'desc')
             ->paginate($this->paginate);
 
         // Perhitungan total penerimaan dan pajak untuk setiap belanja
@@ -91,6 +104,8 @@ class BelanjaKkpdsManager extends Component
             'totalPenerimaan' => $this->totalPenerimaan,
             'totalPajak' => $this->totalPajak,
             'bulan' => $bulan,
+            'totalTransaksi' => $totalTransaksi,
+            'totalNominal' => $totalNominal,
         ]);
     }
 
@@ -112,7 +127,7 @@ class BelanjaKkpdsManager extends Component
         $lastNoBukti = BelanjaKkpd::orderBy('no_bukti', 'desc')->first();
 
         // Jika belum ada nomor bukti, mulai dari 1
-        $newNoBukti = $lastNoBukti ? (int)$lastNoBukti->no_bukti + 1 : 1;
+        $newNoBukti = $lastNoBukti ? (int) $lastNoBukti->no_bukti + 1 : 1;
 
         // Format nomor bukti menjadi 4 digit (contoh: 0001)
         $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);

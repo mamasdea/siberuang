@@ -1,102 +1,137 @@
+@push('css')
+    <x-styles.modern-ui />
+@endpush
+
 <div>
-    <div class="container-fluid">
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <div class="card">
-
-                    {{-- HEADER --}}
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3 class="card-title">Kontrak</h3>
-                            <div>
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalForm"
-                                    wire:click="resetInputFields">
-                                    <i class="fas fa-plus"></i> Tambah
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="col-lg-2">
-                                <div class="d-flex align-items-center">
-                                    <label class="col-form-label mr-2">Show:</label>
-                                    <select wire:model.live="paginate" class="form-control form-control-sm">
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="15">15</option>
-                                        <option value="20">20</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control" placeholder="Search nomor/nama/sub..."
-                                        wire:model.live="search">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- BODY --}}
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th style="width:70px;">No.</th>
-                                        <th>Nomor Kontrak</th>
-                                        <th>Tanggal</th>
-                                        <th>Nama Perusahaan</th>
-                                        <th>Sub Kegiatan</th>
-                                        <th style="width:160px;">Nilai (Rp)</th>
-                                        <th style="width:140px;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($rows as $row)
-                                        <tr>
-                                            <td class="text-center">{{ $loop->index + $rows->firstItem() }}</td>
-                                            <td>{{ $row->nomor_kontrak }}</td>
-                                            <td>{{ \Illuminate\Support\Carbon::parse($row->tanggal_kontrak)->format('d/m/Y') }}
-                                            </td>
-                                            <td>{{ $row->nama_perusahaan }}</td>
-                                            <td>{{ $row->subKegiatan?->nama }}</td>
-                                            <td class="text-right">Rp {{ number_format($row->nilai, 0, ',', '.') }}</td>
-                                            <td class="text-center">
-                                                <a href="{{ route('kontrak.realisasi', $row->id) }}"
-                                                    class="btn btn-success btn-sm" title="Realisasi">
-                                                    <i class="fas fa-receipt"></i>
-                                                </a>
-                                                <button class="btn btn-warning btn-sm text-white"
-                                                    wire:click="edit({{ $row->id }})" data-toggle="modal"
-                                                    data-target="#modalForm" title="Edit">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm"
-                                                    wire:click="delete_confirmation({{ $row->id }})"
-                                                    title="Hapus">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center">Tidak ada data</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="container mt-2 mb-2">
-                            {{ $rows->links('livewire::bootstrap') }}
-                        </div>
-                    </div>
-
+    <div class="modern-card fade-in-up">
+        <div class="card-header-modern">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="page-title">Manajemen Kontrak</h3>
+                    <p class="page-subtitle mb-0">Kelola data kontrak dan rinciannya</p>
                 </div>
+                <div>
+                    <button class="btn btn-modern-add" data-toggle="modal" data-target="#modalForm"
+                        wire:click="resetInputFields">
+                        <i class="fas fa-plus mr-2"></i>Tambah Kontrak
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <!-- Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="stat-label">Total Kontrak</div>
+                        <div class="stat-value">{{ number_format($totalKontrak ?? 0, 0, ',', '.') }}</div>
+                        <div class="stat-description">Data Kontrak</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon green">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-label">Total Nilai</div>
+                        <div class="stat-value" style="font-size: 20px;">Rp {{ number_format($totalNilai ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div class="stat-description">Akumulasi Nilai</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Search -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div class="d-flex align-items-center">
+                    <span class="mr-2 text-secondary font-weight-bold" style="font-size: 14px;">Show:</span>
+                    <select wire:model.live="paginate" class="form-control custom-select-modern" style="width: 90px;">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="form-control search-input" wire:model.live.debounce.300ms="search"
+                        placeholder="Cari Nomor/Nama/Sub...">
+                    @if ($search)
+                        <button type="button" class="clear-search" wire:click="$set('search', '')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    @endif
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table modern-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">No</th>
+                            <th>Nomor Kontrak</th>
+                            <th>Tanggal</th>
+                            <th>Nama Perusahaan</th>
+                            <th>Sub Kegiatan</th>
+                            <th class="text-right">Nilai (Rp)</th>
+                            <th class="text-center" style="width: 140px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($rows as $row)
+                            <tr>
+                                <td class="text-center">{{ $loop->index + $rows->firstItem() }}</td>
+                                <td>
+                                    <span class="font-weight-bold text-primary">{{ $row->nomor_kontrak }}</span>
+                                    <br>
+                                    <small class="text-muted">{{ $row->id_kontrak_lkpp }}</small>
+                                </td>
+                                <td>{{ \Illuminate\Support\Carbon::parse($row->tanggal_kontrak)->format('d/m/Y') }}</td>
+                                <td>{{ $row->nama_perusahaan }}</td>
+                                <td>{{ $row->subKegiatan?->nama }}</td>
+                                <td class="text-right has-text-success font-weight-bold" style="color: var(--success-color);">
+                                    Rp {{ number_format($row->nilai, 0, ',', '.') }}
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <a href="{{ route('kontrak.realisasi', $row->id) }}"
+                                            class="btn btn-sm" 
+                                            style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 6px 10px; border-radius: 6px; margin-right: 4px;"
+                                            title="Realisasi">
+                                            <i class="fas fa-receipt"></i>
+                                        </a>
+                                        <button class="btn btn-action-edit" wire:click="edit({{ $row->id }})" data-toggle="modal"
+                                            data-target="#modalForm" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <button class="btn btn-action-delete"
+                                            wire:click="delete_confirmation({{ $row->id }})" title="Hapus">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-folder-open"></i>
+                                        <p>Data kontrak tidak ditemukan</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                {{ $rows->links('livewire::bootstrap') }}
             </div>
         </div>
     </div>
@@ -147,7 +182,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="sub_kegiatan_id">Sub Kegiatan *</label>
-                                    <select id="sub_kegiatan_id" class="form-control form-control-sm"
+                                    <select id="sub_kegiatan_id" class="form-control"
                                         wire:model="sub_kegiatan_id">
                                         <option value="">-- pilih sub kegiatan --</option>
                                         @foreach ($listSubKegiatan as $sk)
@@ -269,10 +304,11 @@
 
                         {{-- ====== RINCIAN KONTRAK (DINAMIS) ====== --}}
                         <hr>
-                        <h6 class="mb-2">Rincian Kontrak</h6>
+                        <h6 class="mb-2 font-weight-bold">Rincian Kontrak</h6>
 
-                        <div class="row">
+                        <div class="row align-items-end">
                             <div class="col-md-4 mb-2">
+                                <label class="small text-muted mb-1">Item</label>
                                 <input type="text" class="form-control form-control-sm"
                                     placeholder="Nama barang/jasa" wire:model="item_nama">
                                 @error('item_nama')
@@ -280,6 +316,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-2 mb-2">
+                                <label class="small text-muted mb-1">Qty</label>
                                 <input type="number" min="0" step="0.01"
                                     class="form-control form-control-sm" placeholder="Qty" wire:model="item_qty">
                                 @error('item_qty')
@@ -287,6 +324,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-2 mb-2">
+                                <label class="small text-muted mb-1">Satuan</label>
                                 <input type="text" class="form-control form-control-sm" placeholder="Satuan"
                                     wire:model="item_satuan">
                                 @error('item_satuan')
@@ -294,6 +332,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-2 mb-2">
+                                <label class="small text-muted mb-1">Harga</label>
                                 <input type="number" min="0" step="0.01"
                                     class="form-control form-control-sm" placeholder="Harga (Rp)"
                                     wire:model="item_harga">
@@ -310,7 +349,7 @@
 
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm">
-                                <thead>
+                                <thead class="bg-light">
                                     <tr class="text-center">
                                         <th style="width:60px;">No</th>
                                         <th>Nama Barang/Jasa</th>
@@ -331,7 +370,7 @@
                                             <td class="text-center">{{ $it['satuan'] }}</td>
                                             <td class="text-right">Rp {{ number_format($it['harga'], 2, ',', '.') }}
                                             </td>
-                                            <td class="text-right">Rp
+                                            <td class="text-right font-weight-bold">Rp
                                                 {{ number_format($it['total_harga'], 2, ',', '.') }}</td>
                                             <td class="text-center">
                                                 <button type="button" class="btn btn-danger btn-sm"
@@ -347,22 +386,22 @@
                                     @endforelse
                                 </tbody>
                                 <tfoot>
-                                    <tr>
-                                        <th colspan="5" class="text-right">Grand Total</th>
-                                        <th class="text-right">Rp
+                                    <tr class="bg-light font-weight-bold">
+                                        <td colspan="5" class="text-right">Grand Total</td>
+                                        <td class="text-right">Rp
                                             {{ number_format($this->totalRincian, 2, ',', '.') }}
-                                        </th>
-                                        <th></th>
+                                        </td>
+                                        <td></td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
 
-                        <div class="mt-3">
-                            <button type="submit"
-                                class="btn btn-primary">{{ $isEdit ? 'Update' : 'Simpan' }}</button>
-                            <button type="button" class="btn btn-secondary" wire:click="resetInputFields"
+                        <div class="mt-3 text-right">
+                            <button type="button" class="btn btn-secondary mr-1" wire:click="resetInputFields"
                                 data-dismiss="modal">Batal</button>
+                            <button type="submit"
+                                class="btn btn-primary">{{ $isEdit ? 'Simpan Perubahan' : 'Simpan Transaksi' }}</button>
                         </div>
                     </form>
                 </div>
@@ -380,6 +419,10 @@
                 firstInput && firstInput.focus();
             });
             $('[data-toggle="tooltip"]').tooltip();
+        });
+        
+        window.addEventListener('close-modal', event => {
+            $('#modalForm').modal('hide');
         });
     </script>
 @endpush

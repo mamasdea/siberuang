@@ -1,126 +1,129 @@
+@push('css')
+    <x-styles.modern-ui />
+@endpush
+
 <div>
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Laporan Buku Kas Pengeluaran / GU Giro</h3>
+    <div class="modern-card fade-in-up">
+        <div class="card-header-modern">
+            <h3 class="page-title">Buku Kas Pengeluaran / GU Giro</h3>
+            <p class="page-subtitle mb-0">Laporan transaksi harian GU Giro</p>
         </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <div class="row align-items-center">
-                    <div class="col-md-4 text-end">
-                        <label class="form-label mb-0">Pilih Range Tanggal:</label>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="date" class="form-control" wire:model.live="mulai" placeholder="Tanggal Mulai">
-                    </div>
-                    <div class="col-md-4">
-                        <input type="date" class="form-control" wire:model.live="end" placeholder="Tanggal Akhir">
-                    </div>
+        <div class="content-card">
+            <div class="row align-items-end mb-4">
+                <div class="col-md-4">
+                    <label class="font-weight-bold text-secondary small mb-2">Tanggal Mulai</label>
+                    <input type="date" class="form-control" wire:model.live="mulai" style="height: 40px; border-radius: 8px;">
+                </div>
+                <div class="col-md-4">
+                    <label class="font-weight-bold text-secondary small mb-2">Tanggal Akhir</label>
+                    <input type="date" class="form-control" wire:model.live="end" style="height: 40px; border-radius: 8px;">
+                </div>
+                <div class="col-md-4 text-right">
+                    <button class="btn btn-modern-add" onclick="printDiv('print-area')">
+                        <i class="fas fa-print mr-2"></i> Cetak Laporan
+                    </button>
                 </div>
             </div>
-        </div>
 
+            <div class="bg-white p-4 border rounded" id="print-area">
+                <div class="text-center mb-4">
+                    <h3 class="font-weight-bold" style="font-size: 18px; margin-bottom: 5px;">BUKU KAS PENGELUARAN</h3>
+                    <p class="mb-1" style="font-size: 14px;">Dinas Komunikasi dan Informatika Kabupaten Wonosobo</p>
+                    <p class="mb-0" style="font-size: 14px;">Periode:
+                        <strong>
+                            {{ \Carbon\Carbon::parse($mulai)->translatedFormat('d F Y') }} -
+                            {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}
+                        </strong>
+                    </p>
+                </div>
 
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm modern-table" style="font-size: 12px;">
+                        <thead class="bg-light text-center">
+                            <tr>
+                                <th style="width: 100px;">Tanggal</th>
+                                <th style="width: 175px;">No Bukti</th>
+                                <th style="width: 100px;">Rekening</th>
+                                <th>Uraian</th>
+                                <th style="width: 120px;">Debet</th>
+                                <th style="width: 120px;">Kredit</th>
+                                <th style="width: 120px;">Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $totalSaldo = $saldo;
+                            @endphp
+                            <tr class="bg-light font-weight-bold">
+                                <td>
+                                    {{ \Carbon\Carbon::parse($mulai)->format('m-d') == '01-01' ? \Carbon\Carbon::parse($mulai)->format('d-m-Y') : \Carbon\Carbon::parse($mulai)->subDay()->format('d-m-Y') }}
+                                </td>
+                                <td></td>
+                                <td>Saldo Awal</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">{{ number_format($saldo, 0, ',', '.') }}</td>
+                            </tr>
+                            @foreach ($data as $row)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}</td>
+                                    <td>
+                                        {{ Str::startsWith($row->no_bukti, ['UP-', 'GU-'])
+                                            ? $row->no_bukti
+                                            : 'TBP-' . str_pad($row->no_bukti, 4, '0', STR_PAD_LEFT) . '/Diskominfo/2025' }}
+                                    </td>
 
-        <button class="btn btn-primary mb-3" onclick="printDiv('print-area')">Cetak</button>
-    </div>
-
-    <div class="bg-white p-4">
-        <div id="print-area" class="p-2"> <!-- ✅ PERBAIKI ID di sini -->
-            <div class="text-center">
-                <h3 class="font-weight-bold">BUKU KAS PENGELUARAN</h3>
-                <p class="mb-1">Dinas Komunikasi dan Informatika Kabupaten Wonosobo</p>
-                <p class="mb-0">Tanggal:
-                    <strong>
-                        {{ \Carbon\Carbon::parse($mulai)->translatedFormat('d F Y') }} -
-                        {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}
-                    </strong>
-                </p>
+                                    <td>{{ $row->rekening ?? '-' }}</td>
+                                    <td>{{ $row->uraian }}</td>
+                                    <td class="text-right">{{ number_format((float) ($row->debet ?? 0), 0, ',', '.') }}
+                                    </td>
+                                    <td class="text-right">{{ number_format((float) ($row->kredit ?? 0), 0, ',', '.') }}
+                                    </td>
+                                    <td class="text-right font-weight-bold">
+                                        {{ number_format($totalSaldo = $totalSaldo + ((int) $row->debet ?? 0) - ((int) $row->kredit ?? 0), 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                @foreach ($row->pajak as $asu)
+                                    <tr style="background-color: #f8fafc;">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="font-italic text-secondary">Di Pungut {{ $asu->jenis_pajak }}</td>
+                                        <td class="text-right">
+                                            {{ number_format((float) ($asu->nominal ?? 0), 0, ',', '.') }}
+                                        </td>
+                                        <td></td>
+                                        <td class="text-right text-muted">
+                                            {{ number_format($totalSaldo = $totalSaldo + ((int) $asu->nominal ?? 0), 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    <tr style="background-color: #f8fafc;">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="font-italic text-secondary">Di Setor {{ $asu->jenis_pajak }}</td>
+                                        <td></td>
+                                        <td class="text-right">
+                                            {{ number_format((float) ($asu->nominal ?? 0), 0, ',', '.') }}
+                                        </td>
+                                        <td class="text-right text-muted">
+                                            {{ number_format($totalSaldo = $totalSaldo - ((int) $asu->nominal ?? 0), 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light">
+                                <td colspan="6" class="text-center font-weight-bold">SALDO AKHIR</td>
+                                <td class="text-right font-weight-bold" style="font-size: 14px;">{{ number_format($totalSaldo, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-
-            <table class="table table-bordered mt-3">
-                <thead style="text-align: center">
-                    <tr>
-                        <th width="100">Tanggal</th>
-                        <th width="175">No Bukti</th>
-                        <th width="100">Rekening</th>
-                        <th width="400">Uraian</th>
-                        <th width="100">Debet</th>
-                        <th width="100">Kredit</th>
-                        <th width="100">Saldo Sisa</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $totalSaldo = $saldo;
-                    @endphp
-                    <tr>
-                        <td>
-                            {{ \Carbon\Carbon::parse($mulai)->format('m-d') == '01-01' ? \Carbon\Carbon::parse($mulai)->format('d-m-Y') : \Carbon\Carbon::parse($mulai)->subDay()->format('d-m-Y') }}
-                        </td>
-                        <td></td>
-                        <td>Saldo Awal</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td style="text-align: right">{{ number_format($saldo, 0, ',', '.') }}</td>
-                    </tr>
-                    @foreach ($data as $row)
-                        <tr>
-                            <td>{{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}</td>
-                            <td>
-                                {{ Str::startsWith($row->no_bukti, ['UP-', 'GU-'])
-                                    ? $row->no_bukti
-                                    : 'TBP-' . str_pad($row->no_bukti, 4, '0', STR_PAD_LEFT) . '/Diskominfo/2025' }}
-                            </td>
-
-                            <td>{{ $row->rekening ?? '-' }}</td>
-                            <td>{{ $row->uraian }}</td>
-                            <td style="text-align: right">{{ number_format((float) ($row->debet ?? 0), 0, ',', '.') }}
-                            </td>
-                            <td style="text-align: right">{{ number_format((float) ($row->kredit ?? 0), 0, ',', '.') }}
-                            </td>
-                            <td style="text-align: right">
-                                {{ number_format($totalSaldo = $totalSaldo + ((int) $row->debet ?? 0) - ((int) $row->kredit ?? 0), 0, ',', '.') }}
-                            </td>
-                        </tr>
-                        @foreach ($row->pajak as $asu)
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>Di Pungut {{ $asu->jenis_pajak }}</td>
-                                <td style="text-align: right">
-                                    {{ number_format((float) ($asu->nominal ?? 0), 0, ',', '.') }}
-                                </td>
-                                <td></td>
-                                <td style="text-align: right">
-                                    {{ number_format($totalSaldo = $totalSaldo + ((int) $asu->nominal ?? 0), 0, ',', '.') }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>Di Setor {{ $asu->jenis_pajak }}</td>
-                                <td></td>
-                                <td style="text-align: right">
-                                    {{ number_format((float) ($asu->nominal ?? 0), 0, ',', '.') }}
-                                </td>
-                                <td style="text-align: right">
-                                    {{ number_format($totalSaldo = $totalSaldo - ((int) $asu->nominal ?? 0), 0, ',', '.') }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="6" class="text-center bold"><strong>Saldo Akhir</strong></td>
-                        <td style="text-align: right"><strong>{{ number_format($totalSaldo, 0, ',', '.') }}</strong>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
     </div>
 </div>
@@ -131,17 +134,18 @@
             var content = document.getElementById(divId).innerHTML;
             var myWindow = window.open('', '', 'width=900,height=600');
 
-            myWindow.document.write('<html><head><title>Cetak</title>');
+            myWindow.document.write('<html><head><title>Cetak Laporan BKU</title>');
             myWindow.document.write('<style>');
             myWindow.document.write(`
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                table { width: 100%; border-collapse: collapse; }
+                body { font-family: Arial, sans-serif; margin: 20px; color: #000; }
+                table { width: 100%; border-collapse: collapse; font-size: 11px; }
                 table, th, td { border: 1px solid black; }
-                th, td { padding: 8px; text-align: left; }
-                h3, p { text-align: center; }
-                @media print {
-                    button { display: none; } /* Sembunyikan tombol saat dicetak */
-                }
+                th, td { padding: 4px 6px; text-align: left; vertical-align: top; }
+                th { background-color: #f0f0f0; text-align: center; font-weight: bold; }
+                .text-right { text-align: right; }
+                .text-center { text-align: center; }
+                h3 { margin-bottom: 5px; text-align: center; font-size: 16px; text-transform: uppercase; }
+                p { margin: 2px 0; text-align: center; font-size: 12px; }
             `);
             myWindow.document.write('</style></head><body>');
             myWindow.document.write(content);
@@ -149,8 +153,10 @@
 
             myWindow.document.close();
             myWindow.focus();
-            myWindow.print();
-            myWindow.close();
+            setTimeout(function() {
+                myWindow.print();
+                myWindow.close();
+            }, 500);
         }
     </script>
 @endpush

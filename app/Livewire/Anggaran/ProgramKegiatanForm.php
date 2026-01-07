@@ -35,6 +35,7 @@ class ProgramKegiatanForm extends Component
     public $uploadedFilePath = null;
     public $fileName = null;
     public $fileSize = null;
+    public $tahun_anggaran_import;
 
     protected $listeners = ['resetInput'];
 
@@ -226,6 +227,7 @@ class ProgramKegiatanForm extends Component
     {
         $this->validate([
             'file' => 'required|mimes:xlsx,xls',
+            'tahun_anggaran_import' => 'required|numeric|min:2020|max:2100',
         ]);
 
         // Store file temporarily
@@ -289,13 +291,13 @@ class ProgramKegiatanForm extends Component
             $converterService->createExcelFile($convertedData, $tempPath);
 
             // Import the converted file
-            Excel::import(new MultipleImportProgram, $tempPath);
+            Excel::import(new MultipleImportProgram($this->tahun_anggaran_import), $tempPath);
 
             // Clean up temp file
             @unlink($tempPath);
         } else {
             // Import directly
-            Excel::import(new MultipleImportProgram, $fullPath);
+            Excel::import(new MultipleImportProgram($this->tahun_anggaran_import), $fullPath);
         }
 
         // Reset state
@@ -337,6 +339,7 @@ class ProgramKegiatanForm extends Component
         $this->file = null;
         $this->fileName = null;
         $this->fileSize = null;
+        $this->tahun_anggaran_import = null;
 
         // Clean up uploaded file
         if ($this->uploadedFilePath) {
@@ -414,10 +417,11 @@ class ProgramKegiatanForm extends Component
     {
         $this->validate([
             'file' => 'required|mimes:xlsx,xls', // Pastikan hanya file Excel yang dapat diunggah
+            'tahun_anggaran_import' => 'required|numeric|min:2020|max:2100',
         ]);
 
         // Mengimpor semua sheet dari file Excel menggunakan MultiSheetImport
-        Excel::import(new MultipleImportProgram, $this->file->store('temp'));
+        Excel::import(new MultipleImportProgram($this->tahun_anggaran_import), $this->file->store('temp'));
 
         // Menggunakan JavaScript untuk menyembunyikan modal dan menampilkan notifikasi
         $this->js(<<<'JS'

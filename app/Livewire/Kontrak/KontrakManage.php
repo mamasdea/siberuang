@@ -60,28 +60,29 @@ class KontrakManage extends Component
     protected function rules(): array
     {
         $unique = 'unique:kontraks,nomor_kontrak';
-        if ($this->kontrak_id) $unique .= ',' . $this->kontrak_id;
+        if ($this->kontrak_id)
+            $unique .= ',' . $this->kontrak_id;
 
         return [
-            'nomor_kontrak'         => ['required', 'string', 'max:255', $unique],
-            'tanggal_kontrak'       => ['required', 'date'],
-            'jangka_waktu'          => ['nullable', 'string', 'max:255'],
+            'nomor_kontrak' => ['required', 'string', 'max:255', $unique],
+            'tanggal_kontrak' => ['required', 'date'],
+            'jangka_waktu' => ['nullable', 'string', 'max:255'],
 
-            'sub_kegiatan_id'       => ['required', 'exists:sub_kegiatans,id'],
-            'keperluan'             => ['nullable', 'string'],
-            'id_kontrak_lkpp'       => ['nullable', 'string', 'max:255'],
+            'sub_kegiatan_id' => ['required', 'exists:sub_kegiatans,id'],
+            'keperluan' => ['nullable', 'string'],
+            'id_kontrak_lkpp' => ['nullable', 'string', 'max:255'],
 
-            'nama_perusahaan'       => ['required', 'string', 'max:255'],
-            'bentuk_perusahaan'     => ['nullable', 'string', 'max:20'],
-            'alamat_perusahaan'     => ['nullable', 'string'],
-            'nama_pimpinan'         => ['nullable', 'string', 'max:255'],
-            'npwp_perusahaan'       => ['nullable', 'string', 'max:30'],
+            'nama_perusahaan' => ['required', 'string', 'max:255'],
+            'bentuk_perusahaan' => ['nullable', 'string', 'max:20'],
+            'alamat_perusahaan' => ['nullable', 'string'],
+            'nama_pimpinan' => ['nullable', 'string', 'max:255'],
+            'npwp_perusahaan' => ['nullable', 'string', 'max:30'],
 
             // nilai akan diisi otomatis sebelum create/update
-            'nilai'                 => ['required', 'numeric', 'min:0'],
-            'nama_bank'             => ['nullable', 'string', 'max:255'],
+            'nilai' => ['required', 'numeric', 'min:0'],
+            'nama_bank' => ['nullable', 'string', 'max:255'],
             'nama_pemilik_rekening' => ['nullable', 'string', 'max:255'],
-            'nomor_rekening'        => ['nullable', 'string', 'max:50'],
+            'nomor_rekening' => ['nullable', 'string', 'max:50'],
         ];
     }
 
@@ -94,11 +95,13 @@ class KontrakManage extends Component
         $this->resetPage();
     }
 
+    protected $paginationTheme = 'bootstrap';
+
     public function render()
     {
         $tahun = session('tahun_anggaran', date('Y'));
 
-        $rows = Kontrak::query()
+        $query = Kontrak::query()
             ->whereYear('tanggal_kontrak', $tahun)   // ✅ FILTER TAHUN
             ->when($this->search, function ($q) {
                 $s = "%{$this->search}%";
@@ -110,12 +113,17 @@ class KontrakManage extends Component
                     $r->where('nama', 'like', $s)
                         ->orWhere('kode', 'like', $s);
                 });
-            })
-            ->with('subKegiatan')
+            });
+
+        // Hitung Statistik
+        $totalKontrak = (clone $query)->count();
+        $totalNilai = (clone $query)->sum('nilai');
+
+        $rows = $query->with('subKegiatan')
             ->orderBy('tanggal_kontrak', 'desc')
             ->paginate($this->paginate);
 
-        return view('livewire.kontrak.kontrak-manage', compact('rows'));
+        return view('livewire.kontrak.kontrak-manage', compact('rows', 'totalKontrak', 'totalNilai'));
     }
 
 
@@ -124,19 +132,19 @@ class KontrakManage extends Component
     public function addItem()
     {
         $this->validate([
-            'item_nama'   => 'required|string|max:255',
-            'item_qty'    => 'required|numeric|min:0.01',
+            'item_nama' => 'required|string|max:255',
+            'item_qty' => 'required|numeric|min:0.01',
             'item_satuan' => 'nullable|string|max:50',
-            'item_harga'  => 'required|numeric|min:0',
+            'item_harga' => 'required|numeric|min:0',
         ]);
 
-        $total = (float)$this->item_qty * (float)$this->item_harga;
+        $total = (float) $this->item_qty * (float) $this->item_harga;
 
         $this->items[] = [
             'nama_barang' => $this->item_nama,
-            'kuantitas'   => (float)$this->item_qty,
-            'satuan'      => $this->item_satuan,
-            'harga'       => (float)$this->item_harga,
+            'kuantitas' => (float) $this->item_qty,
+            'satuan' => $this->item_satuan,
+            'harga' => (float) $this->item_harga,
             'total_harga' => $total,
         ];
 
@@ -160,7 +168,7 @@ class KontrakManage extends Component
     {
         // kalau user mengedit kolom di tabel (kalau nanti dibuat editable), tetap hitung
         foreach ($this->items as &$it) {
-            $it['total_harga'] = (float)($it['kuantitas'] ?? 0) * (float)($it['harga'] ?? 0);
+            $it['total_harga'] = (float) ($it['kuantitas'] ?? 0) * (float) ($it['harga'] ?? 0);
         }
         unset($it);
         $this->recalcNilaiFromItems();
@@ -168,7 +176,7 @@ class KontrakManage extends Component
 
     public function getTotalRincianProperty(): float
     {
-        return array_sum(array_map(fn($i) => (float)($i['total_harga'] ?? 0), $this->items));
+        return array_sum(array_map(fn($i) => (float) ($i['total_harga'] ?? 0), $this->items));
     }
 
     protected function recalcNilaiFromItems(): void
@@ -235,32 +243,32 @@ class KontrakManage extends Component
         $k = Kontrak::with('rincians')->findOrFail($id);
 
         $this->fill([
-            'kontrak_id'            => $k->id,
-            'nomor_kontrak'         => $k->nomor_kontrak,
-            'tanggal_kontrak'       => optional($k->tanggal_kontrak)->format('Y-m-d'),
-            'jangka_waktu'          => $k->jangka_waktu,
-            'sub_kegiatan_id'       => $k->sub_kegiatan_id,
-            'keperluan'             => $k->keperluan,
-            'id_kontrak_lkpp'       => $k->id_kontrak_lkpp,
-            'nama_perusahaan'       => $k->nama_perusahaan,
-            'bentuk_perusahaan'     => $k->bentuk_perusahaan,
-            'alamat_perusahaan'     => $k->alamat_perusahaan,
-            'nama_pimpinan'         => $k->nama_pimpinan,
-            'npwp_perusahaan'       => $k->npwp_perusahaan,
-            'nilai'                 => (float)$k->nilai,
-            'nama_bank'             => $k->nama_bank,
+            'kontrak_id' => $k->id,
+            'nomor_kontrak' => $k->nomor_kontrak,
+            'tanggal_kontrak' => optional($k->tanggal_kontrak)->format('Y-m-d'),
+            'jangka_waktu' => $k->jangka_waktu,
+            'sub_kegiatan_id' => $k->sub_kegiatan_id,
+            'keperluan' => $k->keperluan,
+            'id_kontrak_lkpp' => $k->id_kontrak_lkpp,
+            'nama_perusahaan' => $k->nama_perusahaan,
+            'bentuk_perusahaan' => $k->bentuk_perusahaan,
+            'alamat_perusahaan' => $k->alamat_perusahaan,
+            'nama_pimpinan' => $k->nama_pimpinan,
+            'npwp_perusahaan' => $k->npwp_perusahaan,
+            'nilai' => (float) $k->nilai,
+            'nama_bank' => $k->nama_bank,
             'nama_pemilik_rekening' => $k->nama_pemilik_rekening,
-            'nomor_rekening'        => $k->nomor_rekening,
+            'nomor_rekening' => $k->nomor_rekening,
         ]);
 
         // muat rincian ke form dinamis
         $this->items = $k->rincians->map(function ($r) {
             return [
                 'nama_barang' => $r->nama_barang,
-                'kuantitas'   => (float)$r->kuantitas,
-                'satuan'      => (string)$r->satuan,
-                'harga'       => (float)$r->harga,
-                'total_harga' => (float)$r->total_harga,
+                'kuantitas' => (float) $r->kuantitas,
+                'satuan' => (string) $r->satuan,
+                'harga' => (float) $r->harga,
+                'total_harga' => (float) $r->total_harga,
             ];
         })->toArray();
 
@@ -315,7 +323,8 @@ class KontrakManage extends Component
     public function delete()
     {
         // Pastikan id ada
-        if (!$this->kontrak_id) return;
+        if (!$this->kontrak_id)
+            return;
 
         // Cek: ada rincian realisasi untuk kontrak ini?
         $hasRincianRealisasi = RincianRealisasiKontrak::whereHas('realisasi', function ($q) {

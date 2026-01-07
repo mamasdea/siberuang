@@ -929,6 +929,24 @@
                 <div class="modal-body">
                     <!-- Step 1: Upload File -->
                     @if (!$fileDetected)
+                        <!-- Tahun Anggaran Selection -->
+                        <div class="form-group">
+                            <label for="tahun_anggaran_import">Tahun Anggaran <span class="text-danger">*</span></label>
+                            <select class="form-control @error('tahun_anggaran_import') is-invalid @enderror"
+                                    wire:model="tahun_anggaran_import" id="tahun_anggaran_import">
+                                <option value="">-- Pilih Tahun Anggaran --</option>
+                                @for ($year = date('Y') + 1; $year >= 2020; $year--)
+                                    <option value="{{ $year }}">{{ $year }}</option>
+                                @endfor
+                            </select>
+                            @error('tahun_anggaran_import')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> Pilih tahun anggaran yang akan digunakan untuk validasi data import
+                            </small>
+                        </div>
+
                         <div class="custom-file-upload-area">
                             @if (!$fileName)
                                 <label for="file" class="file-upload-label">
@@ -968,7 +986,7 @@
 
                         <div class="text-right mt-3">
                             <button type="button" class="btn btn-modern-primary" wire:click="uploadAndDetect"
-                                wire:loading.attr="disabled" @if(!$fileName) disabled @endif>
+                                wire:loading.attr="disabled" @if(!$fileName || !$tahun_anggaran_import) disabled @endif>
                                 <span wire:loading.remove wire:target="uploadAndDetect">
                                     <i class="fas fa-search"></i> Upload & Detect Format
                                 </span>

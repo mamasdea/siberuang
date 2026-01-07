@@ -1,71 +1,82 @@
+@push('css')
+    <x-styles.modern-ui />
+@endpush
+
 <div>
-    <div class="container mt-4">
-        <input type="text" wire:model.live="search" placeholder="Search sub kegiatan..."
-            class="form-control mb-3 shadow-sm" />
+    <div class="px-1 py-2">
+        <div class="search-box mb-4">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" wire:model.live="search" placeholder="Cari Sub Kegiatan..."
+                class="form-control search-input" />
+        </div>
 
-        @foreach ($subKegiatans as $subKegiatan)
-            <div class="card mb-2 shadow-sm">
-                <div class="card-header bg-secondary text-white cursor-pointer"
-                    wire:click="selectSubKegiatan({{ $subKegiatan->id }})" style="transition: background-color 0.3s;">
-                    {{ $subKegiatan->nama }} ({{ $subKegiatan->kode }})
-                </div>
-                @if ($selectedSubKegiatanId === $subKegiatan->id)
-                    <div class="card-body">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Kode Belanja</th>
-                                    <th>Nama Belanja</th>
-                                    <th>Sisa Anggaran</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($subKegiatan->rkas as $rka)
-                                    <tr>
-                                        <td>{{ $rka->kode_belanja }}</td>
-                                        <td>{{ $rka->nama_belanja }}</td>
-                                        <td>{{ number_format($rka->sisaAnggaran, 2, ',', '.') }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary"
-                                                wire:click="kirim({{ $rka->id }})">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+        @if($subKegiatans->isEmpty())
+             <div class="text-center py-5">
+                 <div class="empty-state">
+                     <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                     <p class="text-muted">Tidak ada data ditemukan</p>
+                 </div>
+             </div>
+        @else
+            @foreach ($subKegiatans as $subKegiatan)
+                <div class="mb-2">
+                    <div class="card-header bg-white px-3 py-2 cursor-pointer d-flex justify-content-between align-items-center shadow-sm"
+                        wire:click="selectSubKegiatan({{ $subKegiatan->id }})" 
+                        style="border: 1px solid #e2e8f0; border-radius: {{ $selectedSubKegiatanId === $subKegiatan->id ? '12px 12px 0 0' : '12px' }}; transition: all 0.2s;">
+                        <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                            <span class="code-badge mr-3 flex-shrink-0">
+                                {{ $subKegiatan->kode }}
+                            </span>
+                            <span class="font-weight-bold text-dark text-truncate" title="{{ $subKegiatan->nama }}">
+                                {{ $subKegiatan->nama }}
+                            </span>
+                        </div>
+                        <div class="pl-3">
+                            <i class="fas fa-chevron-{{ $selectedSubKegiatanId === $subKegiatan->id ? 'up' : 'down' }} text-secondary"></i>
+                        </div>
                     </div>
-                @endif
-            </div>
-        @endforeach
-
+                    
+                    @if ($selectedSubKegiatanId === $subKegiatan->id)
+                        <div class="bg-light p-3 shadow-inner" style="border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+                            <div class="table-responsive bg-white rounded border">
+                                <table class="table modern-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">Kode Belanja</th>
+                                            <th>Nama Belanja</th>
+                                            <th width="25%" class="text-right">Sisa Anggaran</th>
+                                            <th width="10%" class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if($subKegiatan->rkas->isEmpty())
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-3">Tidak ada rekening belanja</td>
+                                            </tr>
+                                        @else
+                                            @foreach ($subKegiatan->rkas as $rka)
+                                                <tr>
+                                                    <td><span class="code-badge">{{ $rka->kode_belanja }}</span></td>
+                                                    <td>{{ $rka->nama_belanja }}</td>
+                                                    <td class="text-right">
+                                                        <span class="amount-badge">Rp {{ number_format($rka->sisaAnggaran, 0, ',', '.') }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-modern-add btn-sm py-1 px-3"
+                                                            wire:click="kirim({{ $rka->id }})" title="Pilih">
+                                                            Pilih
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        @endif
     </div>
-
-    <style>
-        .cursor-pointer {
-            cursor: pointer;
-        }
-
-        .card-header:hover {
-            background-color: #0056b3 !important;
-        }
-
-        .card-body {
-            padding-left: 2rem;
-        }
-
-        .card {
-            border-radius: 10px;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .btn {
-            margin-right: 5px;
-        }
-    </style>
 </div>

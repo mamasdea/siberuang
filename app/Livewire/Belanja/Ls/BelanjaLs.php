@@ -19,8 +19,15 @@ class BelanjaLs extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public $search = '';
     public $paginate = 10;
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
     public $belanjas;
 
     // Header transaksi LS
@@ -62,7 +69,8 @@ class BelanjaLs extends Component
         $tahun = session('tahun_anggaran', date('Y'));
 
         // Query header transaksi LS dengan relasi ke detail dan turunannya.
-        $belanjas = ModelBelanjaLs::with(['details.rka.subKegiatan.kegiatan.program'])
+        // Query base untuk digunakan di pagination dan statistik
+        $query = ModelBelanjaLs::with(['details.rka.subKegiatan.kegiatan.program'])
             ->whereHas('details', function ($query) use ($tahun) {
                 $query->whereHas('rka', function ($query2) use ($tahun) {
                     $query2->whereHas('subKegiatan', function ($query3) use ($tahun) {
@@ -77,20 +85,27 @@ class BelanjaLs extends Component
             ->where(function ($query) {
                 $query->where('uraian', 'like', '%' . $this->search . '%')
                     ->orWhere('no_bukti', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('no_bukti', 'asc')
+            });
+
+        // Clone query untuk statistik
+        $totalTransaksi = (clone $query)->count();
+        $totalNominal = (clone $query)->sum('total_nilai');
+
+        $belanjas = $query->orderBy('no_bukti', 'asc')
             ->paginate($this->paginate);
 
         return view('livewire.belanja.ls.belanja-ls', [
-            'belanja'   => $belanjas,
+            'belanja' => $belanjas,
             'penerimas' => Penerima::all(),
+            'totalTransaksi' => $totalTransaksi,
+            'totalNominal' => $totalNominal,
         ]);
     }
 
 
     public function setSubKegiatan($id, $kode, $nama)
     {
-        $this->sub_kegiatan_id  = $id;
+        $this->sub_kegiatan_id = $id;
         $this->sub_kegiatan_kode = $kode;
         $this->sub_kegiatan_nama = $nama;
 
@@ -104,12 +119,12 @@ class BelanjaLs extends Component
             $totalLS = BelanjaLsDetails::where('rka_id', $rka->id)->sum('nilai');
             $sisa = $rka->anggaran - $totalGU - $totalKkpd - $totalLS;
             return [
-                'id'            => $rka->id,
-                'nama_belanja'  => $rka->nama_belanja,
-                'kode_belanja'  => $rka->kode_belanja,
-                'anggaran'      => $rka->anggaran,
-                'initial_sisa'  => $sisa, // simpan sisa anggaran awal
-                'nilai'         => 0,     // default nilai transaksi LS
+                'id' => $rka->id,
+                'nama_belanja' => $rka->nama_belanja,
+                'kode_belanja' => $rka->kode_belanja,
+                'anggaran' => $rka->anggaran,
+                'initial_sisa' => $sisa, // simpan sisa anggaran awal
+                'nilai' => 0,     // default nilai transaksi LS
             ];
         })->toArray();
 
@@ -124,8 +139,8 @@ class BelanjaLs extends Component
 
         $validatedData = $this->validate([
             'no_bukti' => 'required|string|min:4|unique:belanja_ls,no_bukti',
-            'tanggal'         => 'required|date',
-            'uraian'          => 'required',
+            'tanggal' => 'required|date',
+            'uraian' => 'required',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
         ]);
 
@@ -138,10 +153,10 @@ class BelanjaLs extends Component
         DB::beginTransaction();
         try {
             $belanjaLS = ModelBelanjaLs::create([
-                'no_bukti'        => $this->no_bukti,
-                'tanggal'         => $this->tanggal,
-                'uraian'          => $this->uraian,
-                'total_nilai'     => $this->total_nilai,
+                'no_bukti' => $this->no_bukti,
+                'tanggal' => $this->tanggal,
+                'uraian' => $this->uraian,
+                'total_nilai' => $this->total_nilai,
                 'sub_kegiatan_id' => $this->sub_kegiatan_id,
             ]);
 
@@ -154,8 +169,8 @@ class BelanjaLs extends Component
                     }
                     BelanjaLsDetails::create([
                         'belanja_ls_id' => $belanjaLS->id,
-                        'rka_id'        => $rkaItem['id'],
-                        'nilai'         => $rkaItem['nilai'],
+                        'rka_id' => $rkaItem['id'],
+                        'nilai' => $rkaItem['nilai'],
                     ]);
                     // Update anggaran RKAS secara opsional jika diperlukan
                     // $rka = Rka::find($rkaItem['id']);
@@ -199,11 +214,11 @@ class BelanjaLs extends Component
     public function edit($id)
     {
         $belanjaLS = ModelBelanjaLs::with('details')->findOrFail($id);
-        $this->belanja_id   = $belanjaLS->id;
-        $this->no_bukti     = $belanjaLS->no_bukti;
-        $this->tanggal      = $belanjaLS->tanggal;
-        $this->uraian       = $belanjaLS->uraian;
-        $this->total_nilai  = $belanjaLS->total_nilai;
+        $this->belanja_id = $belanjaLS->id;
+        $this->no_bukti = $belanjaLS->no_bukti;
+        $this->tanggal = $belanjaLS->tanggal;
+        $this->uraian = $belanjaLS->uraian;
+        $this->total_nilai = $belanjaLS->total_nilai;
         $this->sub_kegiatan_id = $belanjaLS->sub_kegiatan_id;
 
         // Jika sub_kegiatan_id belum ada di header, ambil dari detail pertama
@@ -271,10 +286,10 @@ class BelanjaLs extends Component
         try {
             if ($belanjaLS = ModelBelanjaLs::find($this->belanja_id)) {
                 $belanjaLS->update([
-                    'no_bukti'        => $this->no_bukti,
-                    'tanggal'         => $this->tanggal,
-                    'uraian'          => $this->uraian,
-                    'total_nilai'     => $this->total_nilai,
+                    'no_bukti' => $this->no_bukti,
+                    'tanggal' => $this->tanggal,
+                    'uraian' => $this->uraian,
+                    'total_nilai' => $this->total_nilai,
                     'sub_kegiatan_id' => $this->sub_kegiatan_id,
                 ]);
 
@@ -286,8 +301,8 @@ class BelanjaLs extends Component
                     if ($rkaItem['nilai'] > 0) {
                         BelanjaLsDetails::create([
                             'belanja_ls_id' => $this->belanja_id,
-                            'rka_id'        => $rkaItem['id'],
-                            'nilai'         => $rkaItem['nilai'],
+                            'rka_id' => $rkaItem['id'],
+                            'nilai' => $rkaItem['nilai'],
                         ]);
                     }
                 }

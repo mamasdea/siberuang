@@ -13,12 +13,16 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Title;
 use App\Livewire\Laporan\LaporanNPD;
 use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 use App\Livewire\Laporan\LaporanBelanja;
 
 #[Title('Belanja GU Giro')]
 class BelanjaManager extends Component
 {
     use WithPagination;
+    use WithFileUploads;
+
+    protected $paginationTheme = 'bootstrap';
 
     public $search = '';
     public $paginate = 10;
@@ -38,16 +42,19 @@ class BelanjaManager extends Component
 
     public $pathWord;
     public $pathpdf;
+    public $fileArsip;
+    public $existingArsip;
 
     public $sub_kegiatan_kode, $sub_kegiatan_nama, $sisa_anggaran;
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
 
     public function updated($property)
     {
         // $property: The name of the current property that was updated
-
-        if ($property === 'search') {
-            $this->resethalaman();
-        }
     }
 
     public function openPreview($belanjaId)
@@ -72,7 +79,8 @@ class BelanjaManager extends Component
         $bulan = $this->bulan ?? date('m'); // Ambil bulan yang dipilih, default ke bulan sekarang
 
         // Query belanja sesuai tahun anggaran dan bulan
-        $belanjas = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program'])
+        // Query belanja sesuai tahun anggaran dan bulan
+        $query = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program'])
             ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
                 $query->where('tahun_anggaran', $tahun);
             })
@@ -82,8 +90,13 @@ class BelanjaManager extends Component
                     ->orWhere('uraian', 'like', '%' . $this->search . '%')
                     ->orWhere('nilai', 'like', '%' . $this->search . '%')
                     ->orWhere('no_bukti', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('id', 'desc')
+            });
+
+        // Hitung Statistik
+        $totalTransaksi = (clone $query)->count();
+        $totalNominal = (clone $query)->sum('nilai');
+
+        $belanjas = $query->orderBy('id', 'desc')
             ->paginate($this->paginate);
 
         // Perhitungan total penerimaan dan pajak untuk setiap belanja
@@ -99,13 +112,12 @@ class BelanjaManager extends Component
             'totalPenerimaan' => $this->totalPenerimaan,
             'totalPajak' => $this->totalPajak,
             'bulan' => $bulan,
+            'totalTransaksi' => $totalTransaksi,
+            'totalNominal' => $totalNominal,
         ]);
     }
 
-    public function resethalaman()
-    {
-        $this->resetPage();
-    }
+
     public function toggleField($id, $field)
     {
         $belanja = Belanja::findOrFail($id);
@@ -123,7 +135,7 @@ class BelanjaManager extends Component
         $lastNoBukti = Belanja::orderBy('no_bukti', 'desc')->first();
 
         // Jika belum ada nomor bukti, mulai dari 1
-        $newNoBukti = $lastNoBukti ? (int)$lastNoBukti->no_bukti + 1 : 1;
+        $newNoBukti = $lastNoBukti ? (int) $lastNoBukti->no_bukti + 1 : 1;
 
         // Format nomor bukti menjadi 4 digit (contoh: 0001)
         $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
@@ -154,6 +166,10 @@ class BelanjaManager extends Component
                 }
             ],
         ]);
+
+        if ($this->fileArsip) {
+            $validatedData['arsip'] = $this->fileArsip->store('arsip', 'gcs');
+        }
 
         // Tambahkan nomor bukti yang sudah diformat ke dalam data yang divalidasi
         $validatedData['no_bukti'] = $formattedNoBukti;
@@ -196,6 +212,8 @@ class BelanjaManager extends Component
         $this->uraian = $belanja->uraian;
         $this->rka_id = $belanja->rka_id;
         $this->nilai = $belanja->nilai;
+        $this->existingArsip = $belanja->arsip;
+        $this->fileArsip = null;
 
         // Menemukan data RKA dan Sub Kegiatan terkait
         $rka = Rka::with('subKegiatan')->find($belanja->rka_id);
@@ -257,6 +275,13 @@ class BelanjaManager extends Component
                 'nilai' => $this->nilai,
 
             ]); // Gunakan update() untuk mengupdate data
+
+            if ($this->fileArsip) {
+                if ($belanja->arsip) {
+                    Storage::disk('gcs')->delete($belanja->arsip);
+                }
+                $belanja->update(['arsip' => $this->fileArsip->store('arsip', 'gcs')]);
+            }
             $this->resetInputFields();
             $this->isEdit = false;
             $this->formVisible = false;
@@ -291,6 +316,9 @@ class BelanjaManager extends Component
         $this->tanggal = null;
         $this->uraian = '';
         $this->nilai = null;
+        $this->nilai = null;
+        $this->fileArsip = null;
+        $this->existingArsip = null;
         $this->isEdit = false;
         $this->rka_id = null;
         $this->rincian_subkegiatan = false;
@@ -380,8 +408,13 @@ class BelanjaManager extends Component
 
     public function delete()
     {
-        // ModelRekeningBelanja::find($id)->delete();
-        Belanja::destroy($this->belanjaId);
+        $belanja = Belanja::find($this->belanjaId);
+        if ($belanja) {
+            if ($belanja->arsip) {
+                Storage::disk('gcs')->delete($belanja->arsip);
+            }
+            $belanja->delete();
+        }
         $this->js(<<<'JS'
             const Toast = Swal.mixin({
                 toast: true,
@@ -415,5 +448,128 @@ class BelanjaManager extends Component
         $data = new LaporanBelanja;
 
         return $data->downloadKwitansiDinas($id);
+    }
+
+    public function getArsipUrl($path)
+    {
+        if (!$path)
+            return '';
+        return route('helper.show-picture', ['path' => $path, 'disk' => 'gcs']);
+    }
+
+    public $uploadBelanjaId;
+    public $previewArsipUrl;
+
+    public function updateArsipFromPreview()
+    {
+        $this->validate([
+            'fileArsip' => 'required|mimes:pdf|max:20480',
+        ]);
+
+        $belanja = Belanja::find($this->uploadBelanjaId);
+        if ($belanja) {
+            if ($belanja->arsip) {
+                Storage::disk('gcs')->delete($belanja->arsip);
+            }
+            $path = $this->fileArsip->store('arsip', 'gcs');
+            $belanja->update(['arsip' => $path]);
+
+            $this->previewArsipUrl = $this->getArsipUrl($path);
+            $this->fileArsip = null;
+
+            $this->js(<<<'JS'
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "success",
+                    title: "Arsip berhasil diperbarui"
+                });
+            JS);
+        }
+    }
+
+    public function viewArsip($id)
+    {
+        $this->uploadBelanjaId = $id;
+        $this->fileArsip = null;
+        $belanja = Belanja::find($id);
+        if ($belanja && $belanja->arsip) {
+            $this->previewArsipUrl = $this->getArsipUrl($belanja->arsip);
+            $this->js(<<<'JS'
+                $('#previewArsipModal').modal('show');
+            JS);
+        }
+    }
+
+    public function closeViewArsip()
+    {
+        $this->previewArsipUrl = null;
+        $this->js(<<<'JS'
+            $('#previewArsipModal').modal('hide');
+        JS);
+    }
+
+    public function openUploadModal($id)
+    {
+        $this->uploadBelanjaId = $id;
+        $this->fileArsip = null;
+        $this->js(<<<'JS'
+            $('#uploadArsipModal').modal('show');
+        JS);
+    }
+
+    public function closeUploadModal()
+    {
+        $this->uploadBelanjaId = null;
+        $this->fileArsip = null;
+        $this->js(<<<'JS'
+            $('#uploadArsipModal').modal('hide');
+        JS);
+    }
+
+    public function saveArsip()
+    {
+        $this->validate([
+            'fileArsip' => 'required|mimes:pdf|max:20480',
+        ]);
+
+        $belanja = Belanja::find($this->uploadBelanjaId);
+        if ($belanja) {
+            if ($belanja->arsip) {
+                Storage::disk('gcs')->delete($belanja->arsip);
+            }
+            $path = $this->fileArsip->store('arsip', 'gcs');
+            $belanja->update(['arsip' => $path]);
+
+            $this->js(<<<'JS'
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "success",
+                    title: "Arsip berhasil diupload"
+                });
+                $('#uploadArsipModal').modal('hide');
+            JS);
+        }
+        $this->uploadBelanjaId = null;
+        $this->fileArsip = null;
     }
 }

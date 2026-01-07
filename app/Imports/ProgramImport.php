@@ -12,6 +12,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 // Import untuk Program
 class ProgramImport implements ToModel, WithHeadingRow
 {
+    protected $tahunAnggaran;
+
+    public function __construct($tahunAnggaran)
+    {
+        $this->tahunAnggaran = $tahunAnggaran;
+    }
+
     public function model(array $row)
     {
         return Program::updateOrCreate(
@@ -19,6 +26,7 @@ class ProgramImport implements ToModel, WithHeadingRow
             [
                 "kode" => $row["kode"],
                 "nama" => $row["nama"],
+                "tahun_anggaran" => $this->tahunAnggaran,
             ]
         );
     }

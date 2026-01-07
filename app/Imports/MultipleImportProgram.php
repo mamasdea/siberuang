@@ -8,10 +8,17 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class MultipleImportProgram implements WithMultipleSheets
 {
+    protected $tahunAnggaran;
+
+    public function __construct($tahunAnggaran)
+    {
+        $this->tahunAnggaran = $tahunAnggaran;
+    }
+
     public function sheets(): array
     {
         return [
-            0 => new ProgramImport(),     // Sheet 1: Program
+            0 => new ProgramImport($this->tahunAnggaran),     // Sheet 1: Program
             1 => new KegiatanImport(),    // Sheet 2: Kegiatan
             2 => new SubKegiatanImport(), // Sheet 3: SubKegiatan
             3 => new RkaImport(),         // Sheet 4: RKA

@@ -5,22 +5,28 @@ namespace App\Livewire\Persediaan;
 use App\Models\UangKkpd as ModelUangKkpd;
 use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\WithPagination;
 
 #[Title('Uang KKPD')]
 class UangKkpd extends Component
 {
-    public $uangKkpds, $no_bukti, $tanggal, $uraian, $nominal, $uangKkpdId;
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
+    public $no_bukti, $tanggal, $uraian, $nominal, $uangKkpdId;
     public $isEditMode = false;
 
-    // ===== Filter Tahun =====
+    // ===== Filter & Search =====
+    public $search = '';
     public ?int $tahun = null; // null = semua tahun
     public array $listTahun = [];
 
     protected $rules = [
         'no_bukti' => 'required|string|max:255',
-        'tanggal'  => 'required|date',
-        'uraian'   => 'required|string|max:255',
-        'nominal'  => 'required|numeric|min:0',
+        'tanggal' => 'required|date',
+        'uraian' => 'required|string|max:255',
+        'nominal' => 'required|numeric|min:0',
     ];
 
     public function mount()
@@ -29,13 +35,45 @@ class UangKkpd extends Component
         $this->tahun = (int) session('tahun_anggaran', date('Y'));
 
         $this->refreshListTahun();
-        $this->loadData();
     }
 
     public function render()
     {
-        $this->loadData();
-        return view('livewire.persediaan.uang-kkpd');
+        $uangKkpds = ModelUangKkpd::query()
+            ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+            ->when($this->search, function ($q) {
+                $q->where(function ($query) {
+                    $query->where('no_bukti', 'like', '%' . $this->search . '%')
+                        ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                        ->orWhere('tanggal', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
+
+        return view('livewire.persediaan.uang-kkpd', [
+            'uangKkpds' => $uangKkpds,
+            'totalTransaksi' => ModelUangKkpd::query()
+                ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+                ->when($this->search, function ($q) {
+                    $q->where(function ($query) {
+                        $query->where('no_bukti', 'like', '%' . $this->search . '%')
+                            ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                            ->orWhere('tanggal', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->count(),
+            'totalNominal' => ModelUangKkpd::query()
+                ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
+                ->when($this->search, function ($q) {
+                    $q->where(function ($query) {
+                        $query->where('no_bukti', 'like', '%' . $this->search . '%')
+                            ->orWhere('uraian', 'like', '%' . $this->search . '%')
+                            ->orWhere('tanggal', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->sum('nominal'),
+        ]);
     }
 
     protected function refreshListTahun(): void
@@ -49,25 +87,22 @@ class UangKkpd extends Component
             ->toArray();
     }
 
-    protected function loadData(): void
-    {
-        $this->uangKkpds = ModelUangKkpd::query()
-            ->when($this->tahun, fn($q) => $q->whereYear('tanggal', $this->tahun))
-            ->orderBy('tanggal', 'desc')
-            ->get();
-    }
-
     public function updatedTahun()
     {
-        $this->loadData();
+        $this->resetPage();
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     public function resetInput()
     {
         $this->no_bukti = '';
-        $this->tanggal  = '';
-        $this->uraian   = '';
-        $this->nominal  = '';
+        $this->tanggal = '';
+        $this->uraian = '';
+        $this->nominal = '';
         $this->uangKkpdId = null;
         $this->isEditMode = false;
     }
@@ -78,13 +113,12 @@ class UangKkpd extends Component
 
         ModelUangKkpd::create([
             'no_bukti' => $this->no_bukti,
-            'tanggal'  => $this->tanggal,
-            'uraian'   => $this->uraian,
-            'nominal'  => $this->nominal,
+            'tanggal' => $this->tanggal,
+            'uraian' => $this->uraian,
+            'nominal' => $this->nominal,
         ]);
 
         $this->refreshListTahun();
-        $this->loadData();
 
         $this->resetInput();
 
@@ -98,10 +132,10 @@ class UangKkpd extends Component
     {
         $row = ModelUangKkpd::findOrFail($id);
 
-        $this->no_bukti  = $row->no_bukti;
-        $this->tanggal   = $row->tanggal;
-        $this->uraian    = $row->uraian;
-        $this->nominal   = $row->nominal;
+        $this->no_bukti = $row->no_bukti;
+        $this->tanggal = $row->tanggal;
+        $this->uraian = $row->uraian;
+        $this->nominal = $row->nominal;
         $this->uangKkpdId = $row->id;
 
         $this->isEditMode = true;
@@ -114,13 +148,12 @@ class UangKkpd extends Component
         $row = ModelUangKkpd::findOrFail($this->uangKkpdId);
         $row->update([
             'no_bukti' => $this->no_bukti,
-            'tanggal'  => $this->tanggal,
-            'uraian'   => $this->uraian,
-            'nominal'  => $this->nominal,
+            'tanggal' => $this->tanggal,
+            'uraian' => $this->uraian,
+            'nominal' => $this->nominal,
         ]);
 
         $this->refreshListTahun();
-        $this->loadData();
 
         $this->resetInput();
 
@@ -156,7 +189,6 @@ class UangKkpd extends Component
         ModelUangKkpd::destroy($this->uangKkpdId);
 
         $this->refreshListTahun();
-        $this->loadData();
 
         $this->js(<<<'JS'
             Swal.fire({ icon: 'error', title: 'Data berhasil dihapus!', timer: 1500, showConfirmButton: false });

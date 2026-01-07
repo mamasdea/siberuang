@@ -20,6 +20,7 @@ class Belanja extends Model
         'is_persediaan',
         'is_sipd',
         'is_transfer',
+        'arsip', // Added arsip
     ];
 
     public function rka()
