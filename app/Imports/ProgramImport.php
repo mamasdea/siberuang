@@ -15,10 +15,10 @@ class ProgramImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return Program::updateOrCreate(
-            ['id' => $row['id']],
+            ["id" => $row["id"]],
             [
-                'kode' => $row['kode'],
-                'nama' => $row['nama'],
+                "kode" => $row["kode"],
+                "nama" => $row["nama"],
             ]
         );
     }
@@ -30,10 +30,10 @@ class KegiatanImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new Kegiatan([
-            'id' => $row['id'],
-            'program_id' => $row['program_id'],
-            'kode' => $row['kode'],
-            'nama' => $row['nama'],
+            "id" => $row["id"],
+            "program_id" => $row["program_id"],
+            "kode" => $row["kode"],
+            "nama" => $row["nama"],
         ]);
     }
 }
@@ -44,10 +44,10 @@ class SubKegiatanImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new SubKegiatan([
-            'id' => $row['id'],
-            'kegiatan_id' => $row['kegiatan_id'],
-            'kode' => $row['kode'],
-            'nama' => $row['nama'],
+            "id" => $row["id"],
+            "kegiatan_id" => $row["kegiatan_id"],
+            "kode" => $row["kode"],
+            "nama" => $row["nama"],
         ]);
     }
 }
@@ -58,11 +58,11 @@ class RkaImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new Rka([
-            'id' => $row['id'],
-            'sub_kegiatan_id' => $row['sub_kegiatan_id'],
-            'kode_belanja' => $row['kode_belanja'],
-            'nama_belanja' => $row['nama_belanja'],
-            'anggaran' => $row['anggaran'],
+            "id" => $row["id"],
+            "sub_kegiatan_id" => $row["sub_kegiatan_id"],
+            "kode_belanja" => $row["kode_belanja"],
+            "nama_belanja" => $row["nama_belanja"],
+            "anggaran" => $row["anggaran"],
         ]);
     }
 }
