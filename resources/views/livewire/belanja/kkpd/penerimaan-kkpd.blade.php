@@ -1,3 +1,7 @@
+@push('css')
+    <x-styles.modern-ui />
+@endpush
+
 <div>
     <!-- Modal Penerimaan -->
     <div wire:ignore.self class="modal fade" id="formPenerimaanModal" tabindex="-1" role="dialog"
@@ -100,80 +104,106 @@
     </div>
 
     <!-- Tabel Penerimaan -->
-    <div class="card">
-        <div class="card">
-            <div class="card-header">
+    <div class="modern-card fade-in-up">
+        <div class="card-header-modern">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="page-title">Daftar Penerimaan KKPD</h3>
+                    <p class="page-subtitle mb-0">Kelola data penerimaan untuk belanja KKPD</p>
+                </div>
+                <div>
+                    <button class="btn btn-modern-add" wire:click="closeFormPenerimaan"
+                        data-toggle="modal" data-target="#formPenerimaanModal">
+                        <i class="fas fa-plus mr-2"></i>Tambah Penerimaan
+                    </button>
+                    <a href="{{ url('belanja-kkpd') }}" class="btn btn-outline-success ml-2">
+                        <i class="fas fa-undo-alt mr-2"></i>Kembali
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="card-title">Daftar Penerimaan</h3>
-                    <div>
-                        <button class="btn btn-outline-primary btn-sm" wire:click="closeFormPenerimaan"
-                            data-toggle="modal" data-target="#formPenerimaanModal"><i class="fas fa-plus"></i> Tambah
-                            Penerimaan</button>
-                        <a href="{{ url('belanja-kkpd') }}" class="btn btn-outline-success btn-sm ml-2"><i
-                                class="fas fa-undo-alt"></i> Kembali</a>
+        <div class="content-card">
+            <!-- Info Belanja -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block mb-1">No Bukti</small>
+                                    <span class="code-badge">TBP-{{ $no_bukti }}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block mb-1">Uraian</small>
+                                    <strong>{{ $uraian }}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block mb-1">Nilai Belanja</small>
+                                    <span class="amount-badge">Rp {{ number_format($nilai, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-body">
-                <table class="table table-bordered">
-                    <tr>
-                        <th>No Bukti</th>
-                        <td>{{ $no_bukti }}</td>
-                    </tr>
-                    <tr>
-                        <th>Uraian</th>
-                        <td>{{ $uraian }}</td>
-                    </tr>
-                    <tr>
-                        <th>Nilai</th>
-                        <td><strong>Rp {{ number_format($nilai, 2, ',', '.') }}</strong></td>
-                    </tr>
-                </table>
-
-            </div>
-            <div class="card-body">
-                <table class="table mt-4">
-                    <thead class="thead-dark text-center">
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table modern-table">
+                    <thead>
                         <tr>
-                            <th>No.</th>
+                            <th width="60">No.</th>
                             <th>Penerima</th>
                             <th>Bank</th>
-                            <th>Nominal</th>
-                            <th>Aksi</th>
+                            <th>No Rekening</th>
+                            <th width="180" class="text-right">Nominal</th>
+                            <th width="120" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($penerimaans as $penerimaan)
+                        @forelse ($penerimaans as $penerimaan)
                             <tr>
-                                <td>{{ $penerimaans->firstItem() + $loop->index }}</td>
-                                <td>{{ $penerimaan->penerima->nama }}</td>
+                                <td><span class="code-badge">{{ $penerimaans->firstItem() + $loop->index }}</span></td>
+                                <td style="font-weight: 500;">{{ $penerimaan->penerima->nama }}</td>
                                 <td>{{ $penerimaan->penerima->bank }}</td>
-                                <td>Rp {{ number_format($penerimaan->nominal, 2, ',', '.') }}</td>
+                                <td>{{ $penerimaan->penerima->no_rekening }}</td>
+                                <td class="text-right">
+                                    <span class="amount-badge">Rp {{ number_format($penerimaan->nominal, 0, ',', '.') }}</span>
+                                </td>
                                 <td class="text-center">
-                                    <button class="btn btn-warning btn-sm text-white"
-                                        wire:click="edit({{ $penerimaan->id }})" data-toggle="modal"
-                                        data-target="#formPenerimaanModal" data-toggle="tooltip" title="Edit">
-                                        <i class="fas fa-pencil-alt"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm"
-                                        wire:click="delete_confirmation({{ $penerimaan->id }})" data-toggle="tooltip"
-                                        title="Hapus">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    <div class="btn-group">
+                                        <button class="btn btn-warning btn-sm text-white"
+                                            wire:click="edit({{ $penerimaan->id }})" data-toggle="modal"
+                                            data-target="#formPenerimaanModal" data-toggle="tooltip" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm"
+                                            wire:click="delete_confirmation({{ $penerimaan->id }})" data-toggle="tooltip"
+                                            title="Hapus">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                                    <p class="mb-0 mt-2 text-muted">Belum ada data penerimaan</p>
+                                    <small class="text-muted">Klik tombol "Tambah Penerimaan" untuk menambah data</small>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
-            {{ $penerimaans->links() }}
+            <!-- Pagination -->
+            <div class="mt-3">
+                {{ $penerimaans->links() }}
+            </div>
         </div>
-
-
-
     </div>
 </div>
 @push('js')

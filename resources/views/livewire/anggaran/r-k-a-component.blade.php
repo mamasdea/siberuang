@@ -1,69 +1,85 @@
 <div>
-    <div class="card">
-        <div class="col-md-12">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#rkaModal">
-                        <i class="fas fa-plus"></i> Tambah Rincian Belanja
-                    </button>
-                </div>
-
-                <table class="table table-bordered">
-                    <tr>
-                        <th>Program</th>
-                        <td>{{ $namaProgram ?? 'Tidak Ditemukan' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Kegiatan</th>
-                        <td>{{ $namaKegiatan->nama ?? 'Tidak Ditemukan' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Sub Kegiatan</th>
-                        <td>{{ $namaSubKegiatan->nama ?? 'Tidak Ditemukan' }}</td>
-                    </tr>
-                </table>
+    <!-- Modern Content -->
+    <div class="content-card">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="section-title">Rincian Belanja (Anggaran)</h2>
+                <p class="section-subtitle">
+                    @if($sub_kegiatan_id)
+                        Program: {{ $namaProgram ?? 'Tidak Ditemukan' }} | Kegiatan: {{ $namaKegiatan->nama ?? 'Tidak Ditemukan' }} | Sub Kegiatan: {{ $namaSubKegiatan->nama ?? 'Tidak Ditemukan' }}
+                    @else
+                        Pilih sub kegiatan dari tab Sub Kegiatan
+                    @endif
+                </p>
             </div>
-
-            <div class="card-body table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr class="thead-dark text-center">
-                            <th width="100">Kode Belanja</th>
-                            <th width="300">Nama Belanja</th>
-                            <th width="150">Penetapan</th>
-                            <th width="150">Perubahan</th>
-                            <th width="150">Selisih</th>
-                            <th width="150">Anggaran</th>
-                            <th width="100">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($rkas as $rka)
-                            <tr>
-                                <td>{{ $rka->kode_belanja }}</td>
-                                <td>{{ $rka->nama_belanja }}</td>
-                                <td class="text-right">Rp {{ number_format($rka->penetapan, 2, ',', '.') }}</td>
-                                <td class="text-right">Rp {{ number_format($rka->perubahan, 2, ',', '.') }}</td>
-                                <td class="text-right {{ $rka->selisih < 0 ? 'text-danger' : 'text-success' }}">
-                                    Rp {{ number_format($rka->selisih, 2, ',', '.') }}
-                                </td>
-                                <td class="text-right">Rp {{ number_format($rka->anggaran, 2, ',', '.') }}</td>
-                                <td class="text-center">
-                                    <button wire:click="edit({{ $rka->id }})" class="btn btn-warning btn-sm"
-                                        data-toggle="tooltip" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button wire:click="delete_confirmation({{ $rka->id }})"
-                                        class="btn btn-danger btn-sm" data-toggle="tooltip" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <button class="btn-add-modern" data-toggle="modal" data-target="#rkaModal">
+                <i class="fas fa-plus mr-2"></i> Tambah Rincian Belanja
+            </button>
         </div>
+
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Kode Belanja</th>
+                    <th>Nama Belanja</th>
+                    <th>Penetapan</th>
+                    <th>Perubahan</th>
+                    <th>Selisih</th>
+                    <th>Anggaran</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($rkas as $rka)
+                    <tr>
+                        <td>
+                            <span class="code-badge">{{ $rka->kode_belanja }}</span>
+                        </td>
+                        <td>{{ $rka->nama_belanja }}</td>
+                        <td>
+                            <span class="amount-badge">Rp {{ number_format($rka->penetapan, 2, ',', '.') }}</span>
+                        </td>
+                        <td>
+                            <span class="amount-badge">Rp {{ number_format($rka->perubahan, 2, ',', '.') }}</span>
+                        </td>
+                        <td>
+                            <span class="amount-badge" style="background: {{ $rka->selisih < 0 ? '#fee2e2' : '#f0fdf4' }}; color: {{ $rka->selisih < 0 ? '#991b1b' : '#166534' }}; border-color: {{ $rka->selisih < 0 ? '#fca5a5' : '#bbf7d0' }};">
+                                Rp {{ number_format($rka->selisih, 2, ',', '.') }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="amount-badge">Rp {{ number_format($rka->anggaran, 2, ',', '.') }}</span>
+                        </td>
+                        <td>
+                            <button wire:click="edit({{ $rka->id }})" class="btn-action-edit"
+                                data-toggle="tooltip" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button wire:click="delete_confirmation({{ $rka->id }})"
+                                class="btn-action-delete" data-toggle="tooltip" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                            <p style="color: #64748b; font-size: 14px; margin: 0;">
+                                @if($sub_kegiatan_id)
+                                    Belum ada data rincian belanja
+                                @else
+                                    Silakan pilih sub kegiatan dari tab Sub Kegiatan dengan klik tombol <i class="fas fa-arrow-right text-primary"></i> Next
+                                @endif
+                            </p>
+                            @if($sub_kegiatan_id)
+                                <small style="color: #94a3b8;">Klik tombol "Tambah Rincian Belanja" untuk menambah data</small>
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     <!-- Modal Form -->

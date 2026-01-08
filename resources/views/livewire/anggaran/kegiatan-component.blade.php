@@ -1,65 +1,70 @@
 <div>
-    <!-- Nav tabs, jika ada -->
-    <div class="card">
-        <div class="col-md-12">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <div>
-                            <button class="btn btn-outline-primary btn-sm" data-toggle="modal"
-                                data-target="#kegiatanModal"> <i class="fas fa-plus"></i> Tambah Kegiatan
-                                RKA</button>
-
-                        </div>
-                    </div>
-                </div>
-                <table class="table table-bordered">
-                    <tr>
-                        <th>Program</th>
-                        <td>{{ $namaProgram }}</td>
-                    </tr>
-                </table>
+    <!-- Modern Content -->
+    <div class="content-card">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="section-title">Kegiatan</h2>
+                <p class="section-subtitle">Kelola data kegiatan untuk program {{ $namaProgram ?? 'Pilih program dari tab Program' }}</p>
             </div>
-
-            <div class="card-body table-responsive">
-                <table class="table table-striped table-bordered ">
-                    <thead>
-                        <tr class="thead-dark text-center">
-                            <th width="100">Kode Kegiatan</th>
-                            <th width="300">Nama Kegiatan</th>
-                            <th width="150">Pagu Kegiatan</th>
-                            <th width="100">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kegiatans as $kegiatan)
-                            <tr>
-                                <td>{{ $kegiatan->kode }}</td>
-                                <td>{{ $kegiatan->nama }}</td>
-                                <td class="text-right">{{ number_format($kegiatan->total, 2, ',', '.') }}</td>
-
-                                <td class="text-center">
-                                    <button wire:click="edit({{ $kegiatan->id }})" class="btn btn-warning btn-sm"
-                                        data-toggle="tooltip" data-placement="top" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button wire:click="delete_confirmation({{ $kegiatan->id }})"
-                                        class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="top"
-                                        title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <button wire:click="next({{ $kegiatan->id }})" class="btn btn-primary btn-sm"
-                                        data-toggle="tooltip" data-placement="top" title="Next">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </button>
-                                </td>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <button class="btn-add-modern" data-toggle="modal" data-target="#kegiatanModal">
+                <i class="fas fa-plus mr-2"></i> Tambah Kegiatan
+            </button>
         </div>
+
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Kode Kegiatan</th>
+                    <th>Nama Kegiatan</th>
+                    <th>Pagu Kegiatan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($kegiatans as $kegiatan)
+                    <tr>
+                        <td>
+                            <span class="code-badge">{{ $kegiatan->kode }}</span>
+                        </td>
+                        <td>{{ $kegiatan->nama }}</td>
+                        <td>
+                            <span class="amount-badge">Rp {{ number_format($kegiatan->total, 2, ',', '.') }}</span>
+                        </td>
+                        <td>
+                            <button wire:click="edit({{ $kegiatan->id }})" class="btn-action-edit"
+                                data-toggle="tooltip" data-placement="top" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button wire:click="delete_confirmation({{ $kegiatan->id }})"
+                                class="btn-action-delete" data-toggle="tooltip" data-placement="top"
+                                title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button wire:click="next({{ $kegiatan->id }})" class="btn-action-next"
+                                data-toggle="tooltip" data-placement="top" title="Next">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                            <p style="color: #64748b; font-size: 14px; margin: 0;">
+                                @if($program_id)
+                                    Belum ada data kegiatan
+                                @else
+                                    Silakan pilih program dari tab Program dengan klik tombol <i class="fas fa-arrow-right text-primary"></i> Next
+                                @endif
+                            </p>
+                            @if($program_id)
+                                <small style="color: #94a3b8;">Klik tombol "Tambah Kegiatan" untuk menambah data</small>
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     <!-- Modal Form -->

@@ -6,7 +6,8 @@
       "Bash(php:*)",
       "Bash(mysql:*)",
       "Bash(ls:*)",
-      "Bash(composer require:*)"
+      "Bash(composer require:*)",
+      "Bash(cat:*)"
     ]
   }
 }

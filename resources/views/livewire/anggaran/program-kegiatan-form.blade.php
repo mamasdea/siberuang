@@ -103,6 +103,7 @@
     .content-card {
         background: transparent;
         padding: 32px;
+        min-height: calc(100vh - 400px);
     }
 
     .section-header {
@@ -145,6 +146,7 @@
         border-radius: 12px;
         overflow: hidden;
         background: white;
+        width: 100%;
     }
 
     .modern-table thead {

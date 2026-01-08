@@ -21,13 +21,17 @@ class LoginController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'tahun' => 'required|numeric|min:2020|max:' . (date('Y') + 5),
         ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
+            // Simpan tahun yang dipilih ke session
+            session(['tahun_anggaran' => $request->tahun]);
+
             return redirect()->intended('/dashboard');
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials.'])->withInput($request->only('email'));
+        return back()->withErrors(['email' => 'Invalid credentials.'])->withInput($request->only('email', 'tahun'));
     }
 
     public function logout(Request $request)

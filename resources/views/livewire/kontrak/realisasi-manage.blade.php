@@ -1,136 +1,136 @@
 <div>
     @push('css')
+        <x-styles.modern-ui />
         <style>
             [x-cloak] {
                 display: none !important
             }
-
-            .table thead th {
-                position: sticky;
-                top: 0;
-                background: #f8fafc;
-                z-index: 1
-            }
         </style>
     @endpush
 
-    <div class="container-fluid">
-        {{-- Header --}}
-        <div class="d-flex align-items-center mb-3">
-            <nav aria-label="breadcrumb" class="mr-auto">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('kontrak') }}" wire:navigate>Kontrak</a></li>
-                    <li class="breadcrumb-item active">Realisasi</li>
-                </ol>
-            </nav>
-            <div class="ml-2">
-                <a href="{{ route('kontrak') }}" class="btn btn-outline-secondary btn-sm" wire:navigate>
-                    <i class="fas fa-arrow-left"></i> Kembali
-                </a>
-                <button class="btn btn-primary btn-sm" wire:click="createOpen" data-toggle="modal"
-                    data-target="#realisasiModal">
-                    <i class="fas fa-plus"></i> Tambah Realisasi
-                </button>
-            </div>
-        </div>
-
-        {{-- Ringkasan --}}
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h4 class="mb-1">Realisasi Kontrak</h4>
-                        <div class="text-muted">
-                            <strong>No:</strong> {{ $kontrak->nomor_kontrak }} |
-                            <strong>Tgl:</strong>
-                            {{ \Illuminate\Support\Carbon::parse($kontrak->tanggal_kontrak)->format('d/m/Y') }} |
-                            <strong>Perusahaan:</strong> {{ $kontrak->nama_perusahaan }}
-                        </div>
-                    </div>
-                    <span class="badge badge-info align-self-center">
-                        {{ strtoupper($kontrak->bentuk_perusahaan ?? '') }}
-                    </span>
+    <div class="modern-card fade-in-up">
+        <div class="card-header-modern">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="page-title">Realisasi Kontrak</h3>
+                    <p class="page-subtitle mb-0">
+                        <strong>No:</strong> {{ $kontrak->nomor_kontrak }} |
+                        <strong>Tgl:</strong> {{ \Illuminate\Support\Carbon::parse($kontrak->tanggal_kontrak)->format('d/m/Y') }} |
+                        <strong>Perusahaan:</strong> {{ $kontrak->nama_perusahaan }}
+                        @if($kontrak->bentuk_perusahaan)
+                            <span class="badge badge-info ml-2">{{ strtoupper($kontrak->bentuk_perusahaan) }}</span>
+                        @endif
+                    </p>
                 </div>
-
-                @php
-                    $nilai = (float) $kontrak->nilai;
-                    $real = (float) $total;
-                    $sisa = max(0, $nilai - $real);
-                    $pct = $nilai > 0 ? min(100, round(($real / $nilai) * 100, 1)) : 0;
-                    $bar = $pct < 50 ? 'bg-info' : ($pct < 100 ? 'bg-warning' : 'bg-success');
-                @endphp
-
-                <div class="row mt-3">
-                    <div class="col-md-4 mb-2">
-                        <div class="p-3 border rounded">
-                            <div class="text-muted">Nilai Kontrak</div>
-                            <div class="h5 mb-0">Rp {{ number_format($nilai, 0, ',', '.') }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <div class="p-3 border rounded">
-                            <div class="text-muted">Total Realisasi</div>
-                            <div class="h5 mb-0 text-primary">Rp {{ number_format($real, 0, ',', '.') }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <div class="p-3 border rounded">
-                            <div class="text-muted">Sisa</div>
-                            <div class="h5 mb-0 {{ $sisa > 0 ? 'text-danger' : 'text-success' }}">
-                                Rp {{ number_format($sisa, 0, ',', '.') }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <div class="d-flex justify-content-between text-muted mb-1">
-                        <span>Progress Realisasi</span><span>{{ $pct }}%</span>
-                    </div>
-                    <div class="progress" style="height:.6rem">
-                        <div class="progress-bar {{ $bar }}" role="progressbar"
-                            style="width: {{ $pct }}%"></div>
-                    </div>
+                <div>
+                    <a href="{{ route('kontrak') }}" class="btn btn-outline-secondary mr-2" wire:navigate>
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali
+                    </a>
+                    <button class="btn btn-modern-add" wire:click="createOpen" data-toggle="modal"
+                        data-target="#realisasiModal">
+                        <i class="fas fa-plus mr-2"></i>Tambah Realisasi
+                    </button>
                 </div>
             </div>
         </div>
 
-        {{-- Toolbar kanan --}}
-        <div class="d-flex justify-content-end mb-2">
-            <div class="d-flex align-items-center">
-                <label class="mb-0 mr-2">Show:</label>
-                <select wire:model.live="paginate" class="form-control form-control-sm" style="max-width:120px">
-                    @foreach ([5, 10, 15, 20] as $p)
-                        <option value="{{ $p }}">{{ $p }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
+        <div class="content-card">
+            @php
+                $nilai = (float) $kontrak->nilai;
+                $real = (float) $total;
+                $sisa = max(0, $nilai - $real);
+                $pct = $nilai > 0 ? min(100, round(($real / $nilai) * 100, 1)) : 0;
+                $bar = $pct < 50 ? 'bg-info' : ($pct < 100 ? 'bg-warning' : 'bg-success');
+            @endphp
 
-        {{-- Tabel realisasi --}}
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0">
-                        <thead>
-                            <tr class="text-center">
-                                <th style="width:70px;">No.</th>
-                                <th style="width:140px;">Tanggal</th>
-                                <th style="width:120px;">Jenis</th>
-                                <th style="width:140px;">Termin</th>
-                                <th class="text-right" style="width:180px;">Nominal (Rp)</th>
-                                <th>Berita Acara</th>
-                                <th style="width:130px;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($realisasis as $i => $r)
-                                <tr>
-                                    <td class="text-center">{{ $realisasis->firstItem() + $i }}</td>
-                                    <td class="text-center">
-                                        {{ \Illuminate\Support\Carbon::parse($r->tanggal)->format('d/m/Y') }}</td>
-                                    <td class="text-uppercase text-center">{{ $r->tipe }}</td>
-                                    <td class="text-center">
+            <!-- Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="stat-label">Nilai Kontrak</div>
+                        <div class="stat-value">Rp {{ number_format($nilai, 0, ',', '.') }}</div>
+                        <div class="stat-description">Total Nilai Kontrak</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-label">Total Realisasi</div>
+                        <div class="stat-value">Rp {{ number_format($real, 0, ',', '.') }}</div>
+                        <div class="stat-description">{{ $pct }}% dari nilai kontrak</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon {{ $sisa > 0 ? 'orange' : 'green' }}">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-label">Sisa Kontrak</div>
+                        <div class="stat-value">Rp {{ number_format($sisa, 0, ',', '.') }}</div>
+                        <div class="stat-description">{{ $sisa > 0 ? 'Belum direalisasi' : 'Terealisasi penuh' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="font-weight-bold text-dark">Progress Realisasi</span>
+                        <span class="badge badge-primary" style="font-size: 1rem; padding: 8px 16px;">{{ $pct }}%</span>
+                    </div>
+                    <div class="progress" style="height: 20px; border-radius: 10px;">
+                        <div class="progress-bar {{ $bar }}" role="progressbar" style="width: {{ $pct }}%; border-radius: 10px;">
+                            <span class="font-weight-bold">{{ $pct }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Pagination -->
+            <div class="d-flex justify-content-end align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <span class="mr-2 text-secondary font-weight-bold" style="font-size: 14px;">Show:</span>
+                    <select wire:model.live="paginate" class="form-control custom-select-modern" style="width: 90px;">
+                        @foreach ([5, 10, 15, 20] as $p)
+                            <option value="{{ $p }}">{{ $p }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table modern-table">
+                    <thead>
+                        <tr>
+                            <th width="60" class="text-center">No.</th>
+                            <th width="120" class="text-center">Tanggal</th>
+                            <th width="100" class="text-center">Jenis</th>
+                            <th width="120" class="text-center">Termin</th>
+                            <th width="180" class="text-right">Nominal (Rp)</th>
+                            <th>Berita Acara</th>
+                            <th width="150" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($realisasis as $i => $r)
+                            <tr>
+                                <td class="text-center">
+                                    <span class="code-badge">{{ $realisasis->firstItem() + $i }}</span>
+                                </td>
+                                <td class="text-center">
+                                    {{ \Illuminate\Support\Carbon::parse($r->tanggal)->format('d/m/Y') }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-primary text-uppercase">{{ $r->tipe }}</span>
+                                </td>
+                                <td class="text-center">
                                         @if ($r->tipe === 'termin' && $r->termin_ke)
                                             @php
                                                 $n = $r->termin_ke;
@@ -158,13 +158,15 @@
                                                     }
                                                 }
                                             @endphp
-                                            <span class="badge badge-primary">Termin {{ $rom ?: $r->termin_ke }}</span>
+                                            <span class="badge badge-success">Termin {{ $rom ?: $r->termin_ke }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
-                                    </td>
-                                    <td class="text-right">Rp {{ number_format($r->nominal, 0, ',', '.') }}</td>
-                                    <td>
+                                </td>
+                                <td class="text-right">
+                                    <span class="amount-badge">Rp {{ number_format($r->nominal, 0, ',', '.') }}</span>
+                                </td>
+                                <td>
                                         @php
                                             $labels = [
                                                 'pemeriksaan' => 'Pemeriksaan',
@@ -193,39 +195,40 @@
                                             <span class="text-muted">-</span>
                                         @endforelse
                                     </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('realisasi.ba.all', ['kontrak' => $kontrak->id, 'realisasi' => $r->id]) }}"
-                                                target="_blank" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-print"></i>
-                                            </a>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('realisasi.ba.all', ['kontrak' => $kontrak->id, 'realisasi' => $r->id]) }}"
+                                            target="_blank" class="btn btn-info btn-sm" title="Cetak BA">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                        <button class="btn btn-warning btn-sm text-white"
+                                            wire:click="edit({{ $r->id }})" data-toggle="modal"
+                                            data-target="#realisasiModal" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm"
+                                            wire:click="deleteConfirm({{ $r->id }})" title="Hapus">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                                    <p class="mb-0 mt-2 text-muted">Belum ada data realisasi</p>
+                                    <small class="text-muted">Klik tombol "Tambah Realisasi" untuk menambah data</small>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-                                            <button class="btn btn-warning text-white"
-                                                wire:click="edit({{ $r->id }})" data-toggle="modal"
-                                                data-target="#realisasiModal" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-
-                                            <button class="btn btn-danger"
-                                                wire:click="deleteConfirm({{ $r->id }})" title="Hapus">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted p-4">Belum ada realisasi</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="p-3">
-                    {{ $realisasis->links('livewire::bootstrap') }}
-                </div>
+            <!-- Pagination -->
+            <div class="mt-3">
+                {{ $realisasis->links('livewire::bootstrap') }}
             </div>
         </div>
     </div>
