@@ -12,6 +12,7 @@ use App\Models\BelanjaLsDetails;
 use Illuminate\Support\Facades\DB;
 use App\Livewire\Laporan\LaporanLs;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use App\Models\BelanjaLs as ModelBelanjaLs;
 
 #[Title('Belanja LS')]
@@ -27,6 +28,12 @@ class BelanjaLs extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+    
+    public function updatedTanggal($value)
+    {
+        // Update tahunTransaksi saat tanggal berubah
+        $this->tahunTransaksi = $value ? date('Y', strtotime($value)) : date('Y');
     }
     public $belanjas;
 
@@ -55,6 +62,7 @@ class BelanjaLs extends Component
     public $belanjaId; // untuk delete_confirmation
     public $pathWord;
     public $pathpdf;
+    public $tahunTransaksi; // tahun dari tanggal transaksi untuk display
 
     // Listener untuk menangkap event dari modal Sub Kegiatan
     protected $listeners = ['subKegiatanSelected' => 'setSubKegiatan'];
@@ -137,8 +145,19 @@ class BelanjaLs extends Component
         // $newNoBukti = $lastNoBukti ? (int)$lastNoBukti->no_bukti + 1 : 1;
         // $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
 
+        // Ambil tahun dari tanggal transaksi
+        $tahunTransaksi = $this->tanggal ? date('Y', strtotime($this->tanggal)) : date('Y');
+        
         $validatedData = $this->validate([
-            'no_bukti' => 'required|string|min:4|unique:belanja_ls,no_bukti',
+            'no_bukti' => [
+                'required',
+                'string',
+                'min:4',
+                // Unique per tahun - no_bukti boleh sama di tahun berbeda
+                Rule::unique('belanja_ls', 'no_bukti')->where(function ($query) use ($tahunTransaksi) {
+                    return $query->whereYear('tanggal', $tahunTransaksi);
+                }),
+            ],
             'tanggal' => 'required|date',
             'uraian' => 'required',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
@@ -217,6 +236,7 @@ class BelanjaLs extends Component
         $this->belanja_id = $belanjaLS->id;
         $this->no_bukti = $belanjaLS->no_bukti;
         $this->tanggal = $belanjaLS->tanggal;
+        $this->tahunTransaksi = $belanjaLS->tanggal ? date('Y', strtotime($belanjaLS->tanggal)) : date('Y');
         $this->uraian = $belanjaLS->uraian;
         $this->total_nilai = $belanjaLS->total_nilai;
         $this->sub_kegiatan_id = $belanjaLS->sub_kegiatan_id;
@@ -261,8 +281,21 @@ class BelanjaLs extends Component
 
     public function update()
     {
+        // Ambil tahun dari tanggal transaksi
+        $tahunTransaksi = $this->tanggal ? date('Y', strtotime($this->tanggal)) : date('Y');
+        
         $validatedData = $this->validate([
-            'no_bukti' => 'required|min:4|unique:belanja_ls,no_bukti,' . $this->belanja_id,
+            'no_bukti' => [
+                'required',
+                'string',
+                'min:4',
+                // Unique per tahun - no_bukti boleh sama di tahun berbeda, ignore current record
+                Rule::unique('belanja_ls', 'no_bukti')
+                    ->where(function ($query) use ($tahunTransaksi) {
+                        return $query->whereYear('tanggal', $tahunTransaksi);
+                    })
+                    ->ignore($this->belanja_id),
+            ],
             'tanggal' => 'required|date',
             'uraian' => 'required',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
@@ -391,6 +424,7 @@ class BelanjaLs extends Component
         $this->sub_kegiatan_id = null;
         $this->sub_kegiatan_kode = null;
         $this->sub_kegiatan_nama = null;
+        $this->tahunTransaksi = date('Y'); // Default tahun saat ini
     }
 
     public function closeForm()

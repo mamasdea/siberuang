@@ -88,7 +88,7 @@
                             <tr wire:key="{{ $row->id }}">
                                 <td><span class="code-badge">{{ $loop->index + $belanja->firstItem() }}</span></td>
                                 <td>
-                                    <span class="code-badge">SPM-{{ $row->no_bukti }}/Diskominfo/{{ date('Y') }}</span>
+                                    <span class="code-badge">SPM-{{ $row->no_bukti }}/Diskominfo/{{ date('Y', strtotime($row->tanggal)) }}</span>
                                 </td>
                                 <td style="font-weight: 500;">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
                                 <td class="text-left">{{ $row->uraian }}</td>
@@ -177,7 +177,7 @@
                                 @error('no_bukti') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-4">
-                                <input type="text" class="form-control" value="/Diskominfo/{{ date('Y') }}" readonly style="background-color: #f4f6f9;">
+                                <input type="text" class="form-control" value="/Diskominfo/{{ $tahunTransaksi ?? date('Y') }}" readonly style="background-color: #f4f6f9;">
                             </div>
                         </div>
 

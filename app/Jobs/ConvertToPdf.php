@@ -41,18 +41,35 @@ class ConvertToPdf implements ShouldQueue
     {
         $pathWORD = storage_path('app/public/reports/laporan_belanja_' . $this->nama_file_docx);
 
-        $client = new Client();
+        try {
+            \Illuminate\Support\Facades\Log::info('ConvertToPdf: Memulai konversi untuk ' . $this->nama_file_docx);
+            
+            $client = new Client(['timeout' => 30]);
 
-        $response = $client->request('POST', 'http://10.90.237.12:8080/api/v1/convert/file/pdf',  [
-            'multipart' => [
-                [
-                    'name'     => 'fileInput',
-                    'contents' => fopen($pathWORD, 'r'),
+            $response = $client->request('POST', 'http://10.90.237.12:8080/api/v1/convert/file/pdf',  [
+                'multipart' => [
+                    [
+                        'name'     => 'fileInput',
+                        'contents' => fopen($pathWORD, 'r'),
+                    ]
                 ]
+            ]);
+            
+            $statusCode = $response->getStatusCode();
+            $bodySize = $response->getBody()->getSize();
+            \Illuminate\Support\Facades\Log::info("ConvertToPdf: Response diterima. Status: {$statusCode}, Size: {$bodySize}");
 
-            ]
-        ]);
+            if ($statusCode == 200) {
+                 Storage::disk('local')->put('public/reports/laporan_belanja_' . $this->nama_file_pdf, $response->getBody());
+                 \Illuminate\Support\Facades\Log::info('ConvertToPdf: File berhasil disimpan ke ' . 'public/reports/laporan_belanja_' . $this->nama_file_pdf);
+            } else {
+                 \Illuminate\Support\Facades\Log::error('ConvertToPdf: Status code bukan 200. Konversi gagal.');
+            }
 
-        Storage::disk('local')->put('public/reports/laporan_belanja_' . $this->nama_file_pdf, $response->getBody());
+        } catch (\Exception $e) {
+            // Log error untuk debugging
+            \Illuminate\Support\Facades\Log::error('ConvertToPdf Failed: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+        }
     }
 }

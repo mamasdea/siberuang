@@ -27,8 +27,15 @@ class SubKegiatanHierarchy extends Component
 
     public function render()
     {
+        $tahun = session('tahun_anggaran', date('Y'));
+        
         $subKegiatans = SubKegiatan::query()
-            ->Where('nama', 'like', '%' . $this->searchsub . '%')
+            ->whereHas('kegiatan', function ($query) use ($tahun) {
+                $query->whereHas('program', function ($query2) use ($tahun) {
+                    $query2->where('tahun_anggaran', $tahun);
+                });
+            })
+            ->where('nama', 'like', '%' . $this->searchsub . '%')
             ->orderBy('id')
             ->paginate($this->paginatesub);
 

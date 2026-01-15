@@ -31,4 +31,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // PDF Conversion Services (opsional - untuk fallback konversi Word ke PDF)
+    'cloudmersive' => [
+        'api_key' => env('CLOUDMERSIVE_API_KEY'),
+    ],
+
+    'convertapi' => [
+        'secret' => env('CONVERTAPI_SECRET'),
+    ],
+
 ];

@@ -93,19 +93,19 @@
             <div class="table-responsive">
                 <table class="table modern-table">
                     <thead>
-                        <tr>
+                        <tr class="text-center">
                             <th width="50">No</th>
                             <th width="120">No Bukti</th>
                             <th width="100">Tanggal</th>
                             <th>Uraian</th>
                             <th width="150" class="text-right">Nilai</th>
-                            <th width="150" class="text-right">Penerimaan & Pajak</th>
+                            <th width="100" class="text-right">Penerimaan & Pajak</th>
                              @if (Auth::user()->role == 'admin')
                                 <th width="50" class="text-center">Transfer</th>
                             @endif
                             <th width="50" class="text-center">SIPD</th>
-                            <th width="50" class="text-center">Pj</th>
-                            <th width="50" class="text-center">Pjk</th>
+                            <th width="50" class="text-center">Penerimaan</th>
+                            <th width="50" class="text-center">Pajak</th>
                             <th width="80" class="text-center">Arsip</th>
                             <th width="180" class="text-center">Aksi</th>
                         </tr>
@@ -116,7 +116,7 @@
                                 <td><span class="code-badge">{{ $loop->index + $belanja->firstItem() }}</span></td>
                                 <td><span class="code-badge">TBP-{{ $row->no_bukti }}</span></td>
                                 <td style="font-weight: 500;">{{ $row->tanggal }}</td>
-                                <td class="text-left">{{ $row->uraian }}</td>
+                                <td class="text-left" style="font-size: 14px; font-weight: 500;">{{ $row->uraian }}</td>
                                 <td class="text-right">
                                     <span class="amount-badge">Rp {{ number_format($row->nilai, 0, ',', '.') }}</span>
                                 </td>
@@ -187,11 +187,31 @@
                                     </div>
                                     
                                     <div class="btn-group ml-1">
-                                        <button wire:click="printTai({{ $row->id }})" class="btn btn-secondary btn-sm" style="border-radius: 6px 0 0 6px;" title="Cetak">
-                                            <i class="fas fa-print"></i>
+                                        <button wire:click="printTai({{ $row->id }})" 
+                                            class="btn btn-secondary btn-sm" 
+                                            style="border-radius: 6px 0 0 6px;" 
+                                            title="Cetak"
+                                            wire:loading.attr="disabled"
+                                            wire:target="printTai({{ $row->id }})">
+                                            <span wire:loading.remove wire:target="printTai({{ $row->id }})">
+                                                <i class="fas fa-print"></i>
+                                            </span>
+                                            <span wire:loading wire:target="printTai({{ $row->id }})">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </span>
                                         </button>
-                                        <button wire:click="downloadTai({{ $row->id }})" class="btn btn-success btn-sm" style="border-radius: 0 6px 6px 0;" title="Download">
-                                            <i class="fas fa-download"></i>
+                                        <button wire:click="downloadTai({{ $row->id }})" 
+                                            class="btn btn-success btn-sm" 
+                                            style="border-radius: 0 6px 6px 0;" 
+                                            title="Download"
+                                            wire:loading.attr="disabled"
+                                            wire:target="downloadTai({{ $row->id }})">
+                                            <span wire:loading.remove wire:target="downloadTai({{ $row->id }})">
+                                                <i class="fas fa-download"></i>
+                                            </span>
+                                            <span wire:loading wire:target="downloadTai({{ $row->id }})">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </span>
                                         </button>
                                     </div>
                                 </td>
@@ -433,7 +453,7 @@
                     <button type="button" class="close" wire:click="closeModalPdf" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <embed src="{{ route('helper.show-picture', ['path' => 'public/reports/laporan_belanja_' . $pathpdf]) }}" class="col-12" height="600px" />
+                    <embed src="{{ route('helper.show-picture', ['path' => 'public/reports/laporan_belanja_' . $pathpdf, 'disk' => 'local', 'time' => time()]) }}" class="col-12" height="600px" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" wire:click="closeModalPdf">Close</button>
