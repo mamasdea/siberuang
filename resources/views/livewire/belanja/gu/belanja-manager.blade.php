@@ -116,7 +116,7 @@
                                 <td><span class="code-badge">{{ $loop->index + $belanja->firstItem() }}</span></td>
                                 <td><span class="code-badge">TBP-{{ $row->no_bukti }}</span></td>
                                 <td style="font-weight: 500;">{{ $row->tanggal }}</td>
-                                <td class="text-left" style="font-size: 14px; font-weight: 500;">{{ $row->uraian }}</td>
+                                <td class="text-left">{{ $row->uraian }}</td>
                                 <td class="text-right">
                                     <span class="amount-badge">Rp {{ number_format($row->nilai, 0, ',', '.') }}</span>
                                 </td>
