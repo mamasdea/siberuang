@@ -29,13 +29,18 @@ class BelanjaLs extends Component
     {
         $this->resetPage();
     }
+
+    public function updatingPaginate()
+    {
+        $this->resetPage();
+    }
     
     public function updatedTanggal($value)
     {
         // Update tahunTransaksi saat tanggal berubah
         $this->tahunTransaksi = $value ? date('Y', strtotime($value)) : date('Y');
     }
-    public $belanjas;
+    // public $belanjas; // Removed to avoid state conflict
 
     // Header transaksi LS
     public $belanja_id, $no_bukti, $tanggal, $uraian;

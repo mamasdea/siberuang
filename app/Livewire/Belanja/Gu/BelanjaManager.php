@@ -26,7 +26,7 @@ class BelanjaManager extends Component
 
     public $search = '';
     public $paginate = 10;
-    public $belanjas;
+
     public $belanja_id, $no_bukti, $tanggal, $uraian, $rka_id, $nilai;
     public $isEdit = false;
     public $formVisible = false;
@@ -48,6 +48,11 @@ class BelanjaManager extends Component
     public $sub_kegiatan_kode, $sub_kegiatan_nama, $sisa_anggaran;
 
     public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPaginate()
     {
         $this->resetPage();
     }
@@ -317,7 +322,6 @@ class BelanjaManager extends Component
         $this->no_bukti = '';
         $this->tanggal = null;
         $this->uraian = '';
-        $this->nilai = null;
         $this->nilai = null;
         $this->fileArsip = null;
         $this->existingArsip = null;

@@ -162,46 +162,13 @@
                             </ul>
                         </li>
 
-                        <!-- Group Pajak -->
-                        <li
-                            class="nav-item has-treeview {{ request()->is('laporan-bukupajakgiro', 'laporan-bukupajakkkpd', 'laporan-bukupajakls', 'laporan-bukupajakall') ? 'menu-open' : '' }}">
-                            <a href="#" class="nav-link">
+                        <!-- Group Pajak (Consolidated) -->
+                        <li class="nav-item">
+                            <a href="{{ url('laporan-bukupajak') }}"
+                                class="nav-link {{ request()->is('laporan-bukupajak') ? 'active' : '' }}">
                                 <i class="far fa-dot-circle nav-icon"></i>
-                                <p>
-                                    Pajak
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                                <p>Laporan Pajak</p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('laporan-bukupajakgiro') }}"
-                                        class="nav-link {{ request()->is('laporan-bukupajakgiro') ? 'active' : '' }}">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>BUKU PAJAK GIRO</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ url('laporan-bukupajakkkpd') }}"
-                                        class="nav-link {{ request()->is('laporan-bukupajakkkpd') ? 'active' : '' }}">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>BUKU PAJAK KKPD</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ url('laporan-bukupajakls') }}"
-                                        class="nav-link {{ request()->is('laporan-bukupajakls') ? 'active' : '' }}">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>BUKU PAJAK LS</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ url('laporan-bukupajakall') }}"
-                                        class="nav-link {{ request()->is('laporan-bukupajakall') ? 'active' : '' }}">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>BUKU PAJAK ALL</p>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
 
                         <!-- Realisasi -->

@@ -74,19 +74,19 @@ class BukuPajakGiro extends Component
                     NULL AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ?
             ),
             PajakSetor AS (
                 SELECT
                     p.id AS pajak_id,
                     b.tanggal AS tgl_bukti,
                     CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-                    CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), ''), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), ''), ')' ) AS uraian,
+                    CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), '-'), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), '-'), ')' ) AS uraian,
                     NULL AS pemotongan,
                     p.nominal AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ?
             )
             SELECT * FROM (
                 SELECT * FROM PajakUtama
@@ -94,7 +94,7 @@ class BukuPajakGiro extends Component
                 SELECT * FROM PajakSetor
             ) AS laporan
             ORDER BY tgl_bukti, no_bukti;
-        ", [$this->tanggal_awal, $this->tanggal_akhir, $this->tanggal_awal, $this->tanggal_akhir]);
+        ", [$this->tanggal_awal, $this->tanggal_akhir, session('tahun_anggaran'), $this->tanggal_awal, $this->tanggal_akhir, session('tahun_anggaran')]);
         } else {
             $this->laporan = DB::select("
             WITH PajakUtama AS (
@@ -107,19 +107,19 @@ class BukuPajakGiro extends Component
                     NULL AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ? AND p.jenis_pajak = ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
             ),
             PajakSetor AS (
                 SELECT
                     p.id AS pajak_id,
                     b.tanggal AS tgl_bukti,
                     CONCAT('TBP - ', b.no_bukti) AS no_bukti,
-                     CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), ''), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), ''), ')' ) AS uraian,
+                     CONCAT('Pengeluaran PFK - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), '-'), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), '-'), ')' ) AS uraian,
                     NULL AS pemotongan,
                     p.nominal AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ? AND p.jenis_pajak = ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
             )
             SELECT * FROM (
                 SELECT * FROM PajakUtama
@@ -127,7 +127,7 @@ class BukuPajakGiro extends Component
                 SELECT * FROM PajakSetor
             ) AS laporan
             ORDER BY tgl_bukti, no_bukti;
-        ", [$this->tanggal_awal, $this->tanggal_akhir, $this->jenis, $this->tanggal_awal, $this->tanggal_akhir, $this->jenis]);
+        ", [$this->tanggal_awal, $this->tanggal_akhir, session('tahun_anggaran'), $this->jenis, $this->tanggal_awal, $this->tanggal_akhir, session('tahun_anggaran'), $this->jenis]);
         }
 
         // Hitung total untuk semua jenis pajak di periode ini
@@ -148,6 +148,7 @@ class BukuPajakGiro extends Component
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPN')
             ->whereBetween('belanjas.tanggal', [$this->tanggal_awal, $this->tanggal_akhir])
+            ->whereYear('belanjas.tanggal', session('tahun_anggaran'))
             ->sum('pajaks.nominal');
 
         // Hitung total PPh 21
@@ -155,6 +156,7 @@ class BukuPajakGiro extends Component
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPh 21')
             ->whereBetween('belanjas.tanggal', [$this->tanggal_awal, $this->tanggal_akhir])
+            ->whereYear('belanjas.tanggal', session('tahun_anggaran'))
             ->sum('pajaks.nominal');
 
         // Hitung total PPh 22
@@ -162,6 +164,7 @@ class BukuPajakGiro extends Component
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPh 22')
             ->whereBetween('belanjas.tanggal', [$this->tanggal_awal, $this->tanggal_akhir])
+            ->whereYear('belanjas.tanggal', session('tahun_anggaran'))
             ->sum('pajaks.nominal');
 
         // Hitung total PPh 23
@@ -169,6 +172,7 @@ class BukuPajakGiro extends Component
             ->join('belanjas', 'pajaks.belanja_id', '=', 'belanjas.id')
             ->where('pajaks.jenis_pajak', 'PPh 23')
             ->whereBetween('belanjas.tanggal', [$this->tanggal_awal, $this->tanggal_akhir])
+            ->whereYear('belanjas.tanggal', session('tahun_anggaran'))
             ->sum('pajaks.nominal');
     }
 
@@ -182,7 +186,8 @@ class BukuPajakGiro extends Component
             $data->where('pajaks.jenis_pajak', $this->jenis);
         }
 
-        $data->whereBetween('belanjas.tanggal', [$this->tanggal_awal, $this->tanggal_akhir]);
+        $data->whereBetween('belanjas.tanggal', [$this->tanggal_awal, $this->tanggal_akhir])
+             ->whereYear('belanjas.tanggal', session('tahun_anggaran'));
         $this->pajakPeriodeIni = $data->sum('pajaks.nominal');
     }
 
@@ -212,7 +217,7 @@ class BukuPajakGiro extends Component
                     NULL AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ?
             ),
             PajakSetor AS (
                 SELECT
@@ -220,14 +225,14 @@ class BukuPajakGiro extends Component
                     p.nominal AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ?
             )
             SELECT * FROM (
                 SELECT * FROM PajakUtama
                 UNION ALL
                 SELECT * FROM PajakSetor
             ) AS saldo_awal;
-        ", [$awalTahun, $sebelumTanggalAwal, $awalTahun, $sebelumTanggalAwal]);
+        ", [$awalTahun, $sebelumTanggalAwal, session('tahun_anggaran'), $awalTahun, $sebelumTanggalAwal, session('tahun_anggaran')]);
         } else {
             $dataSaldoAwal = DB::select("
             WITH PajakUtama AS (
@@ -236,7 +241,7 @@ class BukuPajakGiro extends Component
                     NULL AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ? AND p.jenis_pajak = ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
             ),
             PajakSetor AS (
                 SELECT
@@ -244,14 +249,14 @@ class BukuPajakGiro extends Component
                     p.nominal AS penyetoran
                 FROM pajaks p
                 JOIN belanjas b ON p.belanja_id = b.id
-                WHERE b.tanggal BETWEEN ? AND ? AND p.jenis_pajak = ?
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? AND p.jenis_pajak = ?
             )
             SELECT * FROM (
                 SELECT * FROM PajakUtama
                 UNION ALL
                 SELECT * FROM PajakSetor
             ) AS saldo_awal;
-        ", [$awalTahun, $sebelumTanggalAwal, $this->jenis, $awalTahun, $sebelumTanggalAwal, $this->jenis]);
+        ", [$awalTahun, $sebelumTanggalAwal, session('tahun_anggaran'), $this->jenis, $awalTahun, $sebelumTanggalAwal, session('tahun_anggaran'), $this->jenis]);
         }
 
         // Hitung total pemotongan dan penyetoran

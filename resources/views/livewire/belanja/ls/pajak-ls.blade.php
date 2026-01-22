@@ -49,6 +49,26 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
 
+                                <!-- Form Input NTPN -->
+                                <div class="form-group d-flex align-items-center">
+                                    <label for="ntpn" class="mr-2" style="min-width: 150px;">NTPN</label>
+                                    <input wire:model="ntpn" type="text" class="form-control" id="ntpn"
+                                        placeholder="Enter NTPN">
+                                </div>
+                                @error('ntpn')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+
+                                <!-- Form Input NTB -->
+                                <div class="form-group d-flex align-items-center">
+                                    <label for="ntb" class="mr-2" style="min-width: 150px;">NTB</label>
+                                    <input wire:model="ntb" type="text" class="form-control" id="ntb"
+                                        placeholder="Enter NTB">
+                                </div>
+                                @error('ntb')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+
                                 <!-- Form Input Nominal -->
                                 <div class="form-group d-flex align-items-center">
                                     <label for="nominal" class="mr-2" style="min-width: 150px;">Nominal</label>
@@ -127,7 +147,7 @@
                         <tr>
                             <th width="60">No.</th>
                             <th>Jenis Pajak</th>
-                            <th>ID Billing</th>
+                            <th>Transaksi</th>
                             <th width="180" class="text-right">Nominal</th>
                             <th width="120" class="text-center">Aksi</th>
                         </tr>
@@ -137,7 +157,11 @@
                             <tr>
                                 <td><span class="code-badge">{{ $pajaks->firstItem() + $loop->index }}</span></td>
                                 <td style="font-weight: 500;">{{ $pajak->jenis_pajak }}</td>
-                                <td>{{ $pajak->no_billing ?: '-' }}</td>
+                                <td>
+                                    <div class="mb-1"><strong>ID Billing:</strong> {{ $pajak->no_billing ? $pajak->no_billing : '-' }}</div>
+                                    <div class="mb-1"><strong>NTPN:</strong> {{ $pajak->ntpn ? $pajak->ntpn : '-' }}</div>
+                                    <div><strong>NTB:</strong> {{ $pajak->ntb ? $pajak->ntb : '-' }}</div>
+                                </td>
                                 <td class="text-right">
                                     <span class="amount-badge">Rp {{ number_format($pajak->nominal, 0, ',', '.') }}</span>
                                 </td>

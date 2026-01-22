@@ -14,6 +14,8 @@ class PajakLs extends Model
         'belanja_ls_id',
         'jenis_pajak',
         'no_billing',
+        'ntpn',
+        'ntb',
         'nominal',
     ];
 

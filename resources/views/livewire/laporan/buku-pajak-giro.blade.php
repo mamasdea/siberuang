@@ -13,11 +13,11 @@
             <div class="row align-items-end mb-4">
                 <div class="col-md-3">
                     <label class="font-weight-bold text-secondary small mb-2">Tanggal Awal</label>
-                    <input type="date" wire:model.live="tanggal_awal" class="form-control" style="height: 40px; border-radius: 8px;">
+                    <input type="date" wire:model.live="tanggal_awal" min="{{ session('tahun_anggaran') }}-01-01" max="{{ session('tahun_anggaran') }}-12-31" class="form-control" style="height: 40px; border-radius: 8px;">
                 </div>
                 <div class="col-md-3">
                     <label class="font-weight-bold text-secondary small mb-2">Tanggal Akhir</label>
-                    <input type="date" wire:model.live="tanggal_akhir" class="form-control" style="height: 40px; border-radius: 8px;">
+                    <input type="date" wire:model.live="tanggal_akhir" min="{{ session('tahun_anggaran') }}-01-01" max="{{ session('tahun_anggaran') }}-12-31" class="form-control" style="height: 40px; border-radius: 8px;">
                 </div>
                 <div class="col-md-3">
                     <label class="font-weight-bold text-secondary small mb-2">Jenis Pajak</label>

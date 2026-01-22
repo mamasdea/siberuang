@@ -13,7 +13,7 @@ class PajakLs extends Component
 {
     use WithPagination;
 
-    public $belanja_ls_id, $jenis_pajak, $no_billing, $nominal, $pajakId;
+    public $belanja_ls_id, $jenis_pajak, $no_billing, $ntpn, $ntb, $nominal, $pajakId;
     public $updateMode = false;
 
     public $belanjaLs; // Header transaksi LS
@@ -54,6 +54,8 @@ class PajakLs extends Component
             'belanja_ls_id' => 'required|exists:belanja_ls,id',
             'jenis_pajak'   => 'required|string',
             'no_billing'    => 'required|string',
+            'ntpn'          => 'nullable|string',
+            'ntb'           => 'nullable|string',
             'nominal'       => 'required|numeric|min:0',
         ]);
 
@@ -101,6 +103,8 @@ class PajakLs extends Component
             'belanja_ls_id' => 'required|exists:belanja_ls,id',
             'jenis_pajak'   => 'required|string',
             'no_billing'    => 'required|string',
+            'ntpn'          => 'nullable|string',
+            'ntb'           => 'nullable|string',
             'nominal'       => 'required|numeric|min:0',
         ]);
 
@@ -155,6 +159,8 @@ class PajakLs extends Component
         $this->belanja_ls_id = $pajak->belanja_ls_id;
         $this->jenis_pajak = $pajak->jenis_pajak;
         $this->no_billing = $pajak->no_billing;
+        $this->ntpn = $pajak->ntpn;
+        $this->ntb = $pajak->ntb;
         $this->nominal = $pajak->nominal;
 
         $this->updateMode = true;
@@ -211,6 +217,8 @@ class PajakLs extends Component
     {
         $this->jenis_pajak = '';
         $this->no_billing = '';
+        $this->ntpn = '';
+        $this->ntb = '';
         $this->nominal = '';
         $this->pajakId = null;
         $this->updateMode = false;

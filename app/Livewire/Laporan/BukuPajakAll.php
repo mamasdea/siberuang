@@ -132,52 +132,72 @@ class BukuPajakAll extends Component
                     NULL AS penyetoran
                 FROM {$tablePajak} p
                 JOIN {$tableBelanja} b ON p.{$fk} = b.id
-                WHERE b.tanggal BETWEEN ? AND ? {$jenisCondition}
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? {$jenisCondition}
                 UNION ALL
                 SELECT
                     p.id AS pajak_id,
                     b.tanggal AS tgl_bukti,
                     CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
-                    CONCAT('Pengeluaran PFK (Giro) - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL((p.ntpn), ''), ')' ,' - NTB : ' ,' (' , IFNULL((p.ntb), ''), ')' ) AS uraian,
+                    CONCAT('Pengeluaran PFK (Giro) - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(p.ntpn, '-'), ')' ,' - NTB : ' ,' (' , IFNULL(p.ntb, '-'), ')' ) AS uraian,
                     NULL AS pemotongan,
                     p.nominal AS penyetoran
                 FROM {$tablePajak} p
                 JOIN {$tableBelanja} b ON p.{$fk} = b.id
-                WHERE b.tanggal BETWEEN ? AND ? {$jenisCondition}
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? {$jenisCondition}
             ";
         }
 
-        // Logic for KKPD and LS (they used LEFT/RIGHT for billing/ntpn in the previews, let's copy that)
-        // Check BukuPajakKkpd.php: LEFT(p.no_billing, 15) for ID BILLING, RIGHT(p.no_billing, 15) for NTPN (Wait, really? Let me check existing file again)
-        // BukuPajakKkpd.php line 72: IFNULL(LEFT(p.no_billing, 15), '')
-        // BukuPajakKkpd.php line 84: IFNULL(RIGHT(p.no_billing, 15), '') -> Uraian says NTPN, but accesses no_billing? That might be how they store it.
-        // I will copy that logic.
-
-        $sourceName = $tablePajak == 'pajak_kkpds' ? 'KKPD' : 'LS';
-
-        return "
-            SELECT
-                p.id AS pajak_id,
-                b.tanggal AS tgl_bukti,
-                CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
-                CONCAT('Penerimaan PFK ({$sourceName}) - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
-                p.nominal AS pemotongan,
-                NULL AS penyetoran
-            FROM {$tablePajak} p
-            JOIN {$tableBelanja} b ON p.{$fk} = b.id
-            WHERE b.tanggal BETWEEN ? AND ? {$jenisCondition}
-            UNION ALL
-            SELECT
-                p.id AS pajak_id,
-                b.tanggal AS tgl_bukti,
-                CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
-                CONCAT('Pengeluaran PFK ({$sourceName}) - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(RIGHT(p.no_billing, 15), ''), ')' ) AS uraian,
-                NULL AS pemotongan,
-                p.nominal AS penyetoran
-            FROM {$tablePajak} p
-            JOIN {$tableBelanja} b ON p.{$fk} = b.id
-            WHERE b.tanggal BETWEEN ? AND ? {$jenisCondition}
-        ";
+        if ($tablePajak == 'pajak_kkpds') {
+            return "
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
+                    CONCAT('Penerimaan PFK (KKPD) - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
+                    p.nominal AS pemotongan,
+                    NULL AS penyetoran
+                FROM {$tablePajak} p
+                JOIN {$tableBelanja} b ON p.{$fk} = b.id
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? {$jenisCondition}
+                UNION ALL
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
+                    CONCAT('Pengeluaran PFK (KKPD) - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(RIGHT(p.no_billing, 15), '-'), ')' ,' - NTB : (-)' ) AS uraian,
+                    NULL AS pemotongan,
+                    p.nominal AS penyetoran
+                FROM {$tablePajak} p
+                JOIN {$tableBelanja} b ON p.{$fk} = b.id
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? {$jenisCondition}
+            ";
+        } else {
+            // Logic for LS (which now has ntpn and ntb columns)
+            $sourceName = 'LS';
+            return "
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
+                    CONCAT('Penerimaan PFK ({$sourceName}) - ', p.jenis_pajak, ' - ID BILLING : ', ' (', IFNULL(LEFT(p.no_billing, 15), ''), ')') AS uraian,
+                    p.nominal AS pemotongan,
+                    NULL AS penyetoran
+                FROM {$tablePajak} p
+                JOIN {$tableBelanja} b ON p.{$fk} = b.id
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? {$jenisCondition}
+                UNION ALL
+                SELECT
+                    p.id AS pajak_id,
+                    b.tanggal AS tgl_bukti,
+                    CONCAT('{$prefixNoBukti}', b.no_bukti) AS no_bukti,
+                    CONCAT('Pengeluaran PFK ({$sourceName}) - ', p.jenis_pajak, ' - NTPN : ' ,' (' , IFNULL(p.ntpn, '-'), ')' ,' - NTB : ' ,' (' , IFNULL(p.ntb, '-'), ')' ) AS uraian,
+                    NULL AS pemotongan,
+                    p.nominal AS penyetoran
+                FROM {$tablePajak} p
+                JOIN {$tableBelanja} b ON p.{$fk} = b.id
+                WHERE b.tanggal BETWEEN ? AND ? AND YEAR(b.tanggal) = ? {$jenisCondition}
+            ";
+        }
     }
 
     private function getBindingsForUnion()
@@ -187,6 +207,7 @@ class BukuPajakAll extends Component
         for ($i = 0; $i < 6; $i++) {
             $bindings[] = $this->tanggal_awal;
             $bindings[] = $this->tanggal_akhir;
+            $bindings[] = session('tahun_anggaran');
             if ($this->jenis != 'ALL') {
                 $bindings[] = $this->jenis;
             }
@@ -218,6 +239,7 @@ class BukuPajakAll extends Component
                     ->join($tableBelanja, "$tablePajak.$fk", '=', "$tableBelanja.id")
                     ->where("$tablePajak.jenis_pajak", $type)
                     ->whereBetween("$tableBelanja.tanggal", [$this->tanggal_awal, $this->tanggal_akhir])
+                    ->whereYear("$tableBelanja.tanggal", session('tahun_anggaran'))
                     ->sum("$tablePajak.nominal");
 
                 if ($type == 'PPN')
@@ -248,7 +270,8 @@ class BukuPajakAll extends Component
 
             $query = DB::table($tablePajak)
                 ->join($tableBelanja, "$tablePajak.$fk", '=', "$tableBelanja.id")
-                ->whereBetween("$tableBelanja.tanggal", [$this->tanggal_awal, $this->tanggal_akhir]);
+                ->whereBetween("$tableBelanja.tanggal", [$this->tanggal_awal, $this->tanggal_akhir])
+                ->whereYear("$tableBelanja.tanggal", session('tahun_anggaran'));
 
             if ($this->jenis != 'ALL') {
                 $query->where("$tablePajak.jenis_pajak", $this->jenis);
@@ -280,6 +303,7 @@ class BukuPajakAll extends Component
         for ($i = 0; $i < 6; $i++) {
             $bindings[] = $awalTahun;
             $bindings[] = $sebelumTanggalAwal;
+            $bindings[] = session('tahun_anggaran');
             if ($this->jenis != 'ALL') {
                 $bindings[] = $this->jenis;
             }

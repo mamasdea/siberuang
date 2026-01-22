@@ -24,13 +24,13 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-bold text-secondary small mb-2">TANGGAL AWAL</label>
-                        <input type="date" wire:model.live="tanggal_awal" class="form-control modern-input">
+                        <input type="date" wire:model.live="tanggal_awal" min="{{ session('tahun_anggaran') }}-01-01" max="{{ session('tahun_anggaran') }}-12-31" class="form-control modern-input">
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-bold text-secondary small mb-2">TANGGAL AKHIR</label>
-                        <input type="date" wire:model.live="tanggal_akhir" class="form-control modern-input">
+                        <input type="date" wire:model.live="tanggal_akhir" min="{{ session('tahun_anggaran') }}-01-01" max="{{ session('tahun_anggaran') }}-12-31" class="form-control modern-input">
                     </div>
                 </div>
                 <div class="col-md-3">

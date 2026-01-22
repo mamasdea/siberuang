@@ -30,7 +30,12 @@ class BelanjaKkpdsManager extends Component
     {
         $this->resetPage();
     }
-    public $belanjas;
+
+    public function updatingPaginate()
+    {
+        $this->resetPage();
+    }
+    // public $belanjas; // Removed to avoid state conflict
     public $belanja_id, $no_bukti, $tanggal, $uraian, $rka_id, $nilai;
     public $isEdit = false;
     public $formVisible = false;
