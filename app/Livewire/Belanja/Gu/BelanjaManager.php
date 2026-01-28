@@ -553,7 +553,7 @@ class BelanjaManager extends Component
             if ($belanja->arsip) {
                 Storage::disk('gcs')->delete($belanja->arsip);
             }
-            $path = $this->fileArsip->store('arsip', 'gcs');
+            $path = $this->fileArsip->store('arsip');
             $belanja->update(['arsip' => $path]);
 
             $this->js(<<<'JS'
