@@ -29,20 +29,20 @@ class AppServiceProvider extends ServiceProvider
             $this->app['request']->server->set('HTTPS', true);
         }
 
-        Storage::extend('gcs', function ($app, $config) {
-            $storageClient = new StorageClient([
-                'projectId' => $config['project_id'] ?? $config['key_file']['project_id'] ?? null,
-                'keyFile' => $config['key_file'],
-            ]);
-            $bucket = $storageClient->bucket($config['bucket']);
-            $bucketPrefix = $config['path_prefix'] ?? ''; // Support path_prefix if user adds it
-            $adapter = new GoogleCloudStorageAdapter($bucket, $bucketPrefix);
+        // Storage::extend('gcs', function ($app, $config) {
+        //     $storageClient = new StorageClient([
+        //         'projectId' => $config['project_id'] ?? $config['key_file']['project_id'] ?? null,
+        //         'keyFile' => $config['key_file'],
+        //     ]);
+        //     $bucket = $storageClient->bucket($config['bucket']);
+        //     $bucketPrefix = $config['path_prefix'] ?? ''; // Support path_prefix if user adds it
+        //     $adapter = new GoogleCloudStorageAdapter($bucket, $bucketPrefix);
 
-            return new FilesystemAdapter(
-                new Filesystem($adapter, $config),
-                $adapter,
-                $config
-            );
-        });
+        //     return new FilesystemAdapter(
+        //         new Filesystem($adapter, $config),
+        //         $adapter,
+        //         $config
+        //     );
+        // });
     }
 }
