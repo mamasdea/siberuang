@@ -175,7 +175,7 @@ class BelanjaManager extends Component
         $formattedNoBukti = str_pad($newNoBukti, 4, '0', STR_PAD_LEFT);
 
         if ($this->fileArsip) {
-            $validatedData['arsip'] = $this->fileArsip->store('arsip', 'gcs');
+            $validatedData['arsip'] = $this->fileArsip->store('arsip');
         }
 
         // Tambahkan nomor bukti yang sudah diformat ke dalam data yang divalidasi
