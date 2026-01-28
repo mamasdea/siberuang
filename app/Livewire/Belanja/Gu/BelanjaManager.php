@@ -479,7 +479,8 @@ class BelanjaManager extends Component
             }
             $date = \Carbon\Carbon::parse($belanja->tanggal);
             $folder = 'arsip/' . $date->format('Y-m');
-            $path = $this->fileArsip->store($folder, 'gcs');
+            $filename = 'TBP-' . $belanja->no_bukti . '.' . $this->fileArsip->getClientOriginalExtension();
+            $path = $this->fileArsip->storeAs($folder, $filename, 'gcs');
             $belanja->update(['arsip' => $path]);
 
             $this->previewArsipUrl = $this->getArsipUrl($path);
@@ -558,7 +559,8 @@ class BelanjaManager extends Component
             }
             $date = \Carbon\Carbon::parse($belanja->tanggal);
             $folder = 'arsip/' . $date->format('Y-m');
-            $path = $this->fileArsip->store($folder, 'gcs');
+            $filename = 'TBP-' . $belanja->no_bukti . '.' . $this->fileArsip->getClientOriginalExtension();
+            $path = $this->fileArsip->storeAs($folder, $filename, 'gcs');
             $belanja->update(['arsip' => $path]);
 
             $this->js(<<<'JS'
