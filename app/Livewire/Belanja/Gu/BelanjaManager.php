@@ -474,10 +474,15 @@ class BelanjaManager extends Component
 
         $belanja = Belanja::find($this->uploadBelanjaId);
         if ($belanja) {
-            if ($belanja->arsip) {
-                Storage::disk('gcs')->delete($belanja->arsip);
+            // if ($belanja->arsip) {
+            //     Storage::disk('gcs')->delete($belanja->arsip);
+            // }
+            if (!empty($belanja->arsip)) {
+                if (Storage::exists($belanja->arsip)) {
+                    Storage::delete($belanja->arsip);
+                }
             }
-            $path = $this->fileArsip->store('arsip', 'gcs');
+            $path = $this->fileArsip->store('arsip');
             $belanja->update(['arsip' => $path]);
 
             $this->previewArsipUrl = $this->getArsipUrl($path);
