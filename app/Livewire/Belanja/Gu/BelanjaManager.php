@@ -558,7 +558,9 @@ class BelanjaManager extends Component
             if ($belanja->arsip) {
                 Storage::disk('gcs')->delete($belanja->arsip);
             }
-            $path = $this->fileArsip->store('arsip');
+            $date = \Carbon\Carbon::parse($belanja->tanggal);
+            $folder = 'arsip/' . $date->format('Y-m');
+            $path = $this->fileArsip->store($folder, 'gcs');
             $belanja->update(['arsip' => $path]);
 
             $this->js(<<<'JS'
