@@ -460,7 +460,7 @@ class BelanjaManager extends Component
     {
         if (!$path)
             return '';
-        return route('helper.show-picture', ['path' => $path, 'disk' => 'gcs']);
+        return Storage::disk('gcs')->temporaryUrl($path, now()->addMinutes(30));
     }
 
     public $uploadBelanjaId;
@@ -514,6 +514,7 @@ class BelanjaManager extends Component
         $this->fileArsip = null;
         $belanja = Belanja::find($id);
         if ($belanja && $belanja->arsip) {
+            // dd($this->getArsipUrl($belanja->arsip));
             $this->previewArsipUrl = $this->getArsipUrl($belanja->arsip);
             $this->js(<<<'JS'
                 $('#previewArsipModal').modal('show');

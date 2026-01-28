@@ -16,7 +16,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-        "league/flysystem-google-cloud-storage": "^3.30",
+        "spatie/laravel-google-cloud-storage": "^2.2",
         "livewire/livewire": "^3.5",
         "maatwebsite/excel": "^3.1",
         "phpoffice/phpword": "^1.3"
