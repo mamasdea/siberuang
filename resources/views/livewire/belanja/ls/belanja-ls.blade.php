@@ -71,17 +71,17 @@
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="table modern-table">
+                <table class="table modern-table" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
-                            <th width="50">No</th>
-                            <th width="220">No Bukti (SPP)</th>
-                            <th width="180">No SPM SIPD</th>
-                            <th width="120">Tanggal</th>
+                            <th style="width: 45px;">No</th>
+                            <th style="width: 170px;">No Bukti (SPP)</th>
+                            <th style="width: 200px;">No SPM SIPD</th>
+                            <th style="width: 100px;">Tanggal</th>
                             <th>Uraian</th>
-                            <th width="180" class="text-right">Total Nilai</th>
-                            <th width="150" class="text-right">Potongan Pajak</th>
-                            <th width="180" class="text-center">Aksi</th>
+                            <th style="width: 160px;" class="text-right">Total Nilai</th>
+                            <th style="width: 140px;" class="text-right">Potongan Pajak</th>
+                            <th style="width: 160px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,19 +89,25 @@
                             <tr wire:key="{{ $row->id }}">
                                 <td><span class="code-badge">{{ $loop->index + $belanja->firstItem() }}</span></td>
                                 <td>
-                                    <span class="code-badge">SPP-{{ $row->no_bukti }}/Diskominfo/{{ date('Y', strtotime($row->tanggal)) }}</span>
+                                    <span class="code-badge" style="white-space: nowrap; font-size: 11px;">
+                                        SPP-{{ $row->no_bukti }}/Diskominfo/{{ date('Y', strtotime($row->tanggal)) }}
+                                    </span>
                                 </td>
                                 <td>
                                     @if($row->no_spm_sipd)
-                                        <span class="code-badge">{{ $row->no_spm_sipd }}</span>
+                                        <span class="code-badge" style="font-size: 11px; word-break: break-all; display: inline-block; max-width: 100%;">{{ $row->no_spm_sipd }}</span>
                                     @else
                                         <span class="text-muted small">-</span>
                                     @endif
                                 </td>
-                                <td style="font-weight: 500;">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
-                                <td class="text-left">{{ $row->uraian }}</td>
-                                <td class="text-right">
-                                     <span class="amount-badge">Rp {{ number_format($row->total_nilai, 0, ',', '.') }}</span>
+                                <td style="font-weight: 500; white-space: nowrap;">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
+                                <td class="text-left" style="overflow: hidden;">
+                                    <span title="{{ $row->uraian }}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
+                                        {{ $row->uraian }}
+                                    </span>
+                                </td>
+                                <td class="text-right" style="white-space: nowrap;">
+                                    <span class="amount-badge">Rp {{ number_format($row->total_nilai, 0, ',', '.') }}</span>
                                 </td>
                                 <td class="text-right">
                                     @if ($row->pajakLs->sum('nominal') > 0)
