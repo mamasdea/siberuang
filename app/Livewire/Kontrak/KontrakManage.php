@@ -54,7 +54,11 @@ class KontrakManage extends Component
 
     public function mount()
     {
-        $this->listSubKegiatan = SubKegiatan::orderBy('kode')->get(['id', 'kode', 'nama']);
+        $tahun = session('tahun_anggaran', date('Y'));
+
+        $this->listSubKegiatan = SubKegiatan::whereHas('kegiatan.program', function ($q) use ($tahun) {
+            $q->where('tahun_anggaran', $tahun);
+        })->orderBy('kode')->get(['id', 'kode', 'nama']);
     }
 
     protected function rules(): array
@@ -102,7 +106,7 @@ class KontrakManage extends Component
         $tahun = session('tahun_anggaran', date('Y'));
 
         $query = Kontrak::query()
-            ->whereYear('tanggal_kontrak', $tahun)   // ✅ FILTER TAHUN
+            ->whereHas('subKegiatan.kegiatan.program', fn($q) => $q->where('tahun_anggaran', $tahun))
             ->when($this->search, function ($q) {
                 $s = "%{$this->search}%";
                 $q->where(function ($w) use ($s) {
