@@ -75,7 +75,8 @@
                     <thead>
                         <tr>
                             <th width="50">No</th>
-                            <th width="220">No Bukti</th>
+                            <th width="220">No Bukti (SPP)</th>
+                            <th width="180">No SPM SIPD</th>
                             <th width="120">Tanggal</th>
                             <th>Uraian</th>
                             <th width="180" class="text-right">Total Nilai</th>
@@ -88,7 +89,14 @@
                             <tr wire:key="{{ $row->id }}">
                                 <td><span class="code-badge">{{ $loop->index + $belanja->firstItem() }}</span></td>
                                 <td>
-                                    <span class="code-badge">SPM-{{ $row->no_bukti }}/Diskominfo/{{ date('Y', strtotime($row->tanggal)) }}</span>
+                                    <span class="code-badge">SPP-{{ $row->no_bukti }}/Diskominfo/{{ date('Y', strtotime($row->tanggal)) }}</span>
+                                </td>
+                                <td>
+                                    @if($row->no_spm_sipd)
+                                        <span class="code-badge">{{ $row->no_spm_sipd }}</span>
+                                    @else
+                                        <span class="text-muted small">-</span>
+                                    @endif
                                 </td>
                                 <td style="font-weight: 500;">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
                                 <td class="text-left">{{ $row->uraian }}</td>
@@ -166,11 +174,11 @@
                 </div>
                 <div class="modal-body">
                     <form>
-                        <!-- No Bukti -->
+                        <!-- No Bukti (SPP) -->
                         <div class="form-group row mb-3">
-                            <label for="no_bukti" class="col-md-3 form-label" style="min-width: 150px;">No Bukti</label>
+                            <label for="no_bukti" class="col-md-3 form-label" style="min-width: 150px;">No Bukti (SPP)</label>
                             <div class="col-md-2">
-                                <input type="text" class="form-control" value="SPM-" readonly style="background-color: #f4f6f9;">
+                                <input type="text" class="form-control" value="SPP-" readonly style="background-color: #f4f6f9;">
                             </div>
                             <div class="col-md-3">
                                 <input wire:model="no_bukti" type="text" class="form-control" id="no_bukti" placeholder="0001">
@@ -178,6 +186,15 @@
                             </div>
                             <div class="col-md-4">
                                 <input type="text" class="form-control" value="/Diskominfo/{{ $tahunTransaksi ?? date('Y') }}" readonly style="background-color: #f4f6f9;">
+                            </div>
+                        </div>
+
+                        <!-- No SPM SIPD -->
+                        <div class="form-group row mb-3">
+                            <label for="no_spm_sipd" class="col-md-3 form-label" style="min-width: 150px;">No SPM SIPD</label>
+                            <div class="col-md-9">
+                                <input wire:model="no_spm_sipd" type="text" class="form-control" id="no_spm_sipd" placeholder="nomor sesuai dengan nomor SPM SIPD">
+                                @error('no_spm_sipd') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
 

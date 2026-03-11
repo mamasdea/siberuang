@@ -38,7 +38,7 @@ class LaporanLs extends Component
 
         $templateProcessor = new TemplateProcessor($templatePath);
 
-        $no_spp_spm = $belanja->no_bukti;
+        $no_spp_spm = $belanja->no_spm_sipd;
         $no_pernyataan = str_pad((int)$belanja->no_bukti + 1, 4, '0', STR_PAD_LEFT);
         $no_tanggungjawab = str_pad((int)$belanja->no_bukti + 2, 4, '0', STR_PAD_LEFT);
 

@@ -43,7 +43,7 @@ class BelanjaLs extends Component
     // public $belanjas; // Removed to avoid state conflict
 
     // Header transaksi LS
-    public $belanja_id, $no_bukti, $tanggal, $uraian;
+    public $belanja_id, $no_bukti, $no_spm_sipd, $tanggal, $uraian;
     // Total nilai dihitung otomatis sebagai jumlah nilai transaksi LS (dari masing-masing RKAS)
     public $total_nilai;
 
@@ -178,6 +178,7 @@ class BelanjaLs extends Component
         try {
             $belanjaLS = ModelBelanjaLs::create([
                 'no_bukti' => $this->no_bukti,
+                'no_spm_sipd' => $this->no_spm_sipd ?: null,
                 'tanggal' => $this->tanggal,
                 'uraian' => $this->uraian,
                 'total_nilai' => $this->total_nilai,
@@ -240,6 +241,7 @@ class BelanjaLs extends Component
         $belanjaLS = ModelBelanjaLs::with('details')->findOrFail($id);
         $this->belanja_id = $belanjaLS->id;
         $this->no_bukti = $belanjaLS->no_bukti;
+        $this->no_spm_sipd = $belanjaLS->no_spm_sipd;
         $this->tanggal = $belanjaLS->tanggal;
         $this->tahunTransaksi = $belanjaLS->tanggal ? date('Y', strtotime($belanjaLS->tanggal)) : date('Y');
         $this->uraian = $belanjaLS->uraian;
@@ -325,6 +327,7 @@ class BelanjaLs extends Component
             if ($belanjaLS = ModelBelanjaLs::find($this->belanja_id)) {
                 $belanjaLS->update([
                     'no_bukti' => $this->no_bukti,
+                    'no_spm_sipd' => $this->no_spm_sipd ?: null,
                     'tanggal' => $this->tanggal,
                     'uraian' => $this->uraian,
                     'total_nilai' => $this->total_nilai,
@@ -419,6 +422,7 @@ class BelanjaLs extends Component
     private function resetInputFields()
     {
         $this->no_bukti = '';
+        $this->no_spm_sipd = null;
         $this->tanggal = null;
         $this->uraian = '';
         $this->total_nilai = null;

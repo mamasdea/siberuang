@@ -10,6 +10,7 @@ class BelanjaLs extends Model
     use HasFactory;
     protected $fillable = [
         'no_bukti',
+        'no_spm_sipd',
         'tanggal',
         'uraian',
         'total_nilai',
