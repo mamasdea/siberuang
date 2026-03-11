@@ -56,9 +56,7 @@ class KontrakManage extends Component
     {
         $tahun = session('tahun_anggaran', date('Y'));
 
-        $this->listSubKegiatan = SubKegiatan::whereHas('kegiatan.program', function ($q) use ($tahun) {
-            $q->where('tahun_anggaran', $tahun);
-        })->orderBy('kode')->get(['id', 'kode', 'nama']);
+        $this->listSubKegiatan = SubKegiatan::orderBy('kode')->get(['id', 'kode', 'nama']);
     }
 
     protected function rules(): array
