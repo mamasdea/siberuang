@@ -129,7 +129,12 @@ class BelanjaLs extends Component
             $totalGU = \App\Models\Belanja::where('rka_id', $rka->id)->sum('nilai');
             $totalKkpd = \App\Models\BelanjaKkpd::where('rka_id', $rka->id)->sum('nilai');
             // Total transaksi LS dari tabel belanja_ls_details
-            $totalLS = BelanjaLsDetails::where('rka_id', $rka->id)->sum('nilai');
+            // Saat edit, exclude detail dari record yang sedang diedit agar sisa anggaran tidak terhitung dua kali
+            $totalLS = BelanjaLsDetails::where('rka_id', $rka->id)
+                ->when($this->belanja_id, function ($query) {
+                    return $query->where('belanja_ls_id', '!=', $this->belanja_id);
+                })
+                ->sum('nilai');
             $sisa = $rka->anggaran - $totalGU - $totalKkpd - $totalLS;
             return [
                 'id' => $rka->id,
