@@ -42,4 +42,10 @@ class Belanja extends Model
     {
         return $this->hasMany(Pajak::class, 'belanja_id');
     }
+
+    public function spjGus()
+    {
+        return $this->belongsToMany(SpjGu::class, 'spj_gu_belanja')
+            ->withTimestamps();
+    }
 }

@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('spp_spm_gus', function (Blueprint $table) {
+            $table->id();
+            $table->string('no_bukti');
+            $table->string('no_spm_sipd')->nullable();
+            $table->date('tanggal');
+            $table->integer('tahun_bukti')->nullable();
+            $table->text('uraian')->nullable();
+            $table->decimal('total_nilai', 15, 2)->default(0);
+            $table->timestamps();
+        });
+
+        Schema::create('spp_spm_gu_spj_gu', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('spp_spm_gu_id')->constrained('spp_spm_gus')->cascadeOnDelete();
+            $table->foreignId('spj_gu_id')->constrained('spj_gus')->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['spp_spm_gu_id', 'spj_gu_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('spp_spm_gu_spj_gu');
+        Schema::dropIfExists('spp_spm_gus');
+    }
+};

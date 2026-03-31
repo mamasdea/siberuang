@@ -85,7 +85,7 @@ class BelanjaManager extends Component
 
         // Query belanja sesuai tahun anggaran dan bulan
         // Query belanja sesuai tahun anggaran dan bulan
-        $query = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program'])
+        $query = Belanja::with(['penerimaan', 'pajak', 'rka.subKegiatan.kegiatan.program', 'spjGus'])
             ->whereHas('rka.subKegiatan.kegiatan.program', function ($query) use ($tahun) {
                 $query->where('tahun_anggaran', $tahun);
             })

@@ -114,7 +114,12 @@
                          @foreach ($belanja as $row)
                             <tr wire:key="{{ $row->id }}">
                                 <td><span class="code-badge">{{ $loop->index + $belanja->firstItem() }}</span></td>
-                                <td><span class="code-badge">TBP-{{ $row->no_bukti }}</span></td>
+                                <td>
+                                    <span class="code-badge">TBP-{{ $row->no_bukti }}</span>
+                                    @if($row->spjGus->count() > 0)
+                                        <span class="badge badge-success" style="font-size: 9px; padding: 2px 5px; vertical-align: top;">SPJ</span>
+                                    @endif
+                                </td>
                                 <td style="font-weight: 500;">{{ $row->tanggal }}</td>
                                 <td class="text-left">{{ $row->uraian }}</td>
                                 <td class="text-right">
@@ -181,9 +186,15 @@
                                         <button class="btn btn-warning btn-sm" wire:click="edit({{ $row->id }})" title="Edit">
                                             <i class="fas fa-pencil-alt text-white"></i>
                                         </button>
-                                        <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+                                        @if($row->spjGus->count() > 0)
+                                            <button class="btn btn-secondary btn-sm" disabled title="Tidak dapat dihapus, sudah ter-SPJ">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        @else
+                                            <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                     
                                     <div class="btn-group ml-1">

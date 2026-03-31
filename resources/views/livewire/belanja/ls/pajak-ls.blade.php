@@ -108,7 +108,7 @@
                         data-target="#formPotonganPajakModal">
                         <i class="fas fa-plus mr-2"></i>Tambah Pajak LS
                     </button>
-                    <a href="{{ url('belanja_ls') }}" class="btn btn-outline-success ml-2">
+                    <a href="{{ url('spp-spm-ls') }}" class="btn btn-outline-success ml-2">
                         <i class="fas fa-undo-alt mr-2"></i>Kembali
                     </a>
                 </div>

@@ -75,7 +75,7 @@
                 @endif
 
                 <!-- Belanja Menu -->
-                <li class="nav-item has-treeview {{ request()->is('belanja*') ? 'menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ request()->is('belanja', 'belanja-kkpd') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-shopping-cart"></i>
                         <p>
@@ -98,9 +98,49 @@
                                 <p>KPPD</p>
                             </a>
                         </li>
+                    </ul>
+                </li>
+
+                <!-- SPJ GU Menu -->
+                <li class="nav-item has-treeview {{ request()->is('spj*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-file-signature"></i>
+                        <p>
+                            SPJ
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ url('belanja_ls') }}"
-                                class="nav-link {{ request()->is('belanja_ls') ? 'active' : '' }}">
+                            <a href="{{ url('spj-gu') }}"
+                                class="nav-link {{ request()->is('spj-gu') ? 'active' : '' }}">
+                                <i class="far fa-dot-circle nav-icon"></i>
+                                <p>SPJ GU</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- SPP-SPM Menu -->
+                <li class="nav-item has-treeview {{ request()->is('spp-spm*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                        <p>
+                            SPP-SPM
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('spp-spm-gu') }}"
+                                class="nav-link {{ request()->is('spp-spm-gu') ? 'active' : '' }}">
+                                <i class="far fa-dot-circle nav-icon"></i>
+                                <p>GU</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('spp-spm-ls') }}"
+                                class="nav-link {{ request()->is('spp-spm-ls') ? 'active' : '' }}">
                                 <i class="far fa-dot-circle nav-icon"></i>
                                 <p>LS</p>
                             </a>
