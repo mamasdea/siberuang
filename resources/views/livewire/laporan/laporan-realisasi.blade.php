@@ -206,12 +206,36 @@
     <script>
         function printAll() {
             var printContent = document.getElementById('printArea').innerHTML;
-            var originalContent = document.body.innerHTML;
-
-            document.body.innerHTML = printContent;
-            window.print();
-            document.body.innerHTML = originalContent;
-            location.reload();
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Laporan Realisasi Anggaran</title>
+                    <link rel="stylesheet" href="{{ asset('AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css') }}">
+                    <link rel="stylesheet" href="{{ asset('AdminLTE-3.2.0/dist/css/adminlte.css') }}">
+                    <style>
+                        body { margin: 0; padding: 0; font-family: 'Source Sans Pro', sans-serif; }
+                        .table th, .table td { font-size: 11px; vertical-align: middle !important; }
+                        .program-info-table { width: 100%; margin-bottom: 20px; }
+                        .program-info-table td { padding: 4px; font-size: 12px; }
+                        .print-page { padding: 20px; background: white; }
+                        .print-page:first-child { page-break-before: auto; }
+                        .print-page + .print-page { page-break-before: always; }
+                        @page { size: 330mm 210mm; margin: 10mm; }
+                        @media print {
+                            .print-page + .print-page { page-break-before: always; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                    <script>
+                        setTimeout(function() { window.print(); window.close(); }, 500);
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
         }
     </script>
 @endpush
