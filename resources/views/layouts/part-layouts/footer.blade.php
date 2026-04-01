@@ -1,9 +1,9 @@
      <!-- Main Footer -->
-     <footer class="main-footer">
-         <strong>Copyright &copy; 2025 <a href="https://github.com/mamasdea">MAMAS DEA</a>.</strong>
-         All rights reserved.
+     <footer class="main-footer" style="background: #fff; border-top: 1px solid #e2e8f0; padding: 12px 20px; font-size: 13px; color: #94a3b8;">
+         <strong style="color: #64748b;">Copyright &copy; {{ date('Y') }} <a href="https://github.com/mamasdea" style="color: #6366f1; text-decoration: none; font-weight: 600;">MAMAS DEA</a></strong>
+         <span class="ml-1">All rights reserved.</span>
          <div class="float-right d-none d-sm-inline-block">
-             <b>Siberuang V</b> 1.0
+             <span style="background: #f1f5f9; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; color: #64748b;">Siberuang v2.0</span>
          </div>
      </footer>
      </div>
@@ -23,7 +23,6 @@
 
      <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
      <script src="{{ asset('AdminLTE-3.2.0/dist/js/pages/dashboard3.js') }}" data-navigate></script>
-     {{-- @stack('js') --}}
      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
      <!-- Select2 -->
      <script src="{{ asset('AdminLTE-3.2.0/plugins/select2/js/select2.full.min.js') }}"></script>

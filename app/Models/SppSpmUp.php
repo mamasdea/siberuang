@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class SppSpmGu extends Model
+class SppSpmUp extends Model
 {
     use HasFactory;
 
@@ -20,14 +20,8 @@ class SppSpmGu extends Model
         'no_sp2d',
     ];
 
-    public function spjGus()
-    {
-        return $this->belongsToMany(SpjGu::class, 'spp_spm_gu_spj_gu')
-            ->withTimestamps();
-    }
-
     public function uangGiro()
     {
-        return $this->hasOne(UangGiro::class, 'spp_spm_gu_id');
+        return $this->hasOne(UangGiro::class, 'spp_spm_up_id');
     }
 }

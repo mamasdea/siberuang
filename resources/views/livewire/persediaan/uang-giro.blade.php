@@ -7,65 +7,54 @@
         <div class="card-header-modern">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="page-title">Data Uang Persediaan (UP) Giro</h3>
-                    <p class="page-subtitle mb-0">Kelola data uang persediaan giro untuk tahun anggaran {{ $tahun }}</p>
-                </div>
-                <div>
-                    <button type="button" class="btn btn-modern-add" data-toggle="modal" data-target="#uangGiroModal"
-                        wire:click="resetInput()">
-                        <i class="fas fa-plus mr-2"></i>Tambah Data
-                    </button>
+                    <h3 class="page-title">Daftar SP2D - Uang Persediaan</h3>
+                    <p class="page-subtitle mb-0">Daftar SP2D yang sudah terbit dari SPP-SPM UP dan GU</p>
                 </div>
             </div>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                </div>
-                <div class="stat-label">Total Transaksi</div>
-                <div class="stat-value">{{ $totalTransaksi }}</div>
-                <div class="stat-description">Transaksi tahun {{ $tahun }}</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-                <div class="stat-label">Total Nominal</div>
-                <div class="stat-value">{{ number_format($totalNominal / 1000000, 1) }}M</div>
-                <div class="stat-description">Rp {{ number_format($totalNominal, 0, ',', '.') }}</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div class="stat-label">Tahun Anggaran</div>
-                <div class="stat-value">{{ $tahun }}</div>
-                <div class="stat-description">Periode aktif saat ini</div>
-            </div>
-        </div>
-
-        <!-- Content -->
         <div class="content-card">
-            <div class="d-flex justify-content-between align-items-center section-header">
-                <div>
-                    <h5 class="section-title">Daftar Transaksi UP Giro</h5>
-                    <p class="section-subtitle mb-0">Semua transaksi uang persediaan giro</p>
+            <!-- Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="stat-label">Total SP2D</div>
+                        <div class="stat-value">{{ number_format($totalTransaksi, 0, ',', '.') }}</div>
+                        <div class="stat-description">SP2D terbit</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card h-100">
+                        <div class="stat-icon green">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-label">Total Nominal</div>
+                        <div class="stat-value" style="font-size: 20px;">Rp {{ number_format($totalNominal, 0, ',', '.') }}</div>
+                        <div class="stat-description">Akumulasi Penerimaan</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Search Box -->
-            <div class="mb-3">
+            <!-- Search -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div class="d-flex align-items-center">
+                    <span class="mr-2 text-secondary font-weight-bold" style="font-size: 14px;">Show:</span>
+                    <select wire:model.live="paginate" class="form-control custom-select-modern" style="width: 90px;">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" 
-                           class="form-control search-input" 
-                           wire:model.live.debounce.300ms="search" 
-                           placeholder="Cari berdasarkan No Bukti, Uraian, atau Tanggal...">
+                    <input type="text"
+                           class="form-control search-input"
+                           wire:model.live.debounce.300ms="search"
+                           placeholder="Cari No Bukti, Uraian...">
                     @if($search)
                         <button type="button" class="clear-search" wire:click="$set('search', '')">
                             <i class="fas fa-times"></i>
@@ -74,57 +63,65 @@
                 </div>
             </div>
 
+            <!-- Table -->
             <div class="table-responsive">
                 <table class="table modern-table">
                     <thead>
                         <tr>
-                            <th width="60">No</th>
-                            <th width="150">No Bukti</th>
-                            <th width="120">Tanggal</th>
+                            <th width="45">No</th>
+                            <th width="80">Tipe</th>
+                            <th width="120">No Bukti</th>
+                            <th width="110">Tanggal SP2D</th>
                             <th>Uraian</th>
-                            <th width="180">Nominal</th>
-                            <th width="180" class="text-center">Aksi</th>
+                            <th width="160" class="text-right">Nominal</th>
+                            <th width="120">Sumber</th>
+                            <th width="60" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($uangGiros as $index => $uangGiro)
-                            <tr>
+                        @forelse ($uangGiros as $row)
+                            <tr wire:key="{{ $row->id }}">
+                                <td><span class="code-badge">{{ $loop->index + $uangGiros->firstItem() }}</span></td>
                                 <td>
-                                    <span class="code-badge">{{ $index + 1 }}</span>
+                                    @if($row->tipe == 'UP')
+                                        <span class="badge badge-primary" style="font-size: 11px;">UP</span>
+                                    @else
+                                        <span class="badge badge-success" style="font-size: 11px;">GU</span>
+                                    @endif
+                                </td>
+                                <td><span class="code-badge">{{ $row->no_bukti }}</span></td>
+                                <td style="font-weight: 500;">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
+                                <td>{{ $row->uraian }}</td>
+                                <td class="text-right">
+                                    <span class="amount-badge">Rp {{ number_format($row->nominal, 0, ',', '.') }}</span>
                                 </td>
                                 <td>
-                                    <span class="code-badge">{{ $uangGiro->no_bukti }}</span>
-                                </td>
-                                <td style="font-weight: 500;">{{ date('d-m-Y', strtotime($uangGiro->tanggal)) }}</td>
-                                <td style="font-weight: 500;">{{ $uangGiro->uraian }}</td>
-                                <td>
-                                    <span class="amount-badge">Rp {{ number_format($uangGiro->nominal, 0, ',', '.') }}</span>
+                                    @if($row->spp_spm_up_id)
+                                        <a href="{{ url('spp-spm-up') }}" class="badge badge-outline-primary" style="font-size: 10px; text-decoration: none;">
+                                            SPP-SPM UP
+                                        </a>
+                                    @elseif($row->spp_spm_gu_id)
+                                        <a href="{{ url('spp-spm-gu') }}" class="badge badge-outline-success" style="font-size: 10px; text-decoration: none;">
+                                            SPP-SPM GU
+                                        </a>
+                                    @else
+                                        <span class="badge badge-light" style="font-size: 10px;">Manual</span>
+                                    @endif
                                 </td>
                                 <td class="text-center">
-                                    <div class="btn-group">
-                                        <button class="btn btn-action-edit" wire:click="edit({{ $uangGiro->id }})"
-                                            data-toggle="modal" data-target="#uangGiroModal">
-                                            <i class="fas fa-edit"></i> Edit
+                                    @if(!$row->spp_spm_up_id && !$row->spp_spm_gu_id)
+                                        <button wire:click="deleteConfirmation({{ $row->id }})" class="btn btn-danger btn-sm" style="border-radius: 6px;" title="Hapus">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
-                                        <button class="btn btn-action-delete"
-                                            wire:click="deleteConfirmation({{ $uangGiro->id }})">
-                                            <i class="fas fa-trash"></i> Hapus
-                                        </button>
-                                    </div>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6">
-                                    <div class="empty-state">
-                                        <i class="fas fa-inbox"></i>
-                                        <h5>Belum Ada Data</h5>
-                                        <p>Belum ada transaksi uang giro untuk tahun {{ $tahun }}</p>
-                                        <button class="btn btn-modern-add" data-toggle="modal" data-target="#uangGiroModal"
-                                            wire:click="resetInput()">
-                                            <i class="fas fa-plus mr-2"></i>Tambah Data Pertama
-                                        </button>
-                                    </div>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                    Belum ada SP2D yang terbit.<br>
+                                    <small>SP2D otomatis muncul saat Anda mengisi nomor & tanggal SP2D di menu SPP-SPM.</small>
                                 </td>
                             </tr>
                         @endforelse
@@ -132,52 +129,8 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             <div class="mt-3">
                 {{ $uangGiros->links() }}
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Form -->
-    <div wire:ignore.self class="modal fade" id="uangGiroModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ $isEditMode ? 'Edit' : 'Tambah' }} Uang Giro</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label>No Bukti</label>
-                            <input type="text" class="form-control" wire:model="no_bukti" placeholder="Masukkan nomor bukti">
-                            @error('no_bukti') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-group">
-                            <label>Tanggal</label>
-                            <input type="date" class="form-control" wire:model="tanggal">
-                            @error('tanggal') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-group">
-                            <label>Uraian</label>
-                            <input type="text" class="form-control" wire:model="uraian" placeholder="Masukkan uraian transaksi">
-                            @error('uraian') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-group">
-                            <label>Nominal</label>
-                            <input type="number" class="form-control" wire:model="nominal" placeholder="Masukkan nominal">
-                            @error('nominal') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-success"
-                        wire:click="{{ $isEditMode ? 'update' : 'store' }}">
-                        <i class="fas fa-save mr-2"></i>{{ $isEditMode ? 'Update' : 'Simpan' }}
-                    </button>
-                </div>
             </div>
         </div>
     </div>

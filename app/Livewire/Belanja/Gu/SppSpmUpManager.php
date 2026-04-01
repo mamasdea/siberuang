@@ -2,8 +2,7 @@
 
 namespace App\Livewire\Belanja\Gu;
 
-use App\Models\SpjGu;
-use App\Models\SppSpmGu;
+use App\Models\SppSpmUp;
 use App\Models\UangGiro;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -11,10 +10,10 @@ use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use App\Livewire\Laporan\LaporanSppSpmGu;
+use App\Livewire\Laporan\LaporanSppSpmUp;
 
-#[Title('SPP-SPM GU')]
-class SppSpmGuManager extends Component
+#[Title('SPP-SPM UP')]
+class SppSpmUpManager extends Component
 {
     use WithPagination;
 
@@ -24,28 +23,22 @@ class SppSpmGuManager extends Component
     public $paginate = 10;
 
     // Form fields
-    public $spp_spm_gu_id;
+    public $spp_spm_up_id;
     public $no_bukti;
     public $no_spm_sipd;
     public $tanggal;
     public $uraian;
-    public $total_nilai = 0;
+    public $total_nilai;
     public $tanggal_sp2d;
     public $no_sp2d;
     public $isEdit = false;
     public $tahunTransaksi;
+    public $deleteId;
 
     // SP2D modal
     public $sp2dId;
     public $sp2d_no;
     public $sp2d_tanggal;
-
-    // SPJ GU selection
-    public $selectedSpjGuIds = [];
-    public $deleteId;
-
-    // Detail view
-    public $detailSppSpmGu;
 
     // Print/Download
     public $pathWord;
@@ -75,8 +68,7 @@ class SppSpmGuManager extends Component
     {
         $tahun = session('tahun_anggaran', date('Y'));
 
-        $sppSpmGus = SppSpmGu::with(['spjGus.belanjas'])
-            ->where('tahun_bukti', $tahun)
+        $sppSpmUps = SppSpmUp::where('tahun_bukti', $tahun)
             ->where(function ($query) {
                 $query->where('no_bukti', 'like', '%' . $this->search . '%')
                     ->orWhere('uraian', 'like', '%' . $this->search . '%');
@@ -84,35 +76,11 @@ class SppSpmGuManager extends Component
             ->orderBy('id', 'desc')
             ->paginate($this->paginate);
 
-        // Get available SPJ GU (not yet linked to other SPP-SPM GU)
-        $availableSpjGus = SpjGu::with('belanjas')
-            ->whereYear('tanggal_spj', $tahun)
-            ->whereDoesntHave('sppSpmGus', function ($q) {
-                if ($this->spp_spm_gu_id) {
-                    $q->where('spp_spm_gus.id', '!=', $this->spp_spm_gu_id);
-                }
-            })
-            ->orderBy('nomor_spj', 'asc')
-            ->get();
+        $totalTransaksi = SppSpmUp::where('tahun_bukti', $tahun)->count();
+        $totalNominal = SppSpmUp::where('tahun_bukti', $tahun)->sum('total_nilai');
 
-        // Calculate total nilai from selected SPJ GUs
-        if (!empty($this->selectedSpjGuIds)) {
-            $this->total_nilai = SpjGu::with('belanjas')
-                ->whereIn('id', $this->selectedSpjGuIds)
-                ->get()
-                ->sum(function ($spj) {
-                    return $spj->belanjas->sum('nilai');
-                });
-        } else {
-            $this->total_nilai = 0;
-        }
-
-        $totalTransaksi = SppSpmGu::where('tahun_bukti', $tahun)->count();
-        $totalNominal = SppSpmGu::where('tahun_bukti', $tahun)->sum('total_nilai');
-
-        return view('livewire.belanja.gu.spp-spm-gu-manager', [
-            'sppSpmGus' => $sppSpmGus,
-            'availableSpjGus' => $availableSpjGus,
+        return view('livewire.belanja.gu.spp-spm-up-manager', [
+            'sppSpmUps' => $sppSpmUps,
             'totalTransaksi' => $totalTransaksi,
             'totalNominal' => $totalNominal,
         ]);
@@ -123,7 +91,7 @@ class SppSpmGuManager extends Component
         $this->resetInputFields();
         $this->isEdit = false;
         $this->js(<<<'JS'
-            $('#sppSpmGuModal').modal('show');
+            $('#sppSpmUpModal').modal('show');
         JS);
     }
 
@@ -136,21 +104,18 @@ class SppSpmGuManager extends Component
                 'required',
                 'string',
                 'min:4',
-                Rule::unique('spp_spm_gus', 'no_bukti')->where(function ($query) use ($tahunTransaksi) {
+                Rule::unique('spp_spm_ups', 'no_bukti')->where(function ($query) use ($tahunTransaksi) {
                     return $query->where('tahun_bukti', $tahunTransaksi);
                 }),
             ],
             'tanggal' => 'required|date',
+            'total_nilai' => 'required|numeric|min:1',
             'uraian' => 'nullable',
-            'selectedSpjGuIds' => 'required|array|min:1',
-        ], [
-            'selectedSpjGuIds.required' => 'Pilih minimal 1 SPJ GU.',
-            'selectedSpjGuIds.min' => 'Pilih minimal 1 SPJ GU.',
         ]);
 
         DB::beginTransaction();
         try {
-            $sppSpmGu = SppSpmGu::create([
+            $sppSpmUp = SppSpmUp::create([
                 'no_bukti' => $this->no_bukti,
                 'no_spm_sipd' => $this->no_spm_sipd ?: null,
                 'tanggal' => $this->tanggal,
@@ -159,21 +124,15 @@ class SppSpmGuManager extends Component
                 'total_nilai' => $this->total_nilai,
             ]);
 
-            $sppSpmGu->spjGus()->attach($this->selectedSpjGuIds);
-
             DB::commit();
 
             $this->resetInputFields();
             $this->js(<<<'JS'
                 const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
+                    toast: true, position: "top-end", showConfirmButton: false, timer: 2000, timerProgressBar: true,
                 });
-                Toast.fire({ icon: "success", title: "SPP-SPM GU berhasil disimpan" });
-                $('#sppSpmGuModal').modal('hide');
+                Toast.fire({ icon: "success", title: "SPP-SPM UP berhasil disimpan" });
+                $('#sppSpmUpModal').modal('hide');
             JS);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -183,19 +142,19 @@ class SppSpmGuManager extends Component
 
     public function edit($id)
     {
-        $sppSpmGu = SppSpmGu::with('spjGus')->findOrFail($id);
-        $this->spp_spm_gu_id = $sppSpmGu->id;
-        $this->no_bukti = $sppSpmGu->no_bukti;
-        $this->no_spm_sipd = $sppSpmGu->no_spm_sipd;
-        $this->tanggal = $sppSpmGu->tanggal;
-        $this->tahunTransaksi = $sppSpmGu->tahun_bukti ?? date('Y');
-        $this->uraian = $sppSpmGu->uraian;
-        $this->selectedSpjGuIds = $sppSpmGu->spjGus->pluck('id')->toArray();
-        $this->tanggal_sp2d = $sppSpmGu->tanggal_sp2d;
+        $sppSpmUp = SppSpmUp::findOrFail($id);
+        $this->spp_spm_up_id = $sppSpmUp->id;
+        $this->no_bukti = $sppSpmUp->no_bukti;
+        $this->no_spm_sipd = $sppSpmUp->no_spm_sipd;
+        $this->tanggal = $sppSpmUp->tanggal;
+        $this->tahunTransaksi = $sppSpmUp->tahun_bukti ?? date('Y');
+        $this->uraian = $sppSpmUp->uraian;
+        $this->total_nilai = $sppSpmUp->total_nilai;
+        $this->tanggal_sp2d = $sppSpmUp->tanggal_sp2d;
         $this->isEdit = true;
 
         $this->js(<<<'JS'
-            $('#sppSpmGuModal').modal('show');
+            $('#sppSpmUpModal').modal('show');
         JS);
     }
 
@@ -208,24 +167,22 @@ class SppSpmGuManager extends Component
                 'required',
                 'string',
                 'min:4',
-                Rule::unique('spp_spm_gus', 'no_bukti')
+                Rule::unique('spp_spm_ups', 'no_bukti')
                     ->where(function ($query) use ($tahunTransaksi) {
                         return $query->where('tahun_bukti', $tahunTransaksi);
                     })
-                    ->ignore($this->spp_spm_gu_id),
+                    ->ignore($this->spp_spm_up_id),
             ],
             'tanggal' => 'required|date',
+            'total_nilai' => 'required|numeric|min:1',
             'uraian' => 'nullable',
-            'selectedSpjGuIds' => 'required|array|min:1',
-        ], [
-            'selectedSpjGuIds.required' => 'Pilih minimal 1 SPJ GU.',
-            'selectedSpjGuIds.min' => 'Pilih minimal 1 SPJ GU.',
         ]);
 
         DB::beginTransaction();
         try {
-            $sppSpmGu = SppSpmGu::findOrFail($this->spp_spm_gu_id);
-            $sppSpmGu->update([
+            $sppSpmUp = SppSpmUp::findOrFail($this->spp_spm_up_id);
+
+            $sppSpmUp->update([
                 'no_bukti' => $this->no_bukti,
                 'no_spm_sipd' => $this->no_spm_sipd ?: null,
                 'tanggal' => $this->tanggal,
@@ -234,21 +191,15 @@ class SppSpmGuManager extends Component
                 'total_nilai' => $this->total_nilai,
             ]);
 
-            $sppSpmGu->spjGus()->sync($this->selectedSpjGuIds);
-
             DB::commit();
 
             $this->resetInputFields();
             $this->js(<<<'JS'
                 const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
+                    toast: true, position: "top-end", showConfirmButton: false, timer: 2000, timerProgressBar: true,
                 });
-                Toast.fire({ icon: "success", title: "SPP-SPM GU berhasil diupdate" });
-                $('#sppSpmGuModal').modal('hide');
+                Toast.fire({ icon: "success", title: "SPP-SPM UP berhasil diupdate" });
+                $('#sppSpmUpModal').modal('hide');
             JS);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -278,75 +229,43 @@ class SppSpmGuManager extends Component
 
     public function delete()
     {
-        $sppSpmGu = SppSpmGu::find($this->deleteId);
-        if ($sppSpmGu) {
-            UangGiro::where('spp_spm_gu_id', $sppSpmGu->id)->delete();
-            $sppSpmGu->spjGus()->detach();
-            $sppSpmGu->delete();
+        $sppSpmUp = SppSpmUp::find($this->deleteId);
+        if ($sppSpmUp) {
+            UangGiro::where('spp_spm_up_id', $sppSpmUp->id)->delete();
+            $sppSpmUp->delete();
         }
 
         $this->js(<<<'JS'
             const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
+                toast: true, position: "top-end", showConfirmButton: false, timer: 2000, timerProgressBar: true,
             });
-            Toast.fire({ icon: "error", title: "SPP-SPM GU berhasil dihapus" });
+            Toast.fire({ icon: "error", title: "SPP-SPM UP berhasil dihapus" });
         JS);
     }
 
-    public function showDetail($id)
+    public function printSppSpmUp($id)
     {
-        $this->detailSppSpmGu = SppSpmGu::with(['spjGus.belanjas.rka.subKegiatan', 'spjGus.belanjas.penerimaan', 'spjGus.belanjas.pajak'])
-            ->findOrFail($id);
-
-        $this->js(<<<'JS'
-            $('#detailSppSpmGuModal').modal('show');
-        JS);
-    }
-
-    public function closeDetail()
-    {
-        $this->detailSppSpmGu = null;
-        $this->js(<<<'JS'
-            $('#detailSppSpmGuModal').modal('hide');
-        JS);
-    }
-
-    public function toggleSpjGu($spjGuId)
-    {
-        if (in_array($spjGuId, $this->selectedSpjGuIds)) {
-            $this->selectedSpjGuIds = array_values(array_diff($this->selectedSpjGuIds, [$spjGuId]));
-        } else {
-            $this->selectedSpjGuIds[] = $spjGuId;
-        }
-    }
-
-    public function printSppSpmGu($id)
-    {
-        $data = new LaporanSppSpmGu;
-        $paths = $data->getLaporanSppSpmGuPaths($id);
+        $data = new LaporanSppSpmUp;
+        $paths = $data->getLaporanSppSpmUpPaths($id);
         $this->pathWord = $paths['word_path'];
         $this->pathpdf = $paths['pdf_path'];
         $this->js(<<<'JS'
-            $('#viewSppSpmGu').modal("show")
+            $('#viewSppSpmUp').modal("show")
         JS);
     }
 
-    public function downloadSppSpmGu($id)
+    public function downloadSppSpmUp($id)
     {
-        $data = new LaporanSppSpmGu;
-        return $data->downloadLaporanSppSpmGu($id);
+        $data = new LaporanSppSpmUp;
+        return $data->downloadLaporanSppSpmUp($id);
     }
 
     public function closeModalPdf()
     {
         $this->js(<<<'JS'
-            $('#viewSppSpmGu').modal("hide")
+            $('#viewSppSpmUp').modal("hide")
         JS);
-        Storage::disk('local')->delete('public/reports/spp-spm-gu/' . $this->pathWord);
+        Storage::disk('local')->delete('public/reports/spp-spm-up/' . $this->pathWord);
         Storage::disk('local')->delete('public/reports/laporan_belanja_' . $this->pathpdf);
     }
 
@@ -354,31 +273,31 @@ class SppSpmGuManager extends Component
     {
         $this->resetInputFields();
         $this->js(<<<'JS'
-            $('#sppSpmGuModal').modal('hide');
+            $('#sppSpmUpModal').modal('hide');
         JS);
     }
 
-    private function createUangGiroFromSp2d(SppSpmGu $sppSpmGu)
+    private function createUangGiroFromSp2d(SppSpmUp $sppSpmUp)
     {
         UangGiro::create([
-            'tipe' => 'GU',
-            'spp_spm_gu_id' => $sppSpmGu->id,
-            'no_bukti' => $sppSpmGu->no_bukti,
-            'tanggal' => $sppSpmGu->tanggal_sp2d,
-            'uraian' => 'SP2D GU - ' . ($sppSpmGu->uraian ?? 'Ganti Uang Persediaan'),
-            'nominal' => $sppSpmGu->total_nilai,
+            'tipe' => 'UP',
+            'spp_spm_up_id' => $sppSpmUp->id,
+            'no_bukti' => $sppSpmUp->no_bukti,
+            'tanggal' => $sppSpmUp->tanggal_sp2d,
+            'uraian' => 'SP2D UP - ' . ($sppSpmUp->uraian ?? 'Uang Persediaan'),
+            'nominal' => $sppSpmUp->total_nilai,
         ]);
     }
 
     public function openSp2dModal($id)
     {
-        $sppSpmGu = SppSpmGu::findOrFail($id);
-        $this->sp2dId = $sppSpmGu->id;
-        $this->sp2d_no = $sppSpmGu->no_sp2d;
-        $this->sp2d_tanggal = $sppSpmGu->tanggal_sp2d;
+        $sppSpmUp = SppSpmUp::findOrFail($id);
+        $this->sp2dId = $sppSpmUp->id;
+        $this->sp2d_no = $sppSpmUp->no_sp2d;
+        $this->sp2d_tanggal = $sppSpmUp->tanggal_sp2d;
 
         $this->js(<<<'JS'
-            $('#sp2dModal').modal('show');
+            $('#sp2dUpModal').modal('show');
         JS);
     }
 
@@ -394,15 +313,14 @@ class SppSpmGuManager extends Component
 
         DB::beginTransaction();
         try {
-            $sppSpmGu = SppSpmGu::findOrFail($this->sp2dId);
-            $sppSpmGu->update([
+            $sppSpmUp = SppSpmUp::findOrFail($this->sp2dId);
+            $sppSpmUp->update([
                 'no_sp2d' => $this->sp2d_no,
                 'tanggal_sp2d' => $this->sp2d_tanggal,
             ]);
 
-            // Kelola uang_giros
-            UangGiro::where('spp_spm_gu_id', $sppSpmGu->id)->delete();
-            $this->createUangGiroFromSp2d($sppSpmGu);
+            UangGiro::where('spp_spm_up_id', $sppSpmUp->id)->delete();
+            $this->createUangGiroFromSp2d($sppSpmUp);
 
             DB::commit();
 
@@ -413,7 +331,7 @@ class SppSpmGuManager extends Component
             $this->js(<<<'JS'
                 const Toast = Swal.mixin({ toast: true, position: "top-end", showConfirmButton: false, timer: 2000, timerProgressBar: true });
                 Toast.fire({ icon: "success", title: "SP2D berhasil disimpan" });
-                $('#sp2dModal').modal('hide');
+                $('#sp2dUpModal').modal('hide');
             JS);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -427,21 +345,20 @@ class SppSpmGuManager extends Component
         $this->sp2d_no = null;
         $this->sp2d_tanggal = null;
         $this->js(<<<'JS'
-            $('#sp2dModal').modal('hide');
+            $('#sp2dUpModal').modal('hide');
         JS);
     }
 
     private function resetInputFields()
     {
-        $this->spp_spm_gu_id = null;
+        $this->spp_spm_up_id = null;
         $this->no_bukti = '';
         $this->no_spm_sipd = null;
         $this->tanggal = null;
         $this->uraian = '';
-        $this->total_nilai = 0;
+        $this->total_nilai = null;
         $this->tanggal_sp2d = null;
         $this->no_sp2d = null;
-        $this->selectedSpjGuIds = [];
         $this->isEdit = false;
         $this->tahunTransaksi = date('Y');
     }

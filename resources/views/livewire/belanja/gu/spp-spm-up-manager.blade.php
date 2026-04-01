@@ -7,12 +7,12 @@
         <div class="card-header-modern">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="page-title">SPP-SPM GU</h3>
-                    <p class="page-subtitle mb-0">Kelola data SPP-SPM Ganti Uang berdasarkan SPJ GU</p>
+                    <h3 class="page-title">SPP-SPM UP</h3>
+                    <p class="page-subtitle mb-0">Kelola data SPP-SPM Uang Persediaan</p>
                 </div>
                 <div>
                     <button class="btn btn-modern-add" wire:click="openForm">
-                        <i class="fas fa-plus mr-2"></i>Tambah SPP-SPM GU
+                        <i class="fas fa-plus mr-2"></i>Tambah SPP-SPM UP
                     </button>
                 </div>
             </div>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="stat-label">Total Transaksi</div>
                         <div class="stat-value">{{ number_format($totalTransaksi, 0, ',', '.') }}</div>
-                        <div class="stat-description">Data SPP-SPM GU</div>
+                        <div class="stat-description">Data SPP-SPM UP</div>
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
@@ -77,17 +77,16 @@
                             <th style="width: 45px;">No</th>
                             <th style="width: 170px;">No Bukti (SPP)</th>
                             <th style="width: 200px;">No SPM SIPD</th>
-                            <th style="width: 100px;">Tanggal</th>
+                            <th style="width: 120px;">Tanggal</th>
                             <th>Uraian</th>
                             <th style="width: 160px;" class="text-right">Total Nilai</th>
-                            <th style="width: 100px;" class="text-center">SPJ GU</th>
                             <th style="width: 250px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($sppSpmGus as $row)
+                        @forelse ($sppSpmUps as $row)
                             <tr wire:key="{{ $row->id }}">
-                                <td><span class="code-badge">{{ $loop->index + $sppSpmGus->firstItem() }}</span></td>
+                                <td><span class="code-badge">{{ $loop->index + $sppSpmUps->firstItem() }}</span></td>
                                 <td>
                                     <span class="code-badge" style="white-space: nowrap; font-size: 11px;">
                                         SPP-{{ $row->no_bukti }}/Diskominfo/{{ $row->tahun_bukti ?? date('Y', strtotime($row->tanggal)) }}
@@ -115,11 +114,6 @@
                                     <span class="amount-badge">Rp {{ number_format($row->total_nilai, 0, ',', '.') }}</span>
                                 </td>
                                 <td class="text-center">
-                                    <button wire:click="showDetail({{ $row->id }})" class="btn btn-sm btn-outline-info" style="border-radius: 6px; font-size: 12px;">
-                                        <i class="fas fa-eye mr-1"></i> {{ $row->spjGus->count() }} SPJ
-                                    </button>
-                                </td>
-                                <td class="text-center">
                                     @if($row->tanggal_sp2d && $row->no_sp2d)
                                         <button wire:click="openSp2dModal({{ $row->id }})" class="btn btn-sm btn-success" style="border-radius: 6px; font-size: 11px;" title="SP2D sudah terbit">
                                             <i class="fas fa-check-circle mr-1"></i> SP2D
@@ -139,29 +133,29 @@
                                         </button>
                                     </div>
                                     <div class="btn-group ml-1">
-                                        <button wire:click="printSppSpmGu({{ $row->id }})"
+                                        <button wire:click="printSppSpmUp({{ $row->id }})"
                                             class="btn btn-secondary btn-sm"
                                             style="border-radius: 6px 0 0 6px;"
                                             title="Cetak"
                                             wire:loading.attr="disabled"
-                                            wire:target="printSppSpmGu({{ $row->id }})">
-                                            <span wire:loading.remove wire:target="printSppSpmGu({{ $row->id }})">
+                                            wire:target="printSppSpmUp({{ $row->id }})">
+                                            <span wire:loading.remove wire:target="printSppSpmUp({{ $row->id }})">
                                                 <i class="fas fa-print"></i>
                                             </span>
-                                            <span wire:loading wire:target="printSppSpmGu({{ $row->id }})">
+                                            <span wire:loading wire:target="printSppSpmUp({{ $row->id }})">
                                                 <i class="fas fa-spinner fa-spin"></i>
                                             </span>
                                         </button>
-                                        <button wire:click="downloadSppSpmGu({{ $row->id }})"
+                                        <button wire:click="downloadSppSpmUp({{ $row->id }})"
                                             class="btn btn-success btn-sm"
                                             style="border-radius: 0 6px 6px 0;"
                                             title="Download"
                                             wire:loading.attr="disabled"
-                                            wire:target="downloadSppSpmGu({{ $row->id }})">
-                                            <span wire:loading.remove wire:target="downloadSppSpmGu({{ $row->id }})">
+                                            wire:target="downloadSppSpmUp({{ $row->id }})">
+                                            <span wire:loading.remove wire:target="downloadSppSpmUp({{ $row->id }})">
                                                 <i class="fas fa-download"></i>
                                             </span>
-                                            <span wire:loading wire:target="downloadSppSpmGu({{ $row->id }})">
+                                            <span wire:loading wire:target="downloadSppSpmUp({{ $row->id }})">
                                                 <i class="fas fa-spinner fa-spin"></i>
                                             </span>
                                         </button>
@@ -170,9 +164,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
+                                <td colspan="7" class="text-center text-muted py-4">
                                     <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                    Belum ada data SPP-SPM GU
+                                    Belum ada data SPP-SPM UP
                                 </td>
                             </tr>
                         @endforelse
@@ -180,19 +174,18 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             <div class="mt-3">
-                {{ $sppSpmGus->links() }}
+                {{ $sppSpmUps->links() }}
             </div>
         </div>
     </div>
 
-    <!-- Modal Form SPP-SPM GU -->
-    <div wire:ignore.self class="modal fade" id="sppSpmGuModal" tabindex="-1" aria-labelledby="sppSpmGuModalLabel" aria-hidden="true">
+    <!-- Modal Form SPP-SPM UP -->
+    <div wire:ignore.self class="modal fade" id="sppSpmUpModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ $isEdit ? 'Edit SPP-SPM GU' : 'Tambah SPP-SPM GU' }}</h5>
+                    <h5 class="modal-title">{{ $isEdit ? 'Edit SPP-SPM UP' : 'Tambah SPP-SPM UP' }}</h5>
                     <button type="button" class="close" data-dismiss="modal" wire:click="closeForm" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -232,13 +225,18 @@
                             </div>
                         </div>
 
-                        <!-- Total Nilai (readonly) -->
+                        <!-- Total Nilai -->
                         <div class="form-group row mb-3">
                             <label class="col-md-3 form-label" style="min-width: 150px;">Total Nilai</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control font-weight-bold"
-                                    value="Rp {{ number_format($total_nilai, 2, ',', '.') }}"
-                                    readonly style="background-color: #e8f0fe; color: #1a73e8;">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white border-0 font-weight-bold text-dark pl-3">Rp</span>
+                                    </div>
+                                    <input wire:model="total_nilai" type="number" step="0.01" class="form-control" placeholder="0">
+                                </div>
+                                <small class="text-muted">Masukkan nilai sesuai ketetapan BPPKAD</small>
+                                @error('total_nilai') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
@@ -249,80 +247,6 @@
                                 <textarea wire:model="uraian" class="form-control" placeholder="Masukkan uraian..." rows="3"></textarea>
                                 @error('uraian') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
-                        </div>
-
-                        <!-- Pilih SPJ GU -->
-                        <div class="form-group mb-3">
-                            <label class="font-weight-bold text-secondary text-uppercase small mb-2" style="letter-spacing: 0.5px;">
-                                <i class="fas fa-file-signature mr-1"></i> Pilih SPJ GU
-                            </label>
-                            @error('selectedSpjGuIds') <span class="text-danger small d-block mb-2">{{ $message }}</span> @enderror
-
-                            @if($availableSpjGus->count() > 0 || count($selectedSpjGuIds) > 0)
-                                <div class="card bg-light border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered mb-0" style="background: white;">
-                                                <thead class="bg-light">
-                                                    <tr>
-                                                        <th width="50" class="text-center">Pilih</th>
-                                                        <th width="120">No SPJ</th>
-                                                        <th width="110">Tanggal</th>
-                                                        <th width="120">Periode</th>
-                                                        <th>Keterangan</th>
-                                                        <th width="80" class="text-center">Belanja</th>
-                                                        <th width="150" class="text-right">Nilai</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @forelse ($availableSpjGus as $spjGu)
-                                                        <tr class="{{ in_array($spjGu->id, $selectedSpjGuIds) ? 'table-primary' : '' }}">
-                                                            <td class="text-center">
-                                                                <input type="checkbox"
-                                                                    wire:click="toggleSpjGu({{ $spjGu->id }})"
-                                                                    {{ in_array($spjGu->id, $selectedSpjGuIds) ? 'checked' : '' }}
-                                                                    style="width: 18px; height: 18px; cursor: pointer;">
-                                                            </td>
-                                                            <td><span class="code-badge">SPJ-{{ $spjGu->nomor_spj }}</span></td>
-                                                            <td style="font-size: 12px;">{{ date('d-m-Y', strtotime($spjGu->tanggal_spj)) }}</td>
-                                                            <td style="font-size: 11px;">
-                                                                {{ date('d/m', strtotime($spjGu->periode_awal)) }} - {{ date('d/m/Y', strtotime($spjGu->periode_akhir)) }}
-                                                            </td>
-                                                            <td style="font-size: 12px;">{{ $spjGu->keterangan ?? '-' }}</td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-info">{{ $spjGu->belanjas->count() }}</span>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <span class="amount-badge" style="font-size: 12px;">
-                                                                    Rp {{ number_format($spjGu->belanjas->sum('nilai'), 0, ',', '.') }}
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                    @empty
-                                                        <tr>
-                                                            <td colspan="7" class="text-center text-muted py-3">
-                                                                Semua SPJ GU sudah digunakan
-                                                            </td>
-                                                        </tr>
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @if(count($selectedSpjGuIds) > 0)
-                                    <div class="alert alert-info mt-2 mb-0 d-flex justify-content-between align-items-center" style="border-radius: 8px;">
-                                        <span><i class="fas fa-check-circle mr-1"></i> {{ count($selectedSpjGuIds) }} SPJ GU dipilih</span>
-                                        <span class="font-weight-bold">Total: Rp {{ number_format($total_nilai, 0, ',', '.') }}</span>
-                                    </div>
-                                @endif
-                            @else
-                                <div class="alert alert-warning d-flex align-items-center" style="border-radius: 8px;">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                                    Belum ada data SPJ GU yang tersedia. Buat SPJ GU terlebih dahulu.
-                                </div>
-                            @endif
                         </div>
                     </form>
                 </div>
@@ -336,89 +260,12 @@
         </div>
     </div>
 
-    <!-- Modal Detail SPJ GU -->
-    <div wire:ignore.self class="modal fade" id="detailSppSpmGuModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold">
-                        <i class="fas fa-file-invoice mr-2"></i>
-                        Detail SPP-SPM GU
-                        @if($detailSppSpmGu)
-                            - SPP-{{ $detailSppSpmGu->no_bukti }}
-                        @endif
-                    </h5>
-                    <button type="button" class="close" wire:click="closeDetail" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    @if($detailSppSpmGu)
-                        <!-- Info Header -->
-                        <div class="card bg-light border-0 mb-3" style="border-radius: 10px;">
-                            <div class="card-body py-3">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <small class="text-muted">No Bukti (SPP)</small>
-                                        <div class="font-weight-bold">SPP-{{ $detailSppSpmGu->no_bukti }}/Diskominfo/{{ $detailSppSpmGu->tahun_bukti }}</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <small class="text-muted">Tanggal</small>
-                                        <div class="font-weight-bold">{{ date('d-m-Y', strtotime($detailSppSpmGu->tanggal)) }}</div>
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <small class="text-muted">Total Nilai</small>
-                                        <div class="font-weight-bold text-primary" style="font-size: 1.1rem;">Rp {{ number_format($detailSppSpmGu->total_nilai, 0, ',', '.') }}</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <small class="text-muted">Uraian</small>
-                                        <div>{{ $detailSppSpmGu->uraian ?? '-' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Daftar SPJ GU -->
-                        <h6 class="font-weight-bold mb-2"><i class="fas fa-list mr-1"></i> Daftar SPJ GU</h6>
-                        @foreach($detailSppSpmGu->spjGus as $spjGu)
-                            <div class="card border mb-2" style="border-radius: 8px;">
-                                <div class="card-body py-2 px-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="code-badge">SPJ-{{ $spjGu->nomor_spj }}</span>
-                                            <small class="text-muted ml-2">{{ date('d-m-Y', strtotime($spjGu->tanggal_spj)) }}</small>
-                                            <small class="text-muted ml-2">
-                                                ({{ date('d/m', strtotime($spjGu->periode_awal)) }} - {{ date('d/m/Y', strtotime($spjGu->periode_akhir)) }})
-                                            </small>
-                                        </div>
-                                        <div>
-                                            <span class="badge badge-info mr-1">{{ $spjGu->belanjas->count() }} belanja</span>
-                                            <span class="amount-badge" style="font-size: 12px;">Rp {{ number_format($spjGu->belanjas->sum('nilai'), 0, ',', '.') }}</span>
-                                        </div>
-                                    </div>
-                                    @if($spjGu->keterangan)
-                                        <small class="text-muted d-block mt-1">{{ $spjGu->keterangan }}</small>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    @endif
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" wire:click="closeDetail">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- View Print Modal -->
-    <div wire:ignore.self class="modal fade" id="viewSppSpmGu" tabindex="-1" aria-labelledby="viewSppSpmGu" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div wire:ignore.self class="modal fade" id="viewSppSpmUp" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Preview Dokumen SPP-SPM GU</h5>
+                    <h5 class="modal-title">Preview Dokumen SPP-SPM UP</h5>
                     <button type="button" class="close" wire:click="closeModalPdf" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
@@ -432,7 +279,7 @@
     </div>
 
     <!-- Modal SP2D -->
-    <div wire:ignore.self class="modal fade" id="sp2dModal" tabindex="-1" aria-hidden="true">
+    <div wire:ignore.self class="modal fade" id="sp2dUpModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content modern-card border-0" style="border-radius: 12px;">
                 <div class="modal-header border-bottom-0 pb-0">
@@ -468,7 +315,7 @@
     <script>
         document.addEventListener('livewire:init', () => {
             Livewire.on('belanja', (event) => {
-                $('#viewSppSpmGu').modal("show");
+                $('#viewSppSpmUp').modal("show");
             });
         });
     </script>

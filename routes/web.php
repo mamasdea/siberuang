@@ -24,6 +24,7 @@ use App\Livewire\Master\UserManagement;
 use App\Livewire\Belanja\Kkpd\PajakKkpd;
 use App\Livewire\Laporan\LaporanBelanja;
 use App\Livewire\Master\RekeningBelanja;
+use App\Livewire\Master\MenuAccessManager;
 use App\Livewire\Kontrak\RealisasiManage;
 use App\Livewire\Laporan\BukuKasUmumGiro;
 use App\Livewire\Laporan\BukuKasUmumKkpd;
@@ -34,6 +35,7 @@ use App\Livewire\Penerima\PenerimaRekanan;
 use App\Livewire\Belanja\Gu\BelanjaManager;
 use App\Livewire\Belanja\Gu\SpjGuManager;
 use App\Livewire\Belanja\Gu\SppSpmGuManager;
+use App\Livewire\Belanja\Gu\SppSpmUpManager;
 use App\Livewire\Laporan\LaporanBelanjaKkpd;
 use App\Livewire\Belanja\Kkpd\PenerimaanKkpd;
 use App\Http\Controllers\Auth\LoginController;
@@ -45,31 +47,19 @@ Route::get('/', fn() => view('auth.login'));
 
 Route::get('template', fn() => File::get(public_path() . '/documentation.html'));
 
-// Admin only
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('program', ProgramKegiatanForm::class);
-    Route::get('pengelola-keuangan', PengelolaKeuangan::class);
-    Route::get('tab-anggaran', TabAnggaran::class);
-    Route::get('rekening-belanja', RekeningBelanja::class);
-    Route::get('user-management', UserManagement::class)->name('user-management');
-    Route::get('penerima', PenerimaRekanan::class);
-});
-
-// ==== BA HTML PRINT (FIXED) ====
-// HAPUS rute lama /realisasi/{realisasi}/ba/{jenis}, ganti dengan yang di bawah:
-// routes/web.php
+// ==== BA HTML PRINT ====
 Route::middleware(['auth'])->group(function () {
     Route::get(
         '/kontrak/{kontrak}/realisasi/{realisasi}/ba/{jenis}',
-        [\App\Http\Controllers\BeritaAcaraHtmlController::class, 'show']
+        [BeritaAcaraHtmlController::class, 'show']
     )
         ->whereNumber('kontrak')
-        ->where('realisasi', '[0-9]+') // izinkan 0 untuk preview
+        ->where('realisasi', '[0-9]+')
         ->where('jenis', 'pemeriksaan|serah_terima|pekerjaan|penerimaan|administratif|pembayaran')
         ->name('realisasi.ba.html');
 });
 
-// Logged-in
+// Logged-in routes (semua user)
 Route::middleware(['auth'])->group(function () {
     Route::get('/set-tahun-anggaran', function (Request $request) {
         session(['tahun_anggaran' => $request->tahun]);
@@ -78,37 +68,87 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('show-picture', [HelperController::class, 'showPicture'])->name('helper.show-picture');
     Route::get('dashboard', Dashboard::class);
-    Route::get('up-giro', UangGiro::class);
-    Route::get('up-kkpd', UangKkpd::class);
-    Route::get('belanja', BelanjaManager::class);
-    Route::get('spj-gu', SpjGuManager::class)->name('spj-gu');
-    Route::get('spp-spm-gu', SppSpmGuManager::class)->name('spp-spm-gu');
-    Route::get('spp-spm-ls', BelanjaLs::class);
-    Route::get('belanja-kkpd', BelanjaKkpdsManager::class)->name('belanja_kkpd');
     Route::get('hirarki', ProgramHierarchy::class);
     Route::get('sub_hirarki', SubKegiatanHierarchy::class);
-    Route::get('laporan-page', LaporanPage::class)->name('laporan.page');
-    Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
-    Route::get('laporan-bkukkpd', BukuKasUmumKkpd::class)->name('laporan.bkukkpd');
-    Route::get('laporan-bukupajakgiro', BukuPajakGiro::class)->name('laporan.bukupajakgiro');
-    Route::get('laporan-bukupajakkkpd', BukuPajakKkpd::class)->name('laporan.bukupajakkkpd');
-    Route::get('laporan-bukupajakls', BukuPajakLs::class)->name('laporan.bukupajakls');
-    Route::get('laporan-bukupajakall', \App\Livewire\Laporan\BukuPajakAll::class)->name('laporan.bukupajakall');
-    Route::get('laporan-bukupajak', \App\Livewire\Laporan\BukuPajakManager::class)->name('laporan.bukupajak');
-    Route::get('laporan-realisasi', LaporanRealisasi::class)->name('laporan.realisasi');
-    Route::get('penerimaan/{belanjaId}', Penerimaan::class)->name('penerimaan');
-    Route::get('pajak/{belanjaId}', Pajak::class)->name('pajak');
-    Route::get('penerimaan_kkpd/{belanjaId}', PenerimaanKkpd::class)->name('penerimaan_kkpd');
-    Route::get('pajak_kkpd/{belanjaId}', PajakKkpd::class)->name('pajak_kkpd');
-    Route::get('/pajakls/{belanjaLsId}', PajakLs::class)->name('pajakls');
-    Route::get('laporanbelanja/{laporanId}', LaporanBelanja::class)->name('laporanbelanja');
-    Route::get('laporanbelanja-kkpd/{laporanId}', LaporanBelanjaKkpd::class)->name('laporanbelanja_kkpd');
-    Route::get('kontrak', KontrakManage::class)->name('kontrak');
-    Route::get('/kontrak/{kontrak}/realisasi', RealisasiManage::class)->name('kontrak.realisasi');
+
+    // -- Anggaran (menu:anggaran) --
+    Route::middleware(['menu:anggaran'])->group(function () {
+        Route::get('program', ProgramKegiatanForm::class);
+        Route::get('tab-anggaran', TabAnggaran::class);
+    });
+
+    // -- Uang Persediaan (menu:uang-persediaan) --
+    Route::middleware(['menu:uang-persediaan'])->group(function () {
+        Route::get('up-giro', UangGiro::class);
+        Route::get('up-kkpd', UangKkpd::class);
+    });
+
+    // -- Belanja (menu:belanja) --
+    Route::middleware(['menu:belanja'])->group(function () {
+        Route::get('belanja', BelanjaManager::class);
+        Route::get('belanja-kkpd', BelanjaKkpdsManager::class)->name('belanja_kkpd');
+        Route::get('penerimaan/{belanjaId}', Penerimaan::class)->name('penerimaan');
+        Route::get('pajak/{belanjaId}', Pajak::class)->name('pajak');
+        Route::get('penerimaan_kkpd/{belanjaId}', PenerimaanKkpd::class)->name('penerimaan_kkpd');
+        Route::get('pajak_kkpd/{belanjaId}', PajakKkpd::class)->name('pajak_kkpd');
+        Route::get('laporanbelanja/{laporanId}', LaporanBelanja::class)->name('laporanbelanja');
+        Route::get('laporanbelanja-kkpd/{laporanId}', LaporanBelanjaKkpd::class)->name('laporanbelanja_kkpd');
+    });
+
+    // -- SPJ (menu:spj) --
+    Route::middleware(['menu:spj'])->group(function () {
+        Route::get('spj-gu', SpjGuManager::class)->name('spj-gu');
+    });
+
+    // -- SPP-SPM UP (menu:spp-spm-up) --
+    Route::middleware(['menu:spp-spm-up'])->group(function () {
+        Route::get('spp-spm-up', SppSpmUpManager::class)->name('spp-spm-up');
+    });
+
+    // -- SPP-SPM GU (menu:spp-spm-gu) --
+    Route::middleware(['menu:spp-spm-gu'])->group(function () {
+        Route::get('spp-spm-gu', SppSpmGuManager::class)->name('spp-spm-gu');
+    });
+
+    // -- SPP-SPM LS (menu:spp-spm-ls) --
+    Route::middleware(['menu:spp-spm-ls'])->group(function () {
+        Route::get('spp-spm-ls', BelanjaLs::class);
+        Route::get('/pajakls/{belanjaLsId}', PajakLs::class)->name('pajakls');
+    });
+
+    // -- Kontrak (menu:kontrak) --
+    Route::middleware(['menu:kontrak'])->group(function () {
+        Route::get('kontrak', KontrakManage::class)->name('kontrak');
+        Route::get('/kontrak/{kontrak}/realisasi', RealisasiManage::class)->name('kontrak.realisasi');
+    });
+
+    // -- Laporan (menu:laporan) --
+    Route::middleware(['menu:laporan'])->group(function () {
+        Route::get('laporan-page', LaporanPage::class)->name('laporan.page');
+        Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
+        Route::get('laporan-bkukkpd', BukuKasUmumKkpd::class)->name('laporan.bkukkpd');
+        Route::get('laporan-bukupajakgiro', BukuPajakGiro::class)->name('laporan.bukupajakgiro');
+        Route::get('laporan-bukupajakkkpd', BukuPajakKkpd::class)->name('laporan.bukupajakkkpd');
+        Route::get('laporan-bukupajakls', BukuPajakLs::class)->name('laporan.bukupajakls');
+        Route::get('laporan-bukupajakall', \App\Livewire\Laporan\BukuPajakAll::class)->name('laporan.bukupajakall');
+        Route::get('laporan-bukupajak', \App\Livewire\Laporan\BukuPajakManager::class)->name('laporan.bukupajak');
+        Route::get('laporan-realisasi', LaporanRealisasi::class)->name('laporan.realisasi');
+    });
+
+    // -- Master (menu:master) --
+    Route::middleware(['menu:master'])->group(function () {
+        Route::get('rekening-belanja', RekeningBelanja::class);
+        Route::get('penerima', PenerimaRekanan::class);
+        Route::get('pengelola-keuangan', PengelolaKeuangan::class);
+        Route::get('user-management', UserManagement::class)->name('user-management');
+        Route::get('menu-access', MenuAccessManager::class)->name('menu-access');
+    });
 });
+
 Route::middleware(['auth'])
     ->get('/realisasi/{kontrak}/{realisasi}/ba/semua', [BeritaAcaraHtmlController::class, 'printAll'])
     ->name('realisasi.ba.all');
+
 // Auth
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login']);
