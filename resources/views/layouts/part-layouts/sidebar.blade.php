@@ -208,6 +208,12 @@
                                     <p>Laporan Realisasi</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('laporan.rincian-obyek') }}" class="nav-link {{ request()->is('laporan-rincian-obyek') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                    <p>Rincian Obyek</p>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 @endif

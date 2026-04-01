@@ -133,6 +133,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('laporan-bukupajakall', \App\Livewire\Laporan\BukuPajakAll::class)->name('laporan.bukupajakall');
         Route::get('laporan-bukupajak', \App\Livewire\Laporan\BukuPajakManager::class)->name('laporan.bukupajak');
         Route::get('laporan-realisasi', LaporanRealisasi::class)->name('laporan.realisasi');
+        Route::get('laporan-rincian-obyek', \App\Livewire\Laporan\LaporanRincianObyek::class)->name('laporan.rincian-obyek');
     });
 
     // -- Master (menu:master) --

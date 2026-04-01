@@ -65,12 +65,15 @@ class RkaImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
+        $anggaran = $row["anggaran"] ?? 0;
+
         return new Rka([
             "id" => $row["id"],
             "sub_kegiatan_id" => $row["sub_kegiatan_id"],
             "kode_belanja" => $row["kode_belanja"],
             "nama_belanja" => $row["nama_belanja"],
-            "anggaran" => $row["anggaran"],
+            "penetapan" => $anggaran,
+            "anggaran" => $anggaran,
         ]);
     }
 }
