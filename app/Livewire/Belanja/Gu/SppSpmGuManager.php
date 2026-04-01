@@ -236,6 +236,16 @@ class SppSpmGuManager extends Component
 
             $sppSpmGu->spjGus()->sync($this->selectedSpjGuIds);
 
+            // Update uang_giros yang terkait jika sudah ada SP2D
+            $uangGiro = UangGiro::where('spp_spm_gu_id', $sppSpmGu->id)->first();
+            if ($uangGiro) {
+                $uangGiro->update([
+                    'no_bukti' => $this->no_bukti,
+                    'uraian' => 'SP2D GU - ' . ($this->uraian ?? 'Ganti Uang Persediaan'),
+                    'nominal' => $this->total_nilai,
+                ]);
+            }
+
             DB::commit();
 
             $this->resetInputFields();

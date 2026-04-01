@@ -191,6 +191,16 @@ class SppSpmUpManager extends Component
                 'total_nilai' => $this->total_nilai,
             ]);
 
+            // Update uang_giros yang terkait jika sudah ada SP2D
+            $uangGiro = UangGiro::where('spp_spm_up_id', $sppSpmUp->id)->first();
+            if ($uangGiro) {
+                $uangGiro->update([
+                    'no_bukti' => $this->no_bukti,
+                    'uraian' => 'SP2D UP - ' . ($this->uraian ?? 'Uang Persediaan'),
+                    'nominal' => $this->total_nilai,
+                ]);
+            }
+
             DB::commit();
 
             $this->resetInputFields();
