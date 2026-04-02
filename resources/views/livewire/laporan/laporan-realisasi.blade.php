@@ -149,8 +149,8 @@
                                     @foreach ($subKegiatan->rkas as $rka)
                                         @php
                                             $anggaran = $rka->anggaran;
-                                            $realisasiLalu = $rka->gu_bulan_lalu + $rka->ls_bulan_lalu;
-                                            $realisasiBulanIni = $rka->gu_bulan_ini + $rka->ls_bulan_ini;
+                                            $realisasiLalu = $rka->gu_bulan_lalu + $rka->ls_bulan_lalu + $rka->tu_bulan_lalu;
+                                            $realisasiBulanIni = $rka->gu_bulan_ini + $rka->ls_bulan_ini + $rka->tu_bulan_ini;
                                             $totalRealisasiItem = $realisasiLalu + $realisasiBulanIni;
                                             $sisaAnggaran = $anggaran - $totalRealisasiItem;
                                             $persentase = $anggaran > 0 ? ($totalRealisasiItem / $anggaran) * 100 : 0;

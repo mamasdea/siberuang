@@ -83,7 +83,7 @@ class BelanjaLs extends Component
 
         // Query header transaksi LS dengan relasi ke detail dan turunannya.
         // Query base untuk digunakan di pagination dan statistik
-        $query = ModelBelanjaLs::with(['details.rka.subKegiatan.kegiatan.program'])
+        $query = ModelBelanjaLs::with(['details.rka.subKegiatan.kegiatan.program', 'pajakLs'])
             ->whereHas('details', function ($query) use ($tahun) {
                 $query->whereHas('rka', function ($query2) use ($tahun) {
                     $query2->whereHas('subKegiatan', function ($query3) use ($tahun) {
@@ -104,7 +104,7 @@ class BelanjaLs extends Component
         $totalTransaksi = (clone $query)->count();
         $totalNominal = (clone $query)->sum('total_nilai');
 
-        $belanjas = $query->orderBy('no_bukti', 'asc')
+        $belanjas = $query->orderBy('id', 'desc')
             ->paginate($this->paginate);
 
         return view('livewire.belanja.ls.belanja-ls', [
@@ -233,7 +233,7 @@ class BelanjaLs extends Component
 
             $this->resetInputFields();
             $this->formVisible = false;
-            $this->dispatch('refresh');
+            $this->resetPage();
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());

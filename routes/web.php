@@ -110,6 +110,24 @@ Route::middleware(['auth'])->group(function () {
         Route::get('spp-spm-gu', SppSpmGuManager::class)->name('spp-spm-gu');
     });
 
+    // -- SPP-SPM TU (menu:spp-spm-tu) --
+    Route::middleware(['menu:spp-spm-tu'])->group(function () {
+        Route::get('spp-spm-tu', \App\Livewire\Belanja\Tu\SppSpmTuManager::class)->name('spp-spm-tu');
+    });
+
+    // -- Belanja TU (menu:belanja-tu) --
+    Route::middleware(['menu:belanja-tu'])->group(function () {
+        Route::get('belanja-tu/{sppSpmTuId}', \App\Livewire\Belanja\Tu\BelanjaTuManager::class)->name('belanja-tu');
+        Route::get('penerimaan-tu/{belanjaTuId}', \App\Livewire\Belanja\Tu\PenerimaanTuPage::class)->name('penerimaan-tu');
+        Route::get('pajak-tu/{belanjaTuId}', \App\Livewire\Belanja\Tu\PajakTuPage::class)->name('pajak-tu');
+    });
+
+    // -- SPJ TU (menu:spj-tu) --
+    Route::middleware(['menu:spj-tu'])->group(function () {
+        Route::get('spj-tu/{sppSpmTuId}', \App\Livewire\Belanja\Tu\SpjTuManager::class)->name('spj-tu');
+        Route::get('tu-nihil/{sppSpmTuId}', \App\Livewire\Belanja\Tu\SppSpmTuNihilManager::class)->name('tu-nihil');
+    });
+
     // -- SPP-SPM LS (menu:spp-spm-ls) --
     Route::middleware(['menu:spp-spm-ls'])->group(function () {
         Route::get('spp-spm-ls', BelanjaLs::class);
@@ -127,6 +145,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('laporan-page', LaporanPage::class)->name('laporan.page');
         Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
         Route::get('laporan-bkukkpd', BukuKasUmumKkpd::class)->name('laporan.bkukkpd');
+        Route::get('laporan-bkutu', \App\Livewire\Laporan\BukuKasUmumTu::class)->name('laporan.bkutu');
         Route::get('laporan-bukupajakgiro', BukuPajakGiro::class)->name('laporan.bukupajakgiro');
         Route::get('laporan-bukupajakkkpd', BukuPajakKkpd::class)->name('laporan.bukupajakkkpd');
         Route::get('laporan-bukupajakls', BukuPajakLs::class)->name('laporan.bukupajakls');

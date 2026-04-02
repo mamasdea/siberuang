@@ -99,24 +99,34 @@
                     </li>
                 @endif
 
-                @if (MenuPermission::hasAccess($role, 'spj'))
+                @if (MenuPermission::hasAccess($role, 'spj') || MenuPermission::hasAccess($role, 'spj-tu'))
                     <li class="nav-item has-treeview {{ request()->is('spj*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-clipboard-check" style="font-size: 14px;"></i>
                             <p>SPJ <i class="fas fa-angle-left right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('spj-gu') }}" class="nav-link {{ request()->is('spj-gu') ? 'active' : '' }}">
-                                    <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
-                                    <p>SPJ GU</p>
-                                </a>
-                            </li>
+                            @if (MenuPermission::hasAccess($role, 'spj'))
+                                <li class="nav-item">
+                                    <a href="{{ url('spj-gu') }}" class="nav-link {{ request()->is('spj-gu') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>SPJ GU</p>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (MenuPermission::hasAccess($role, 'spj-tu'))
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link disabled" style="color: #64748b; cursor: default;">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>SPJ TU <small class="text-muted">(via SPP-SPM TU)</small></p>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
 
-                @if (MenuPermission::hasAccess($role, 'spp-spm-up') || MenuPermission::hasAccess($role, 'spp-spm-gu') || MenuPermission::hasAccess($role, 'spp-spm-ls'))
+                @if (MenuPermission::hasAccess($role, 'spp-spm-up') || MenuPermission::hasAccess($role, 'spp-spm-gu') || MenuPermission::hasAccess($role, 'spp-spm-tu') || MenuPermission::hasAccess($role, 'spp-spm-ls'))
                     <li class="nav-item has-treeview {{ request()->is('spp-spm*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-file-invoice-dollar" style="font-size: 14px;"></i>
@@ -136,6 +146,14 @@
                                     <a href="{{ url('spp-spm-gu') }}" class="nav-link {{ request()->is('spp-spm-gu') ? 'active' : '' }}">
                                         <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
                                         <p>GU</p>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (MenuPermission::hasAccess($role, 'spp-spm-tu'))
+                                <li class="nav-item">
+                                    <a href="{{ url('spp-spm-tu') }}" class="nav-link {{ request()->is('spp-spm-tu') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>TU</p>
                                     </a>
                                 </li>
                             @endif
@@ -176,7 +194,7 @@
                                     <p>NPD</p>
                                 </a>
                             </li>
-                            <li class="nav-item has-treeview {{ request()->is('laporan-bkugiro', 'laporan-bkukkpd') ? 'menu-open' : '' }}">
+                            <li class="nav-item has-treeview {{ request()->is('laporan-bkugiro', 'laporan-bkukkpd', 'laporan-bkutu') ? 'menu-open' : '' }}">
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
                                     <p>BKU <i class="right fas fa-angle-left"></i></p>
@@ -192,6 +210,12 @@
                                         <a href="{{ url('laporan-bkukkpd') }}" class="nav-link {{ request()->is('laporan-bkukkpd') ? 'active' : '' }}">
                                             <i class="nav-icon fas fa-minus" style="font-size: 6px;"></i>
                                             <p>BKU GU KKPD</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ url('laporan-bkutu') }}" class="nav-link {{ request()->is('laporan-bkutu') ? 'active' : '' }}">
+                                            <i class="nav-icon fas fa-minus" style="font-size: 6px;"></i>
+                                            <p>BKU TU</p>
                                         </a>
                                     </li>
                                 </ul>

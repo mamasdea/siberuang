@@ -3,6 +3,7 @@
 namespace App\Livewire\Laporan;
 
 use App\Models\Belanja;
+use App\Models\BelanjaTu;
 use App\Models\Rka;
 use App\Models\SubKegiatan;
 use App\Models\PengelolaKeuangan;
@@ -60,8 +61,12 @@ class LaporanRincianObyek extends Component
             ->whereHas('kegiatan.program', function ($q) {
                 $q->where('tahun_anggaran', $this->tahun);
             })
-            ->whereHas('rkas.belanjas', function ($q) {
-                $q->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir]);
+            ->where(function ($q) {
+                $q->whereHas('rkas.belanjas', function ($sub) {
+                    $sub->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir]);
+                })->orWhereHas('rkas.belanjaTus', function ($sub) {
+                    $sub->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir]);
+                });
             })
             ->orderBy('kode', 'asc')
             ->get();
@@ -78,8 +83,12 @@ class LaporanRincianObyek extends Component
             ->findOrFail($this->selectedSubKegiatan);
 
         $rkas = Rka::where('sub_kegiatan_id', $this->selectedSubKegiatan)
-            ->whereHas('belanjas', function ($q) {
-                $q->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir]);
+            ->where(function ($q) {
+                $q->whereHas('belanjas', function ($sub) {
+                    $sub->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir]);
+                })->orWhereHas('belanjaTus', function ($sub) {
+                    $sub->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir]);
+                });
             })
             ->orderBy('kode_belanja', 'asc')
             ->get();
@@ -87,14 +96,23 @@ class LaporanRincianObyek extends Component
         $pages = [];
 
         foreach ($rkas as $rka) {
-            $spjSebelumnya = Belanja::where('rka_id', $rka->id)
-                ->where('tanggal', '<', $this->periodeAwal)
-                ->sum('nilai');
+            // GU + TU sebelum periode
+            $spjSebelumnyaGu = Belanja::where('rka_id', $rka->id)
+                ->where('tanggal', '<', $this->periodeAwal)->sum('nilai');
+            $spjSebelumnyaTu = BelanjaTu::where('rka_id', $rka->id)
+                ->where('tanggal', '<', $this->periodeAwal)->sum('nilai');
+            $spjSebelumnya = $spjSebelumnyaGu + $spjSebelumnyaTu;
 
-            $belanjas = Belanja::where('rka_id', $rka->id)
+            // GU + TU di periode
+            $belanjasGu = Belanja::where('rka_id', $rka->id)
                 ->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir])
-                ->orderBy('tanggal', 'asc')
-                ->get();
+                ->orderBy('tanggal', 'asc')->get();
+            $belanjasTu = BelanjaTu::where('rka_id', $rka->id)
+                ->whereBetween('tanggal', [$this->periodeAwal, $this->periodeAkhir])
+                ->orderBy('tanggal', 'asc')->get();
+
+            // Gabungkan dan sortir
+            $belanjas = $belanjasGu->concat($belanjasTu)->sortBy('tanggal')->values();
 
             $totalPeriodeIni = $belanjas->sum('nilai');
             $jumlahRealisasi = $spjSebelumnya + $totalPeriodeIni;

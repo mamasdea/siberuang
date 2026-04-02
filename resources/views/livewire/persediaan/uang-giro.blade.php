@@ -85,6 +85,8 @@
                                 <td>
                                     @if($row->tipe == 'UP')
                                         <span class="badge badge-primary" style="font-size: 11px;">UP</span>
+                                    @elseif($row->tipe == 'TU')
+                                        <span class="badge badge-warning" style="font-size: 11px;">TU</span>
                                     @else
                                         <span class="badge badge-success" style="font-size: 11px;">GU</span>
                                     @endif
@@ -104,12 +106,16 @@
                                         <a href="{{ url('spp-spm-gu') }}" class="badge badge-outline-success" style="font-size: 10px; text-decoration: none;">
                                             SPP-SPM GU
                                         </a>
+                                    @elseif($row->spp_spm_tu_id)
+                                        <a href="{{ url('spp-spm-tu') }}" class="badge badge-outline-warning" style="font-size: 10px; text-decoration: none;">
+                                            SPP-SPM TU
+                                        </a>
                                     @else
                                         <span class="badge badge-light" style="font-size: 10px;">Manual</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    @if(!$row->spp_spm_up_id && !$row->spp_spm_gu_id)
+                                    @if(!$row->spp_spm_up_id && !$row->spp_spm_gu_id && !$row->spp_spm_tu_id)
                                         <button wire:click="deleteConfirmation({{ $row->id }})" class="btn btn-danger btn-sm" style="border-radius: 6px;" title="Hapus">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>

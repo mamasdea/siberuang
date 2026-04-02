@@ -61,6 +61,14 @@ class LaporanRealisasi extends Component
                                 $q->whereMonth('tanggal', '<', $this->selectedBulan)
                                     ->whereYear('tanggal', '=', $this->tahun);
                             });
+                        }], 'nilai')
+                        ->withSum(['belanjaTus as tu_bulan_ini' => function ($subQuery) {
+                            $subQuery->whereMonth('tanggal', '=', $this->selectedBulan)
+                                ->whereYear('tanggal', '=', $this->tahun);
+                        }], 'nilai')
+                        ->withSum(['belanjaTus as tu_bulan_lalu' => function ($subQuery) {
+                            $subQuery->whereMonth('tanggal', '<', $this->selectedBulan)
+                                ->whereYear('tanggal', '=', $this->tahun);
                         }], 'nilai');
                 }
             ])->whereHas('kegiatan.program', function ($query) {
