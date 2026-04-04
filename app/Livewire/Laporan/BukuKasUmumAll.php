@@ -73,7 +73,9 @@ class BukuKasUmumAll extends Component
         if ($filter === 'semua' || $filter === 'tu') {
             $queries[] = "SELECT '' AS id, tanggal, no_bukti, '' AS rekening, uraian, nominal AS debet, 0 AS kredit, 'sp2d_tu' AS jenis, 'TU' AS kategori, CONCAT('0_', tanggal) AS grp, 0 AS sub_urut FROM uang_giros WHERE tipe = 'TU' AND tanggal >= '{$m}' AND tanggal <= '{$e}'";
             $queries[] = "SELECT belanja_tus.id, tanggal, no_bukti, kode_belanja AS rekening, belanja_tus.uraian, 0 AS debet, nilai AS kredit, 'belanja_tu' AS jenis, 'TU' AS kategori, CONCAT('1_', tanggal) AS grp, 0 AS sub_urut FROM belanja_tus JOIN rkas ON rkas.id = belanja_tus.rka_id WHERE tanggal >= '{$m}' AND tanggal <= '{$e}'";
-            $queries[] = "SELECT id, tanggal, no_spp AS no_bukti, '' AS rekening, uraian, 0 AS debet, nilai_setor AS kredit, 'nihil_tu' AS jenis, 'TU' AS kategori, CONCAT('2_', tanggal) AS grp, 0 AS sub_urut FROM spp_spm_tu_nihils WHERE tanggal >= '{$m}' AND tanggal <= '{$e}'";
+            // Kompatibel: cek apakah kolom no_spp ada (hasil rename), jika tidak pakai no_bukti
+            $nihilCol = \Schema::hasColumn('spp_spm_tu_nihils', 'no_spp') ? 'no_spp' : 'no_bukti';
+            $queries[] = "SELECT id, tanggal, {$nihilCol} AS no_bukti, '' AS rekening, uraian, 0 AS debet, nilai_setor AS kredit, 'nihil_tu' AS jenis, 'TU' AS kategori, CONCAT('2_', tanggal) AS grp, 0 AS sub_urut FROM spp_spm_tu_nihils WHERE tanggal >= '{$m}' AND tanggal <= '{$e}'";
         }
 
         if ($filter === 'semua' || $filter === 'ls') {
