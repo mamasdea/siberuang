@@ -14,9 +14,13 @@
                     <a href="{{ url('spp-spm-tu') }}" class="btn btn-outline-secondary mr-2" style="border-radius: 8px;">
                         <i class="fas fa-arrow-left mr-1"></i> Kembali
                     </a>
-                    <button type="button" class="btn btn-modern-add" wire:click="openForm" data-toggle="modal" data-target="#belanjaTuModal">
-                        <i class="fas fa-plus mr-2"></i>Tambah Belanja
-                    </button>
+                    @if(!($sppSpmTu['has_spj'] ?? false))
+                        <button type="button" class="btn btn-modern-add" wire:click="openForm" data-toggle="modal" data-target="#belanjaTuModal">
+                            <i class="fas fa-plus mr-2"></i>Tambah Belanja
+                        </button>
+                    @else
+                        <span class="badge badge-info" style="font-size: 13px; padding: 8px 16px;"><i class="fas fa-lock mr-1"></i> Sudah di-SPJ-kan</span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -96,6 +100,7 @@
                             <th width="50" class="text-center">SIPD</th>
                             <th width="50" class="text-center">Penerimaan</th>
                             <th width="50" class="text-center">Pajak</th>
+                            <th width="50" class="text-center">Arsip</th>
                             <th width="120" class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -151,21 +156,33 @@
                                         <i class="fas fa-receipt"></i>
                                     </a>
                                 </td>
+                                <td class="text-center">
+                                    @if ($row->arsip)
+                                        <button wire:click="viewArsip({{ $row->id }})" class="btn btn-sm btn-outline-info" style="border-radius: 6px;" title="Lihat Arsip">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                    @else
+                                        <button wire:click="openUploadModal({{ $row->id }})" class="btn btn-sm btn-outline-success" style="border-radius: 6px;" title="Upload Arsip">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                        </button>
+                                    @endif
+                                </td>
 
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <button class="btn btn-warning btn-sm" wire:click="edit({{ $row->id }})" title="Edit">
-                                            <i class="fas fa-pencil-alt text-white"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+                                        @if($sppSpmTu['has_spj'] ?? false)
+                                            <button class="btn btn-secondary btn-sm" disabled title="Sudah di-SPJ-kan"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="btn btn-secondary btn-sm" disabled title="Sudah di-SPJ-kan"><i class="fas fa-trash-alt"></i></button>
+                                        @else
+                                            <button class="btn btn-warning btn-sm" wire:click="edit({{ $row->id }})" title="Edit"><i class="fas fa-pencil-alt text-white"></i></button>
+                                            <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center text-muted py-4">
+                                <td colspan="12" class="text-center text-muted py-4">
                                     <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Belum ada belanja TU
                                 </td>
                             </tr>
@@ -257,6 +274,72 @@
                     <button type="button" wire:click.prevent="{{ $isEdit ? 'update' : 'store' }}" class="btn btn-primary font-weight-bold shadow-sm py-2 px-4" style="border-radius: 8px;">
                         <i class="fas fa-save mr-2"></i> {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Data' }}
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Upload Arsip -->
+    <div wire:ignore.self class="modal fade" id="uploadArsipTuModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content modern-card border-0" style="border-radius: 12px;">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title font-weight-bold">Upload Arsip</h5>
+                    <button type="button" class="close" wire:click="closeUploadModal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-secondary text-uppercase small mb-2">Pilih File PDF</label>
+                        <input type="file" wire:model="fileArsip" class="form-control bg-light border-0" accept=".pdf" style="height: auto; padding: 12px; border-radius: 12px;">
+                        <div wire:loading wire:target="fileArsip" class="text-info small mt-1"><i class="fas fa-spinner fa-spin mr-1"></i> Uploading...</div>
+                        @error('fileArsip') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" wire:click="closeUploadModal" class="btn btn-light mr-2" style="border-radius: 8px;">Batal</button>
+                        <button type="button" wire:click="saveArsip" class="btn btn-primary" style="border-radius: 8px;" wire:loading.attr="disabled">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Preview Arsip -->
+    <div wire:ignore.self class="modal fade" id="previewArsipTuModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content modern-card border-0" style="border-radius: 12px;">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title font-weight-bold">Preview Arsip</h5>
+                    <button type="button" class="close" wire:click="closeViewArsip"><span>&times;</span></button>
+                </div>
+                <div class="modal-body p-0">
+                    @if($previewArsipUrl)
+                        <iframe src="{{ $previewArsipUrl }}" width="100%" height="700px" style="border-radius: 0 0 12px 12px; border: none;"></iframe>
+                    @endif
+                </div>
+                <div class="modal-footer border-top-0 pt-2 pb-3 px-4 d-flex justify-content-between bg-light" style="border-radius: 0 0 12px 12px;">
+                    <div class="d-flex align-items-center">
+                        <div style="position: relative; overflow: hidden; display: inline-block;">
+                            <button class="btn btn-outline-secondary btn-sm" style="border-radius: 6px;">
+                                <i class="fas fa-exchange-alt mr-1"></i> Ganti File
+                            </button>
+                            <input type="file" wire:model="fileArsip" accept=".pdf" style="font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;">
+                        </div>
+                        @if($fileArsip)
+                            <span class="ml-2 badge badge-info">PDF Dipilih</span>
+                            <button class="btn btn-success btn-sm ml-2" wire:click="updateArsipFromPreview" wire:loading.attr="disabled" style="border-radius: 6px;">
+                                <i class="fas fa-save mr-1"></i> Simpan
+                            </button>
+                        @endif
+                        <div wire:loading wire:target="fileArsip" class="ml-2 small text-muted"><i class="fas fa-spinner fa-spin"></i> Uploading...</div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light text-secondary font-weight-bold" wire:click="closeViewArsip" style="border-radius: 8px;">Tutup</button>
+                        @if($previewArsipUrl)
+                            <a href="{{ $previewArsipUrl }}" target="_blank" class="btn btn-primary ml-2" style="border-radius: 8px;">
+                                <i class="fas fa-download mr-1"></i> Download
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

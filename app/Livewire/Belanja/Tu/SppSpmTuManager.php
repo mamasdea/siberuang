@@ -371,11 +371,16 @@ class SppSpmTuManager extends Component
 
     public function delete()
     {
-        $sppSpmTu = SppSpmTu::find($this->deleteId);
-        if ($sppSpmTu) {
-            UangGiro::where('spp_spm_tu_id', $sppSpmTu->id)->delete();
-            $sppSpmTu->delete();
+        $sppSpmTu = SppSpmTu::with('belanjaTus')->find($this->deleteId);
+        if (!$sppSpmTu) return;
+
+        if ($sppSpmTu->belanjaTus->count() > 0) {
+            $this->js("Swal.fire({ icon: 'error', title: 'Tidak bisa dihapus, sudah ada belanja TU', timer: 2500, showConfirmButton: false });");
+            return;
         }
+
+        UangGiro::where('spp_spm_tu_id', $sppSpmTu->id)->delete();
+        $sppSpmTu->delete();
 
         $this->js(<<<'JS'
             const Toast = Swal.mixin({

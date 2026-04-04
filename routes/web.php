@@ -108,6 +108,8 @@ Route::middleware(['auth'])->group(function () {
     // -- SPP-SPM GU (menu:spp-spm-gu) --
     Route::middleware(['menu:spp-spm-gu'])->group(function () {
         Route::get('spp-spm-gu', SppSpmGuManager::class)->name('spp-spm-gu');
+        Route::get('gu-nihil', \App\Livewire\Belanja\Gu\GuNihilList::class)->name('gu-nihil-list');
+        Route::get('gu-nihil/{spjGuId}', \App\Livewire\Belanja\Gu\GuNihilManager::class)->name('gu-nihil');
     });
 
     // -- SPP-SPM TU (menu:spp-spm-tu) --
@@ -117,6 +119,7 @@ Route::middleware(['auth'])->group(function () {
 
     // -- Belanja TU (menu:belanja-tu) --
     Route::middleware(['menu:belanja-tu'])->group(function () {
+        Route::get('belanja-tu', \App\Livewire\Belanja\Tu\BelanjaTuList::class)->name('belanja-tu-list');
         Route::get('belanja-tu/{sppSpmTuId}', \App\Livewire\Belanja\Tu\BelanjaTuManager::class)->name('belanja-tu');
         Route::get('penerimaan-tu/{belanjaTuId}', \App\Livewire\Belanja\Tu\PenerimaanTuPage::class)->name('penerimaan-tu');
         Route::get('pajak-tu/{belanjaTuId}', \App\Livewire\Belanja\Tu\PajakTuPage::class)->name('pajak-tu');
@@ -124,7 +127,13 @@ Route::middleware(['auth'])->group(function () {
 
     // -- SPJ TU (menu:spj-tu) --
     Route::middleware(['menu:spj-tu'])->group(function () {
+        Route::get('spj-tu', \App\Livewire\Belanja\Tu\SpjTuList::class)->name('spj-tu-list');
         Route::get('spj-tu/{sppSpmTuId}', \App\Livewire\Belanja\Tu\SpjTuManager::class)->name('spj-tu');
+    });
+
+    // -- TU Nihil (menu:spp-spm-tu) --
+    Route::middleware(['menu:spp-spm-tu'])->group(function () {
+        Route::get('tu-nihil', \App\Livewire\Belanja\Tu\TuNihilList::class)->name('tu-nihil-list');
         Route::get('tu-nihil/{sppSpmTuId}', \App\Livewire\Belanja\Tu\SppSpmTuNihilManager::class)->name('tu-nihil');
     });
 
@@ -146,6 +155,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('laporan-bkugiro', BukuKasUmumGiro::class)->name('laporan.bkugiro');
         Route::get('laporan-bkukkpd', BukuKasUmumKkpd::class)->name('laporan.bkukkpd');
         Route::get('laporan-bkutu', \App\Livewire\Laporan\BukuKasUmumTu::class)->name('laporan.bkutu');
+        Route::get('laporan-bkuall', \App\Livewire\Laporan\BukuKasUmumAll::class)->name('laporan.bkuall');
         Route::get('laporan-bukupajakgiro', BukuPajakGiro::class)->name('laporan.bukupajakgiro');
         Route::get('laporan-bukupajakkkpd', BukuPajakKkpd::class)->name('laporan.bukupajakkkpd');
         Route::get('laporan-bukupajakls', BukuPajakLs::class)->name('laporan.bukupajakls');

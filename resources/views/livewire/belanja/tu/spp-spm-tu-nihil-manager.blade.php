@@ -68,50 +68,94 @@
                         <h6 class="font-weight-bold mb-0"><i class="fas fa-undo mr-2 text-warning"></i>Data SPP-SPM TU Nihil</h6>
                     </div>
                     <div class="card-body">
-                        @if($nihil)
-                            <div class="row mb-3">
-                                <div class="col-md-3"><strong>No Bukti:</strong><br>{{ $nihil['no_bukti'] }}</div>
-                                <div class="col-md-3"><strong>Tanggal:</strong><br>{{ date('d-m-Y', strtotime($nihil['tanggal'])) }}</div>
-                                <div class="col-md-3"><strong>Nilai Setor:</strong><br>Rp {{ number_format($nihil['nilai_setor'], 0, ',', '.') }}</div>
-                                <div class="col-md-3"><strong>Uraian:</strong><br>{{ $nihil['uraian'] ?? '-' }}</div>
+                        @if($nihil && !$isEdit)
+                            {{-- Tampilan Data --}}
+                            <div class="row mb-3" style="font-size: 14px;">
+                                <div class="col-md-3 mb-2"><small class="text-muted d-block">No SPP</small><strong>{{ $nihil['no_spp'] }}</strong></div>
+                                <div class="col-md-3 mb-2"><small class="text-muted d-block">No STS</small><strong>{{ $nihil['no_sts'] ?? '-' }}</strong></div>
+                                <div class="col-md-3 mb-2"><small class="text-muted d-block">No SPM Nihil SIPD</small><strong>{{ $nihil['no_spm_tu_nihil_sipd'] ?? '-' }}</strong></div>
+                                <div class="col-md-3 mb-2"><small class="text-muted d-block">Tanggal</small><strong>{{ date('d-m-Y', strtotime($nihil['tanggal'])) }}</strong></div>
                             </div>
-                            @if($nihil['no_sp2d'] ?? false)
-                                <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i>SP2D: {{ $nihil['no_sp2d'] }} ({{ date('d/m/Y', strtotime($nihil['tanggal_sp2d'])) }})</span>
-                            @else
-                                <button wire:click="openSp2dModal" class="btn btn-sm btn-outline-warning" style="border-radius: 6px;">
-                                    <i class="fas fa-file-export mr-1"></i> Input SP2D Nihil
-                                </button>
-                            @endif
-                            <div class="mt-3">
-                                <button wire:click="edit" class="btn btn-warning btn-sm"><i class="fas fa-pencil-alt mr-1"></i> Edit</button>
-                                <button wire:click="delete_confirmation" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt mr-1"></i> Hapus</button>
+                            <div class="row mb-3" style="font-size: 14px;">
+                                <div class="col-md-3 mb-2"><small class="text-muted d-block">Nilai Setor</small><strong>Rp {{ number_format($nihil['nilai_setor'], 0, ',', '.') }}</strong></div>
+                                <div class="col-md-3 mb-2"><small class="text-muted d-block">Uraian</small><strong>{{ $nihil['uraian'] ?? '-' }}</strong></div>
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-muted d-block">Bukti Setor</small>
+                                    @if($nihil['bukti_setor'] ?? false)
+                                        <a href="{{ Storage::disk('gcs')->url($nihil['bukti_setor']) }}" target="_blank" class="btn btn-sm btn-outline-info" style="border-radius: 6px;">
+                                            <i class="fas fa-file-pdf mr-1"></i> Lihat Bukti Setor
+                                        </a>
+                                    @else
+                                        <span class="text-muted">Belum diupload</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if($nihil['no_sp2d'] ?? false)
+                                    <span class="badge badge-success mr-2"><i class="fas fa-check-circle mr-1"></i>SP2D: {{ $nihil['no_sp2d'] }} ({{ date('d/m/Y', strtotime($nihil['tanggal_sp2d'])) }})</span>
+                                @else
+                                    <button wire:click="openSp2dModal" class="btn btn-sm btn-outline-warning mr-2" style="border-radius: 6px;">
+                                        <i class="fas fa-file-export mr-1"></i> Input SP2D Nihil
+                                    </button>
+                                @endif
+                                <button wire:click="edit" class="btn btn-warning btn-sm mr-1" style="border-radius: 6px;"><i class="fas fa-pencil-alt mr-1 text-white"></i> Edit</button>
+                                <button wire:click="delete_confirmation" class="btn btn-danger btn-sm" style="border-radius: 6px;"><i class="fas fa-trash-alt mr-1"></i> Hapus</button>
                             </div>
                         @else
+                            {{-- Form Input / Edit --}}
                             <form>
                                 <div class="row">
-                                    <div class="col-md-3">
-                                        <label class="font-weight-bold small">No Bukti</label>
-                                        <input wire:model="no_bukti" type="text" class="form-control" placeholder="0001">
-                                        @error('no_bukti') <span class="text-danger small">{{ $message }}</span> @enderror
+                                    <div class="col-md-3 mb-3">
+                                        <label class="font-weight-bold small">No SPP</label>
+                                        <input wire:model="no_spp" type="text" class="form-control" placeholder="0001">
+                                        @error('no_spp') <span class="text-danger small">{{ $message }}</span> @enderror
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-3 mb-3">
+                                        <label class="font-weight-bold small">No STS</label>
+                                        <input wire:model="no_sts" type="text" class="form-control" placeholder="Nomor STS">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="font-weight-bold small">No SPM Nihil SIPD</label>
+                                        <input wire:model="no_spm_tu_nihil_sipd" type="text" class="form-control" placeholder="Nomor SPM SIPD">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
                                         <label class="font-weight-bold small">Tanggal</label>
                                         <input wire:model="tanggal" type="date" class="form-control">
                                         @error('tanggal') <span class="text-danger small">{{ $message }}</span> @enderror
                                     </div>
-                                    <div class="col-md-3">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
                                         <label class="font-weight-bold small">Nilai Setor</label>
                                         <input type="text" class="form-control font-weight-bold" value="Rp {{ number_format($nilai_setor, 2, ',', '.') }}" readonly style="background: #e8f0fe; color: #1a73e8;">
                                     </div>
-                                    <div class="col-md-3">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold small">Uraian</label>
                                         <input wire:model="uraian" type="text" class="form-control" placeholder="Opsional">
                                     </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="font-weight-bold small">Upload Bukti Setor (PDF)</label>
+                                        <input type="file" wire:model="fileBuktiSetor" class="form-control" accept=".pdf" style="height: auto; padding: 8px;">
+                                        <div wire:loading wire:target="fileBuktiSetor" class="text-info small mt-1"><i class="fas fa-spinner fa-spin mr-1"></i> Uploading...</div>
+                                        @error('fileBuktiSetor') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        @if($existingBuktiSetor)
+                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle mr-1"></i> Bukti setor sudah ada</small>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="mt-3">
-                                    <button type="button" wire:click="store" class="btn btn-success">
-                                        <i class="fas fa-save mr-1"></i> Simpan TU Nihil
-                                    </button>
+                                <div class="mt-2">
+                                    @if($isEdit)
+                                        <button type="button" wire:click="update" class="btn btn-success" style="border-radius: 8px;">
+                                            <i class="fas fa-save mr-1"></i> Update TU Nihil
+                                        </button>
+                                        <button type="button" wire:click="$set('isEdit', false)" class="btn btn-light" style="border-radius: 8px;">Batal</button>
+                                    @else
+                                        <button type="button" wire:click="store" class="btn btn-success" style="border-radius: 8px;">
+                                            <i class="fas fa-save mr-1"></i> Simpan TU Nihil
+                                        </button>
+                                    @endif
                                 </div>
                             </form>
                         @endif

@@ -67,12 +67,16 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <button wire:click="edit" class="btn btn-warning btn-sm" style="border-radius: 6px;">
-                                <i class="fas fa-pencil-alt mr-1 text-white"></i> Edit
-                            </button>
-                            <button wire:click="delete_confirmation" class="btn btn-danger btn-sm" style="border-radius: 6px;">
-                                <i class="fas fa-trash-alt mr-1"></i> Hapus
-                            </button>
+                            @if($sppSpmTu['has_nihil'] ?? false)
+                                <span class="badge badge-dark" style="font-size: 12px; padding: 6px 14px;"><i class="fas fa-lock mr-1"></i> Sudah Nihil — tidak bisa diubah</span>
+                            @else
+                                <button wire:click="edit" class="btn btn-warning btn-sm" style="border-radius: 6px;">
+                                    <i class="fas fa-pencil-alt mr-1 text-white"></i> Edit
+                                </button>
+                                <button wire:click="delete_confirmation" class="btn btn-danger btn-sm" style="border-radius: 6px;">
+                                    <i class="fas fa-trash-alt mr-1"></i> Hapus
+                                </button>
+                            @endif
                         </div>
                     @else
                         {{-- Form Input / Edit SPJ --}}

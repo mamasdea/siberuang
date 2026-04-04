@@ -6,21 +6,29 @@ use App\Models\SpjTu;
 use App\Models\SppSpmTu;
 use App\Models\SppSpmTuNihil;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Storage;
 
 #[Title('SPP-SPM TU Nihil')]
 class SppSpmTuNihilManager extends Component
 {
+    use WithFileUploads;
+
     public $sppSpmTuId;
     public $sppSpmTu = [];
     public $nihil = null;
-    public $no_bukti;
+    public $no_spp;
+    public $no_sts;
     public $no_spm_sipd;
+    public $no_spm_tu_nihil_sipd;
     public $tanggal;
     public $uraian;
     public $nilai_setor = 0;
     public $isEdit = false;
     public $nihilId;
+    public $fileBuktiSetor;
+    public $existingBuktiSetor;
 
     // SP2D
     public $sp2dId;
@@ -44,10 +52,13 @@ class SppSpmTuNihilManager extends Component
         if ($sppSpmTu->nihil) {
             $this->nihil = $sppSpmTu->nihil->toArray();
             $this->nihilId = $sppSpmTu->nihil->id;
-            $this->no_bukti = $sppSpmTu->nihil->no_bukti;
+            $this->no_spp = $sppSpmTu->nihil->no_spp;
+            $this->no_sts = $sppSpmTu->nihil->no_sts;
             $this->no_spm_sipd = $sppSpmTu->nihil->no_spm_sipd;
+            $this->no_spm_tu_nihil_sipd = $sppSpmTu->nihil->no_spm_tu_nihil_sipd;
             $this->tanggal = $sppSpmTu->nihil->tanggal;
             $this->uraian = $sppSpmTu->nihil->uraian;
+            $this->existingBuktiSetor = $sppSpmTu->nihil->bukti_setor;
             $this->sp2d_no = $sppSpmTu->nihil->no_sp2d;
             $this->sp2d_tanggal = $sppSpmTu->nihil->tanggal_sp2d;
         }
@@ -65,7 +76,7 @@ class SppSpmTuNihilManager extends Component
     public function store()
     {
         $this->validate([
-            'no_bukti' => 'required',
+            'no_spp' => 'required',
             'tanggal' => 'required|date',
         ]);
 
@@ -100,13 +111,21 @@ class SppSpmTuNihilManager extends Component
             return;
         }
 
+        $buktiSetorPath = null;
+        if ($this->fileBuktiSetor) {
+            $buktiSetorPath = $this->fileBuktiSetor->store('bukti-setor-tu', 'gcs');
+        }
+
         $nihil = SppSpmTuNihil::create([
             'spp_spm_tu_id' => $this->sppSpmTuId,
-            'no_bukti' => $this->no_bukti,
+            'no_spp' => $this->no_spp,
+            'no_sts' => $this->no_sts,
             'no_spm_sipd' => $this->no_spm_sipd,
+            'no_spm_tu_nihil_sipd' => $this->no_spm_tu_nihil_sipd,
             'tanggal' => $this->tanggal,
             'uraian' => $this->uraian,
             'nilai_setor' => $this->nilai_setor,
+            'bukti_setor' => $buktiSetorPath,
         ]);
 
         $this->nihil = $nihil->toArray();
@@ -142,7 +161,7 @@ class SppSpmTuNihilManager extends Component
     public function update()
     {
         $this->validate([
-            'no_bukti' => 'required',
+            'no_spp' => 'required',
             'tanggal' => 'required|date',
         ]);
 
@@ -153,13 +172,24 @@ class SppSpmTuNihilManager extends Component
         $totalBelanja = $sppSpmTu->belanjaTus->sum('nilai');
         $this->nilai_setor = $sppSpmTu->total_nilai - $totalBelanja;
 
-        $nihil->update([
-            'no_bukti' => $this->no_bukti,
+        $updateData = [
+            'no_spp' => $this->no_spp,
+            'no_sts' => $this->no_sts,
             'no_spm_sipd' => $this->no_spm_sipd,
+            'no_spm_tu_nihil_sipd' => $this->no_spm_tu_nihil_sipd,
             'tanggal' => $this->tanggal,
             'uraian' => $this->uraian,
             'nilai_setor' => $this->nilai_setor,
-        ]);
+        ];
+
+        if ($this->fileBuktiSetor) {
+            if ($nihil->bukti_setor) {
+                Storage::disk('gcs')->delete($nihil->bukti_setor);
+            }
+            $updateData['bukti_setor'] = $this->fileBuktiSetor->store('bukti-setor-tu', 'gcs');
+        }
+
+        $nihil->update($updateData);
 
         $this->nihil = $nihil->fresh()->toArray();
         $this->isEdit = false;

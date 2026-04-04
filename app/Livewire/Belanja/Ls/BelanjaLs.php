@@ -104,7 +104,7 @@ class BelanjaLs extends Component
         $totalTransaksi = (clone $query)->count();
         $totalNominal = (clone $query)->sum('total_nilai');
 
-        $belanjas = $query->orderBy('id', 'desc')
+        $belanjas = $query->orderBy('tanggal', 'desc')
             ->paginate($this->paginate);
 
         return view('livewire.belanja.ls.belanja-ls', [

@@ -59,16 +59,16 @@
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="table modern-table" style="table-layout: fixed; width: 100%;">
+                <table class="table modern-table" style="font-size: 12.5px;">
                     <thead>
                         <tr>
-                            <th style="width: 40px;">No</th>
-                            <th style="width: 160px;">No Bukti (SPP)</th>
-                            <th style="width: 100px;">Tanggal</th>
+                            <th style="width: 35px;">No</th>
+                            <th style="width: 140px;">No Bukti (SPP)</th>
+                            <th style="width: 90px;">Tanggal</th>
                             <th>Uraian</th>
-                            <th style="width: 140px;" class="text-right">Total Nilai</th>
-                            <th style="width: 90px;" class="text-center">Status</th>
-                            <th style="width: 320px;" class="text-center">Aksi</th>
+                            <th style="width: 120px;" class="text-right">Total Nilai</th>
+                            <th style="width: 65px;" class="text-center">Status</th>
+                            <th style="width: 160px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,22 +76,16 @@
                             <tr wire:key="{{ $row->id }}">
                                 <td><span class="code-badge">{{ $loop->index + $sppSpmTus->firstItem() }}</span></td>
                                 <td>
-                                    <span class="code-badge" style="white-space: nowrap; font-size: 11px;">
-                                        SPP-{{ $row->no_bukti }}/Diskominfo/{{ $row->tahun_bukti }}
+                                    <span class="code-badge" style="white-space: nowrap; font-size: 10px;">
+                                        SPP-{{ $row->no_bukti }}
                                     </span>
-                                </td>
-                                <td style="font-weight: 500; white-space: nowrap;">
-                                    {{ date('d-m-Y', strtotime($row->tanggal)) }}
                                     @if($row->tanggal_sp2d)
-                                        <br><span class="badge badge-success" style="font-size: 9px;">SP2D {{ date('d/m/Y', strtotime($row->tanggal_sp2d)) }}</span>
+                                        <br><span class="badge badge-success" style="font-size: 8px;">SP2D</span>
                                     @endif
                                 </td>
-                                <td style="overflow: hidden;">
-                                    <span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $row->uraian ?? '-' }}</span>
-                                </td>
-                                <td class="text-right" style="white-space: nowrap;">
-                                    <span class="amount-badge">Rp {{ number_format($row->total_nilai, 0, ',', '.') }}</span>
-                                </td>
+                                <td style="white-space: nowrap;">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
+                                <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">{{ $row->uraian ?? '-' }}</td>
+                                <td class="text-right" style="white-space: nowrap;">{{ number_format($row->total_nilai, 0, ',', '.') }}</td>
                                 <td class="text-center">
                                     @if($row->nihil)
                                         <span class="badge badge-dark" style="font-size: 10px;">Nihil</span>
@@ -103,7 +97,7 @@
                                         <span class="badge badge-warning" style="font-size: 10px;">Proses</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" style="white-space: nowrap;">
                                     {{-- SP2D --}}
                                     @if($row->tanggal_sp2d && $row->no_sp2d)
                                         <button wire:click="openSp2dModal({{ $row->id }})" class="btn btn-sm btn-success" style="border-radius: 6px; font-size: 10px;" title="SP2D terbit">
@@ -115,31 +109,14 @@
                                         </button>
                                     @endif
 
-                                    {{-- Belanja (hanya jika sudah SP2D) --}}
-                                    @if($row->tanggal_sp2d)
-                                        <a href="{{ url('belanja-tu/' . $row->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 6px; font-size: 10px;" title="Belanja TU">
-                                            <i class="fas fa-shopping-bag"></i> Belanja
-                                        </a>
-                                    @endif
-
-                                    {{-- SPJ --}}
-                                    @if($row->belanjaTus->count() > 0)
-                                        <a href="{{ url('spj-tu/' . $row->id) }}" class="btn btn-sm btn-outline-info" style="border-radius: 6px; font-size: 10px;" title="SPJ TU">
-                                            <i class="fas fa-clipboard-check"></i> SPJ
-                                        </a>
-                                    @endif
-
-                                    {{-- Nihil --}}
-                                    @if($row->spjTu && $row->total_nilai > $row->belanjaTus->sum('nilai'))
-                                        <a href="{{ url('tu-nihil/' . $row->id) }}" class="btn btn-sm btn-outline-dark" style="border-radius: 6px; font-size: 10px;" title="TU Nihil">
-                                            <i class="fas fa-undo"></i> Nihil
-                                        </a>
-                                    @endif
-
                                     {{-- Edit & Hapus --}}
                                     <div class="btn-group ml-1">
                                         <button class="btn btn-warning btn-sm" wire:click="edit({{ $row->id }})" title="Edit"><i class="fas fa-pencil-alt text-white"></i></button>
-                                        <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                                        @if($row->belanjaTus->count() > 0)
+                                            <button class="btn btn-secondary btn-sm" disabled title="Ada belanja, tidak bisa dihapus"><i class="fas fa-trash-alt"></i></button>
+                                        @else
+                                            <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

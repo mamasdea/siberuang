@@ -7,12 +7,14 @@ use App\Models\SppSpmTu;
 use App\Models\SppSpmTuDetail;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Storage;
 
 #[Title('Belanja TU')]
 class BelanjaTuManager extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -27,6 +29,9 @@ class BelanjaTuManager extends Component
     public $isEdit = false;
     public $deleteId;
     public $availableRkas = [];
+    public $fileArsip;
+    public $uploadArsipId;
+    public $previewArsipUrl;
 
     public function updatingSearch()
     {
@@ -42,13 +47,14 @@ class BelanjaTuManager extends Component
     {
         $this->sppSpmTuId = $sppSpmTuId;
 
-        $sppSpmTu = SppSpmTu::with(['details.rka', 'belanjaTus'])->findOrFail($sppSpmTuId);
+        $sppSpmTu = SppSpmTu::with(['details.rka', 'belanjaTus', 'spjTu'])->findOrFail($sppSpmTuId);
 
         $this->sppSpmTu = [
             'no_bukti' => $sppSpmTu->no_bukti,
             'total_nilai' => $sppSpmTu->total_nilai,
             'uraian' => $sppSpmTu->uraian,
             'tanggal_sp2d' => $sppSpmTu->tanggal_sp2d,
+            'has_spj' => $sppSpmTu->spjTu !== null,
         ];
 
         $this->buildAvailableRkas();
@@ -106,6 +112,11 @@ class BelanjaTuManager extends Component
 
     public function store()
     {
+        if ($this->sppSpmTu['has_spj'] ?? false) {
+            $this->js("Swal.fire({ icon: 'error', title: 'TU sudah di-SPJ-kan, tidak bisa entri belanja lagi', timer: 2500, showConfirmButton: false });");
+            return;
+        }
+
         $validatedData = $this->validate([
             'tanggal' => 'required|date|after_or_equal:' . $this->sppSpmTu['tanggal_sp2d'],
             'uraian' => 'required',
@@ -324,5 +335,69 @@ class BelanjaTuManager extends Component
         $this->js(<<<'JS'
             $('#belanjaTuModal').modal('hide');
         JS);
+    }
+
+    // === Arsip ===
+    public function openUploadModal($id)
+    {
+        $this->uploadArsipId = $id;
+        $this->fileArsip = null;
+        $this->js("$('#uploadArsipTuModal').modal('show');");
+    }
+
+    public function saveArsip()
+    {
+        $this->validate(['fileArsip' => 'required|file|mimes:pdf|max:10240']);
+
+        $belanja = BelanjaTu::findOrFail($this->uploadArsipId);
+        if ($belanja->arsip) {
+            Storage::disk('gcs')->delete($belanja->arsip);
+        }
+        $belanja->update(['arsip' => $this->fileArsip->store('arsip-tu', 'gcs')]);
+
+        $this->fileArsip = null;
+        $this->uploadArsipId = null;
+        $this->js(<<<'JS'
+            Swal.fire({ icon: 'success', title: 'Arsip berhasil diupload!', timer: 1500, showConfirmButton: false });
+            $('#uploadArsipTuModal').modal('hide');
+        JS);
+    }
+
+    public function viewArsip($id)
+    {
+        $belanja = BelanjaTu::findOrFail($id);
+        if ($belanja->arsip) {
+            $this->previewArsipUrl = Storage::disk('gcs')->url($belanja->arsip);
+            $this->uploadArsipId = $id;
+            $this->js("$('#previewArsipTuModal').modal('show');");
+        }
+    }
+
+    public function closeViewArsip()
+    {
+        $this->previewArsipUrl = null;
+        $this->js("$('#previewArsipTuModal').modal('hide');");
+    }
+
+    public function updateArsipFromPreview()
+    {
+        $this->validate(['fileArsip' => 'required|file|mimes:pdf|max:10240']);
+
+        $belanja = BelanjaTu::findOrFail($this->uploadArsipId);
+        if ($belanja->arsip) {
+            Storage::disk('gcs')->delete($belanja->arsip);
+        }
+        $belanja->update(['arsip' => $this->fileArsip->store('arsip-tu', 'gcs')]);
+
+        $this->fileArsip = null;
+        $this->previewArsipUrl = Storage::disk('gcs')->url($belanja->fresh()->arsip);
+        $this->js("Swal.fire({ icon: 'success', title: 'Arsip berhasil diganti!', timer: 1500, showConfirmButton: false });");
+    }
+
+    public function closeUploadModal()
+    {
+        $this->fileArsip = null;
+        $this->uploadArsipId = null;
+        $this->js("$('#uploadArsipTuModal').modal('hide');");
     }
 }

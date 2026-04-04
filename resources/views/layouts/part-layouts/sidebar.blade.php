@@ -76,31 +76,41 @@
                 {{-- Label Transaksi --}}
                 <li class="nav-header" style="color: #64748b; font-size: 10px; letter-spacing: 1.5px; padding: 12px 16px 6px; text-transform: uppercase;">Transaksi</li>
 
-                @if (MenuPermission::hasAccess($role, 'belanja'))
-                    <li class="nav-item has-treeview {{ request()->is('belanja', 'belanja-kkpd') ? 'menu-open' : '' }}">
+                @if (MenuPermission::hasAccess($role, 'belanja') || MenuPermission::hasAccess($role, 'belanja-tu'))
+                    <li class="nav-item has-treeview {{ request()->is('belanja', 'belanja-kkpd', 'belanja-tu*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-shopping-bag" style="font-size: 14px;"></i>
                             <p>Belanja <i class="fas fa-angle-left right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('belanja') }}" class="nav-link {{ request()->is('belanja') ? 'active' : '' }}">
-                                    <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
-                                    <p>GU</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('belanja-kkpd') }}" class="nav-link {{ request()->is('belanja-kkpd') ? 'active' : '' }}">
-                                    <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
-                                    <p>KKPD</p>
-                                </a>
-                            </li>
+                            @if (MenuPermission::hasAccess($role, 'belanja'))
+                                <li class="nav-item">
+                                    <a href="{{ url('belanja') }}" class="nav-link {{ request()->is('belanja') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>GU</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('belanja-kkpd') }}" class="nav-link {{ request()->is('belanja-kkpd') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>KKPD</p>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (MenuPermission::hasAccess($role, 'belanja-tu'))
+                                <li class="nav-item">
+                                    <a href="{{ url('belanja-tu') }}" class="nav-link {{ request()->is('belanja-tu*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>TU</p>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
 
                 @if (MenuPermission::hasAccess($role, 'spj') || MenuPermission::hasAccess($role, 'spj-tu'))
-                    <li class="nav-item has-treeview {{ request()->is('spj*') ? 'menu-open' : '' }}">
+                    <li class="nav-item has-treeview {{ request()->is('spj*', 'tu-nihil*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-clipboard-check" style="font-size: 14px;"></i>
                             <p>SPJ <i class="fas fa-angle-left right"></i></p>
@@ -116,9 +126,9 @@
                             @endif
                             @if (MenuPermission::hasAccess($role, 'spj-tu'))
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link disabled" style="color: #64748b; cursor: default;">
+                                    <a href="{{ url('spj-tu') }}" class="nav-link {{ request()->is('spj-tu*', 'tu-nihil*') ? 'active' : '' }}">
                                         <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
-                                        <p>SPJ TU <small class="text-muted">(via SPP-SPM TU)</small></p>
+                                        <p>SPJ TU</p>
                                     </a>
                                 </li>
                             @endif
@@ -148,12 +158,24 @@
                                         <p>GU</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('gu-nihil') }}" class="nav-link {{ request()->is('gu-nihil*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>GU Nihil</p>
+                                    </a>
+                                </li>
                             @endif
                             @if (MenuPermission::hasAccess($role, 'spp-spm-tu'))
                                 <li class="nav-item">
                                     <a href="{{ url('spp-spm-tu') }}" class="nav-link {{ request()->is('spp-spm-tu') ? 'active' : '' }}">
                                         <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
                                         <p>TU</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('tu-nihil') }}" class="nav-link {{ request()->is('tu-nihil*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
+                                        <p>TU Nihil</p>
                                     </a>
                                 </li>
                             @endif
@@ -194,31 +216,11 @@
                                     <p>NPD</p>
                                 </a>
                             </li>
-                            <li class="nav-item has-treeview {{ request()->is('laporan-bkugiro', 'laporan-bkukkpd', 'laporan-bkutu') ? 'menu-open' : '' }}">
-                                <a href="#" class="nav-link">
+                            <li class="nav-item">
+                                <a href="{{ url('laporan-bkuall') }}" class="nav-link {{ request()->is('laporan-bkuall') ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-minus" style="font-size: 8px;"></i>
-                                    <p>BKU <i class="right fas fa-angle-left"></i></p>
+                                    <p>BKU</p>
                                 </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ url('laporan-bkugiro') }}" class="nav-link {{ request()->is('laporan-bkugiro') ? 'active' : '' }}">
-                                            <i class="nav-icon fas fa-minus" style="font-size: 6px;"></i>
-                                            <p>BKU GU GIRO</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ url('laporan-bkukkpd') }}" class="nav-link {{ request()->is('laporan-bkukkpd') ? 'active' : '' }}">
-                                            <i class="nav-icon fas fa-minus" style="font-size: 6px;"></i>
-                                            <p>BKU GU KKPD</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ url('laporan-bkutu') }}" class="nav-link {{ request()->is('laporan-bkutu') ? 'active' : '' }}">
-                                            <i class="nav-icon fas fa-minus" style="font-size: 6px;"></i>
-                                            <p>BKU TU</p>
-                                        </a>
-                                    </li>
-                                </ul>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('laporan-bukupajak') }}" class="nav-link {{ request()->is('laporan-bukupajak') ? 'active' : '' }}">

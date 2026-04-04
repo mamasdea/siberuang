@@ -45,4 +45,9 @@ class SpjGu extends Model
         return $this->belongsToMany(SppSpmGu::class, 'spp_spm_gu_spj_gu')
             ->withTimestamps();
     }
+
+    public function nihil()
+    {
+        return $this->hasOne(SppSpmGuNihil::class);
+    }
 }

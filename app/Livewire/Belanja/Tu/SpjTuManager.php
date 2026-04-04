@@ -24,8 +24,10 @@ class SpjTuManager extends Component
     {
         $this->sppSpmTuId = $sppSpmTuId;
 
-        $sppSpmTu = SppSpmTu::with(['belanjaTus.rka', 'spjTu'])->findOrFail($sppSpmTuId);
-        $this->sppSpmTu = $sppSpmTu->toArray();
+        $sppSpmTu = SppSpmTu::with(['belanjaTus.rka', 'spjTu', 'nihil'])->findOrFail($sppSpmTuId);
+        $this->sppSpmTu = array_merge($sppSpmTu->toArray(), [
+            'has_nihil' => $sppSpmTu->nihil !== null,
+        ]);
         $this->belanjaTus = $sppSpmTu->belanjaTus->toArray();
 
         if ($sppSpmTu->spjTu) {
@@ -101,7 +103,7 @@ class SpjTuManager extends Component
 
     public function edit()
     {
-        if (!$this->spjTu) {
+        if (!$this->spjTu || ($this->sppSpmTu['has_nihil'] ?? false)) {
             return;
         }
 
@@ -160,7 +162,7 @@ class SpjTuManager extends Component
 
     public function delete()
     {
-        if (!$this->spjTu) {
+        if (!$this->spjTu || ($this->sppSpmTu['has_nihil'] ?? false)) {
             return;
         }
 

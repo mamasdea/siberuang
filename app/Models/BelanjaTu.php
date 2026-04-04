@@ -11,7 +11,7 @@ class BelanjaTu extends Model
 
     protected $fillable = [
         'spp_spm_tu_id', 'no_bukti', 'tanggal', 'uraian',
-        'nilai', 'rka_id', 'is_transfer', 'is_sipd',
+        'nilai', 'rka_id', 'is_transfer', 'is_sipd', 'arsip',
     ];
 
     public function sppSpmTu()
