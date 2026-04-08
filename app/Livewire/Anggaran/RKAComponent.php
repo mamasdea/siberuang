@@ -167,30 +167,37 @@ class RkaComponent extends Component
 
         $this->isEditMode = true;
 
-        $selectedValue = $this->selectedRekeningBelanja;
+        $kode = addslashes($rka->kode_belanja);
+        $nama = addslashes($rka->nama_belanja);
 
         $this->js(<<<JS
-            $('#rkaModal').modal('show');
+            (function() {
+                var kode = '$kode';
+                var nama = '$nama';
+                var label = kode + ' - ' + nama;
 
-            // Multiple attempts to set Select2 value
-            setTimeout(function() {
-                if ($('#rekening_belanja').hasClass('select2-hidden-accessible')) {
-                    $('#rekening_belanja').val('$selectedValue').trigger('change.select2');
-                } else {
-                    // If Select2 not initialized yet, wait for it
-                    var checkSelect2 = setInterval(function() {
-                        if ($('#rekening_belanja').hasClass('select2-hidden-accessible')) {
-                            $('#rekening_belanja').val('$selectedValue').trigger('change.select2');
-                            clearInterval(checkSelect2);
-                        }
-                    }, 100);
+                $('#rkaModal').modal('show');
 
-                    // Clear interval after 5 seconds to prevent infinite loop
-                    setTimeout(function() {
-                        clearInterval(checkSelect2);
-                    }, 5000);
+                function applyValue() {
+                    var \$sel = $('#rekening_belanja');
+                    if (!\$sel.hasClass('select2-hidden-accessible')) return false;
+
+                    // Pastikan opsi dengan kode tersebut ada (kalau master rekening tidak punya, suntikkan)
+                    if (\$sel.find('option[value="' + kode.replace(/"/g, '\\\\"') + '"]').length === 0) {
+                        \$sel.append(new Option(label, kode, true, true));
+                    }
+
+                    \$sel.val(kode).trigger('change.select2');
+                    return true;
                 }
-            }, 300);
+
+                if (!applyValue()) {
+                    var iv = setInterval(function() {
+                        if (applyValue()) clearInterval(iv);
+                    }, 100);
+                    setTimeout(function() { clearInterval(iv); }, 5000);
+                }
+            })();
         JS);
     }
 
