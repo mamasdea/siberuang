@@ -127,47 +127,61 @@
                             <table class="table table-bordered rincian-table">
                                 <thead>
                                     <tr class="text-center" style="background: #e2e8f0;">
-                                        <th width="40">NO</th>
-                                        <th width="90">TANGGAL</th>
-                                        <th width="100">NO BUKTI</th>
+                                        <th width="80">TANGGAL</th>
+                                        <th width="80">No. BKU</th>
                                         <th>URAIAN</th>
-                                        <th width="130" class="text-right">NILAI (Rp)</th>
+                                        <th width="105" class="text-right">BELANJA LS</th>
+                                        <th width="105" class="text-right">BELANJA TU</th>
+                                        <th width="105" class="text-right">BELANJA UP/GU</th>
+                                        <th width="115" class="text-right">JUMLAH</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {{-- SPJ Sebelumnya --}}
                                     <tr class="spj-sebelumnya-row">
-                                        <td colspan="4">SPJ Sebelumnya (Akumulasi s/d {{ \Carbon\Carbon::parse($periodeAwal)->subDay()->translatedFormat('d F Y') }})</td>
-                                        <td class="text-right">{{ number_format($page['spjSebelumnya'], 2, ',', '.') }}</td>
+                                        <td colspan="3">SPJ Sebelumnya (s/d {{ \Carbon\Carbon::parse($periodeAwal)->subDay()->translatedFormat('d F Y') }})</td>
+                                        <td class="text-right">{{ $page['spjSebelumnya']['ls'] > 0 ? number_format($page['spjSebelumnya']['ls'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ $page['spjSebelumnya']['tu'] > 0 ? number_format($page['spjSebelumnya']['tu'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ $page['spjSebelumnya']['gu'] > 0 ? number_format($page['spjSebelumnya']['gu'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ number_format($page['spjSebelumnya']['total'], 0, ',', '.') }}</td>
                                     </tr>
 
                                     {{-- Detail Belanja Periode Ini --}}
-                                    @foreach($page['belanjas'] as $idx => $belanja)
+                                    @foreach($page['belanjas'] as $belanja)
                                         <tr>
-                                            <td class="text-center">{{ $idx + 1 }}</td>
                                             <td class="text-center">{{ date('d/m/Y', strtotime($belanja['tanggal'])) }}</td>
-                                            <td class="text-center">TBP-{{ $belanja['no_bukti'] }}</td>
+                                            <td class="text-center">{{ $belanja['no_bukti'] }}</td>
                                             <td>{{ $belanja['uraian'] }}</td>
-                                            <td class="text-right">{{ number_format($belanja['nilai'], 2, ',', '.') }}</td>
+                                            <td class="text-right">{{ $belanja['jenis'] === 'ls' ? number_format($belanja['nilai'], 0, ',', '.') : '' }}</td>
+                                            <td class="text-right">{{ $belanja['jenis'] === 'tu' ? number_format($belanja['nilai'], 0, ',', '.') : '' }}</td>
+                                            <td class="text-right">{{ $belanja['jenis'] === 'gu' ? number_format($belanja['nilai'], 0, ',', '.') : '' }}</td>
+                                            <td class="text-right">{{ number_format($belanja['nilai'], 0, ',', '.') }}</td>
                                         </tr>
                                     @endforeach
 
-                                    {{-- Total Periode Ini --}}
+                                    {{-- Jumlah Periode Ini --}}
                                     <tr style="font-weight: 700; background: #f8fafc;">
-                                        <td colspan="4" class="text-right">Jumlah SPJ Periode Ini</td>
-                                        <td class="text-right">{{ number_format($page['totalPeriodeIni'], 2, ',', '.') }}</td>
+                                        <td colspan="3" class="text-center">JUMLAH</td>
+                                        <td class="text-right">{{ $page['totalPeriodeIni']['ls'] > 0 ? number_format($page['totalPeriodeIni']['ls'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ $page['totalPeriodeIni']['tu'] > 0 ? number_format($page['totalPeriodeIni']['tu'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ $page['totalPeriodeIni']['gu'] > 0 ? number_format($page['totalPeriodeIni']['gu'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ number_format($page['totalPeriodeIni']['total'], 0, ',', '.') }}</td>
                                     </tr>
 
                                     {{-- Jumlah Realisasi --}}
                                     <tr class="total-row">
-                                        <td colspan="4" class="text-right">Jumlah Realisasi (SPJ Sebelumnya + Periode Ini)</td>
-                                        <td class="text-right">{{ number_format($page['jumlahRealisasi'], 2, ',', '.') }}</td>
+                                        <td colspan="3" class="text-center">JUMLAH REALISASI s/d BULAN INI</td>
+                                        <td class="text-right">{{ $page['jumlahRealisasi']['ls'] > 0 ? number_format($page['jumlahRealisasi']['ls'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ $page['jumlahRealisasi']['tu'] > 0 ? number_format($page['jumlahRealisasi']['tu'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ $page['jumlahRealisasi']['gu'] > 0 ? number_format($page['jumlahRealisasi']['gu'], 0, ',', '.') : '' }}</td>
+                                        <td class="text-right">{{ number_format($page['jumlahRealisasi']['total'], 0, ',', '.') }}</td>
                                     </tr>
 
                                     {{-- Sisa Anggaran --}}
                                     <tr style="font-weight: 700; background: #fefce8;">
-                                        <td colspan="4" class="text-right">Sisa Anggaran</td>
-                                        <td class="text-right">{{ number_format($page['sisaAnggaran'], 2, ',', '.') }}</td>
+                                        <td colspan="3" class="text-center">SISA ANGGARAN</td>
+                                        <td colspan="3" class="text-right">{{ number_format(($page['anggaranAcuan'] ?? 0) - $page['jumlahRealisasi']['total'], 0, ',', '.') }}</td>
+                                        <td class="text-right">{{ number_format($page['sisaAnggaran'], 0, ',', '.') }}</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -110,7 +110,7 @@ class RkaComponent extends Component
         Rka::create([
             'sub_kegiatan_id' => $this->sub_kegiatan_id,
             'kode_belanja' => $this->selectedRekeningBelanja,
-            'nama_belanja' => $nama->uraian_belanja,
+            'nama_belanja' => $nama?->uraian_belanja ?? $this->nama_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
             'selisih' => (float) $this->perubahan - (float) $this->penetapan,
@@ -152,6 +152,18 @@ class RkaComponent extends Component
         $this->anggaran = $rka->anggaran;
         $this->selectedRekeningBelanja = $rka->kode_belanja;
 
+        // Pastikan kode_belanja yang sedang diedit tersedia di dropdown,
+        // walaupun rekening tersebut sudah tidak ada di master RekeningBelanja.
+        if (!$this->rekeningBelanjaList || !$this->rekeningBelanjaList->contains('kode', $rka->kode_belanja)) {
+            $this->loadRekeningBelanja();
+        }
+        if (!$this->rekeningBelanjaList->contains('kode', $rka->kode_belanja)) {
+            $this->rekeningBelanjaList->push(new RekeningBelanja([
+                'kode' => $rka->kode_belanja,
+                'uraian_belanja' => $rka->nama_belanja,
+            ]));
+        }
+
         $this->isEditMode = true;
 
         $selectedValue = $this->selectedRekeningBelanja;
@@ -190,7 +202,7 @@ class RkaComponent extends Component
         $rka = Rka::findOrFail($this->rkaId);
         $rka->update([
             'kode_belanja' => $this->selectedRekeningBelanja,
-            'nama_belanja' => $nama->uraian_belanja,
+            'nama_belanja' => $nama?->uraian_belanja ?? $this->nama_belanja,
             'penetapan' => $this->penetapan,
             'perubahan' => $this->perubahan,
             'selisih' => (float) $this->perubahan - (float) $this->penetapan,
