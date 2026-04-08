@@ -103,9 +103,9 @@
                             <select id="rekening_belanja" class="form-control select2" style="width: 100%;">
                                 <option value="">-- Pilih Kode Belanja --</option>
                                 @foreach ($rekeningBelanjaList as $rekening)
-                                    <option value="{{ $rekening->kode }}"
-                                        {{ $selectedRekeningBelanja == $rekening->kode ? 'selected' : '' }}>
-                                        {{ $rekening->kode }} - {{ $rekening->uraian_belanja }}
+                                    <option value="{{ $rekening['kode'] }}"
+                                        {{ $selectedRekeningBelanja == $rekening['kode'] ? 'selected' : '' }}>
+                                        {{ $rekening['kode'] }} - {{ $rekening['uraian_belanja'] }}
                                     </option>
                                 @endforeach
                             </select>

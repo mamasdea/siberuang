@@ -19,7 +19,6 @@ class RkaComponent extends Component
     public $kode_belanja, $nama_belanja, $penetapan, $perubahan, $selisih, $anggaran;
     public $rkaId;
     public $isEditMode = false;
-    public $rekeningBelanjaList;
     public $selectedRekeningBelanja;
 
     protected $rules = [
@@ -35,7 +34,6 @@ class RkaComponent extends Component
     public function mount($subKegiatanId)
     {
         $this->sub_kegiatan_id = $subKegiatanId;
-        $this->loadRekeningBelanja();
     }
 
     public function render()
@@ -43,11 +41,31 @@ class RkaComponent extends Component
         $namaSubKegiatan = SubKegiatan::with('kegiatan.program')->find($this->sub_kegiatan_id);
         $namaKegiatan = $namaSubKegiatan ? $namaSubKegiatan->kegiatan : null;
 
+        // Bangun list rekening sebagai array sederhana (bukan Eloquent Collection)
+        // agar aman bila perlu menyisipkan entri sintetis saat edit.
+        $rekeningBelanjaList = RekeningBelanja::all()
+            ->map(fn($r) => ['kode' => $r->kode, 'uraian_belanja' => $r->uraian_belanja])
+            ->values()
+            ->all();
+
+        // Saat edit, jika kode_belanja yang tersimpan tidak ada di master,
+        // sisipkan entri sintetis agar Select2 tetap dapat menampilkannya.
+        if ($this->isEditMode && $this->selectedRekeningBelanja) {
+            $exists = collect($rekeningBelanjaList)->contains('kode', $this->selectedRekeningBelanja);
+            if (!$exists) {
+                $rekeningBelanjaList[] = [
+                    'kode' => $this->selectedRekeningBelanja,
+                    'uraian_belanja' => $this->nama_belanja,
+                ];
+            }
+        }
+
         return view('livewire.anggaran.r-k-a-component', [
             'rkas' => Rka::where('sub_kegiatan_id', $this->sub_kegiatan_id)->get(),
             'namaSubKegiatan' => $namaSubKegiatan,
             'namaKegiatan' => $namaKegiatan,
             'namaProgram' => $namaKegiatan ? $namaKegiatan->program->nama : 'Tidak Ditemukan',
+            'rekeningBelanjaList' => $rekeningBelanjaList,
         ]);
     }
 
@@ -62,11 +80,6 @@ class RkaComponent extends Component
         $this->rkaId = null;
         $this->isEditMode = false;
         $this->selectedRekeningBelanja = '';
-    }
-
-    public function loadRekeningBelanja()
-    {
-        $this->rekeningBelanjaList = RekeningBelanja::all();
     }
 
     // Method untuk update nilai dari Select2
@@ -151,18 +164,6 @@ class RkaComponent extends Component
         $this->selisih = $rka->selisih;
         $this->anggaran = $rka->anggaran;
         $this->selectedRekeningBelanja = $rka->kode_belanja;
-
-        // Pastikan kode_belanja yang sedang diedit tersedia di dropdown,
-        // walaupun rekening tersebut sudah tidak ada di master RekeningBelanja.
-        if (!$this->rekeningBelanjaList || !$this->rekeningBelanjaList->contains('kode', $rka->kode_belanja)) {
-            $this->loadRekeningBelanja();
-        }
-        if (!$this->rekeningBelanjaList->contains('kode', $rka->kode_belanja)) {
-            $this->rekeningBelanjaList->push(new RekeningBelanja([
-                'kode' => $rka->kode_belanja,
-                'uraian_belanja' => $rka->nama_belanja,
-            ]));
-        }
 
         $this->isEditMode = true;
 
