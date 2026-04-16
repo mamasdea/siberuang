@@ -60,17 +60,17 @@ class Pajak extends Component
             ->where('jenis_pajak', $validatedData['jenis_pajak'])
             ->first();
 
-        if ($existingPajak) {
-            $this->js(<<<'JS'
-            Swal.fire({
-                icon: 'warning',
-                title: 'Peringatan',
-                text: 'Jenis pajak ini sudah dipilih untuk belanja ini.',
-                confirmButtonText: 'OK'
-            });
-        JS);
-            return;
-        }
+        // if ($existingPajak) {
+        //     $this->js(<<<'JS'
+        //     Swal.fire({
+        //         icon: 'warning',
+        //         title: 'Peringatan',
+        //         text: 'Jenis pajak ini sudah dipilih untuk belanja ini.',
+        //         confirmButtonText: 'OK'
+        //     });
+        // JS);
+        //     return;
+        // }
         ModelsPajak::create([
             'belanja_id' => $validatedData['belanja_id'],
             'jenis_pajak' => $validatedData['jenis_pajak'],
@@ -119,17 +119,17 @@ class Pajak extends Component
             ->where('id', '!=', $this->pajakId)
             ->first();
 
-        if ($existingPajak) {
-            $this->js(<<<'JS'
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Peringatan',
-                    text: 'Jenis pajak ini sudah dipilih untuk belanja ini.',
-                    confirmButtonText: 'OK'
-                });
-            JS);
-            return;
-        }
+        // if ($existingPajak) {
+        //     $this->js(<<<'JS'
+        //         Swal.fire({
+        //             icon: 'warning',
+        //             title: 'Peringatan',
+        //             text: 'Jenis pajak ini sudah dipilih untuk belanja ini.',
+        //             confirmButtonText: 'OK'
+        //         });
+        //     JS);
+        //     return;
+        // }
 
         // Update atau buat data pajak baru jika tidak ada duplikat
         ModelsPajak::updateOrCreate(
