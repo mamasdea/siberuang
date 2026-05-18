@@ -12,9 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('DROP VIEW IF EXISTS vw_transaksi_kkpd');
         DB::statement("
-        CREATE VIEW vw_transaksi_kkpd AS
+        CREATE OR REPLACE VIEW vw_transaksi_kkpd AS
         SELECT '' AS id, tanggal, no_bukti, '' AS rekening, uraian, nominal AS debet, '' AS kredit FROM uang_kkpds
         UNION ALL
         SELECT belanja_kkpds.id, tanggal, no_bukti, kode_belanja AS rekening, uraian, '' AS debet, nilai AS kredit

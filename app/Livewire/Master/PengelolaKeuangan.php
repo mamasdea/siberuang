@@ -16,7 +16,7 @@ class PengelolaKeuangan extends Component
     public $search   = '';
     public $paginate = 10;
     public $pengelola, $nama, $nip, $jabatan, $bidang, $pengelola_id;
-    public $tahun_anggaran, $tanggal_mulai, $tanggal_selesai, $keterangan;
+    public $tanggal_mulai, $tanggal_selesai, $keterangan;
     public $isEdit = false;
 
     public function render()
@@ -35,16 +35,15 @@ class PengelolaKeuangan extends Component
 
     public function resetInputFields()
     {
-        $this->nama           = '';
-        $this->nip            = '';
-        $this->jabatan        = '';
-        $this->bidang         = '';
-        $this->tahun_anggaran = '';
-        $this->tanggal_mulai  = '';
+        $this->nama            = '';
+        $this->nip             = '';
+        $this->jabatan         = '';
+        $this->bidang          = '';
+        $this->tanggal_mulai   = '';
         $this->tanggal_selesai = '';
-        $this->keterangan     = '';
-        $this->pengelola_id   = null;
-        $this->isEdit         = false;
+        $this->keterangan      = '';
+        $this->pengelola_id    = null;
+        $this->isEdit          = false;
         $this->resetValidation();
     }
 
@@ -55,7 +54,6 @@ class PengelolaKeuangan extends Component
             'nip'             => 'required|string|max:255',
             'jabatan'         => 'required|string|max:255',
             'bidang'          => 'required|string|max:255',
-            'tahun_anggaran'  => 'required|digits:4|integer',
             'tanggal_mulai'   => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'keterangan'      => 'nullable|string|max:255',
@@ -150,7 +148,7 @@ class PengelolaKeuangan extends Component
             'nip'             => $this->nip,
             'jabatan'         => $this->jabatan,
             'bidang'          => $this->bidang,
-            'tahun_anggaran'  => $this->tahun_anggaran,
+            'tahun_anggaran'  => session('tahun_anggaran', date('Y')),
             'tanggal_mulai'   => $this->tanggal_mulai,
             'tanggal_selesai' => $this->tanggal_selesai,
             'keterangan'      => $this->keterangan ?: null,
@@ -192,7 +190,7 @@ class PengelolaKeuangan extends Component
             'nip'             => $this->nip,
             'jabatan'         => $this->jabatan,
             'bidang'          => $this->bidang,
-            'tahun_anggaran'  => $this->tahun_anggaran,
+            'tahun_anggaran'  => session('tahun_anggaran', date('Y')),
             'tanggal_mulai'   => $this->tanggal_mulai,
             'tanggal_selesai' => $this->tanggal_selesai,
             'keterangan'      => $this->keterangan ?: null,
@@ -214,7 +212,6 @@ class PengelolaKeuangan extends Component
         $this->nip             = $pengelola->nip;
         $this->jabatan         = $pengelola->jabatan;
         $this->bidang          = $pengelola->bidang;
-        $this->tahun_anggaran  = $pengelola->tahun_anggaran;
         $this->tanggal_mulai   = $pengelola->tanggal_mulai?->format('Y-m-d');
         $this->tanggal_selesai = $pengelola->tanggal_selesai?->format('Y-m-d');
         $this->keterangan      = $pengelola->keterangan;
@@ -266,7 +263,7 @@ class PengelolaKeuangan extends Component
             'nip'             => $this->nip,
             'jabatan'         => $this->jabatan,
             'bidang'          => $this->bidang,
-            'tahun_anggaran'  => $this->tahun_anggaran,
+            'tahun_anggaran'  => session('tahun_anggaran', date('Y')),
             'tanggal_mulai'   => $this->tanggal_mulai,
             'tanggal_selesai' => $this->tanggal_selesai,
             'keterangan'      => $this->keterangan ?: null,
@@ -308,7 +305,7 @@ class PengelolaKeuangan extends Component
             'nip'             => $this->nip,
             'jabatan'         => $this->jabatan,
             'bidang'          => $this->bidang,
-            'tahun_anggaran'  => $this->tahun_anggaran,
+            'tahun_anggaran'  => session('tahun_anggaran', date('Y')),
             'tanggal_mulai'   => $this->tanggal_mulai,
             'tanggal_selesai' => $this->tanggal_selesai,
             'keterangan'      => $this->keterangan ?: null,

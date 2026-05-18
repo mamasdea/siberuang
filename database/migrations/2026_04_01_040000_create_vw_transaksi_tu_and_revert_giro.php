@@ -7,10 +7,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Revert vw_transaksi: hapus belanja_tus, kembali hanya GU
-        DB::statement('DROP VIEW IF EXISTS vw_transaksi');
+        // Revert vw_transaksi: kembali hanya GU (tanpa belanja_tus)
         DB::statement("
-            CREATE VIEW vw_transaksi AS
+            CREATE OR REPLACE VIEW vw_transaksi AS
             SELECT '' AS id, tanggal, no_bukti, '' AS rekening, uraian, nominal AS debet, '' AS kredit FROM uang_giros
             WHERE tipe IN ('UP', 'GU')
             UNION ALL
@@ -19,9 +18,8 @@ return new class extends Migration
         ");
 
         // Buat vw_transaksi_tu khusus TU
-        DB::statement('DROP VIEW IF EXISTS vw_transaksi_tu');
         DB::statement("
-            CREATE VIEW vw_transaksi_tu AS
+            CREATE OR REPLACE VIEW vw_transaksi_tu AS
             SELECT '' AS id, tanggal, no_bukti, '' AS rekening, uraian, nominal AS debet, '' AS kredit, 'sp2d' AS jenis FROM uang_giros
             WHERE tipe = 'TU'
             UNION ALL
@@ -39,9 +37,8 @@ return new class extends Migration
         DB::statement('DROP VIEW IF EXISTS vw_transaksi_tu');
 
         // Restore gabungan
-        DB::statement('DROP VIEW IF EXISTS vw_transaksi');
         DB::statement("
-            CREATE VIEW vw_transaksi AS
+            CREATE OR REPLACE VIEW vw_transaksi AS
             SELECT '' AS id, tanggal, no_bukti, '' AS rekening, uraian, nominal AS debet, '' AS kredit FROM uang_giros
             UNION ALL
             SELECT belanjas.id, tanggal, no_bukti, kode_belanja AS rekening, uraian, '' AS debet, nilai AS kredit FROM belanjas

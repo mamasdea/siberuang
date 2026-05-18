@@ -11,7 +11,7 @@ return new class extends Migration
         $menus = ['belanja-tu', 'spj-tu', 'spp-spm-tu'];
 
         foreach ($menus as $menu) {
-            DB::table('menu_permissions')->insert([
+            DB::table('menu_permissions')->insertOrIgnore([
                 'role' => 'admin',
                 'menu_key' => $menu,
                 'created_at' => $now,

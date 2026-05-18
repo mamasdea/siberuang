@@ -178,12 +178,6 @@
                             @endif
                             @error('keterangan') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
-                        <div class="form-group">
-                            <label class="font-weight-bold small text-secondary">Tahun Anggaran</label>
-                            <input type="number" class="form-control" wire:model="tahun_anggaran"
-                                min="2020" max="2099" placeholder="Contoh: 2026">
-                            @error('tahun_anggaran') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
