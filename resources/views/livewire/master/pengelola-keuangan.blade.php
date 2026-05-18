@@ -23,7 +23,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                      <h3 class="page-title">Pengelola Keuangan</h3>
-                     <p class="page-subtitle mb-0">Manajemen data pengelola keuangan per tahun anggaran</p>
+                     <p class="page-subtitle mb-0">Tahun Anggaran <strong>{{ $tahun }}</strong></p>
                 </div>
                 <button class="btn btn-modern-add" wire:click="resetInputFields" data-toggle="modal"
                     data-target="#pengelolaModal">

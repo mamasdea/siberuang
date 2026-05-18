@@ -21,16 +21,22 @@ class PengelolaKeuangan extends Component
 
     public function render()
     {
-        $pengelola = ModelsPengelolaKeuangan::where(function ($query) {
-            $query->where('jabatan', 'like', '%' . $this->search . '%')
-                ->orWhere('nama',    'like', '%' . $this->search . '%')
-                ->orWhere('nip',     'like', '%' . $this->search . '%');
-        })
+        $tahun = session('tahun_anggaran', date('Y'));
+
+        $pengelola = ModelsPengelolaKeuangan::where('tahun_anggaran', $tahun)
+            ->where(function ($query) {
+                $query->where('jabatan', 'like', '%' . $this->search . '%')
+                    ->orWhere('nama',    'like', '%' . $this->search . '%')
+                    ->orWhere('nip',     'like', '%' . $this->search . '%');
+            })
             ->orderBy('jabatan', 'asc')
             ->orderBy('tanggal_mulai', 'asc')
             ->paginate($this->paginate);
 
-        return view('livewire.master.pengelola-keuangan', ['asu' => $pengelola]);
+        return view('livewire.master.pengelola-keuangan', [
+            'asu'   => $pengelola,
+            'tahun' => $tahun,
+        ]);
     }
 
     public function resetInputFields()
