@@ -5,11 +5,12 @@ namespace App\Livewire\Laporan;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\DB;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 
 #[Title('Buku Kas Umum')]
 class BukuKasUmumAll extends Component
 {
+    use AmbiPejabat;
     public $mulai;
     public $end;
     public $tahun;
@@ -128,8 +129,8 @@ class BukuKasUmumAll extends Component
             'pajakKkpd' => $pajakKkpd,
             'pajakTu' => $pajakTu,
             'pajakLs' => $pajakLs,
-            'penggunaAnggaran' => PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first(),
-            'bendaharaPengeluaran' => PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first(),
+            'penggunaAnggaran' => $this->ambilPejabat($this->tanggalCetak ?: now()->format('Y-m-d'))['pa'],
+            'bendaharaPengeluaran' => $this->ambilPejabat($this->tanggalCetak ?: now()->format('Y-m-d'))['bp'],
         ]);
     }
 }

@@ -6,11 +6,12 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\SppSpmUp;
 use App\Jobs\ConvertToPdfSppSpmUp;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class LaporanSppSpmUp extends Component
 {
+    use AmbiPejabat;
     public $laporan_id;
     public $pdfUrl;
 
@@ -40,10 +41,11 @@ class LaporanSppSpmUp extends Component
         $nilaiTotal = $sppSpmUp->total_nilai;
         $nilaiTerbilang = ucwords($this->terbilang($nilaiTotal) . ' rupiah');
 
-        // Pengelola Keuangan
-        $pengguna_anggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
-        $ppkSkpd = PengelolaKeuangan::where('jabatan', 'PPK-SKPD')->first();
-        $bendahara_pengeluaran = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
+        // Pengelola Keuangan berdasarkan tanggal dokumen
+        $pejabat = $this->ambilPejabat($sppSpmUp->tanggal);
+        $pengguna_anggaran     = $pejabat['pa'];
+        $ppkSkpd               = $pejabat['ppk'];
+        $bendahara_pengeluaran = $pejabat['bp'];
         $pengurus_barang = (object)['nama' => '________________', 'nip' => '________________'];
 
         // Data untuk template

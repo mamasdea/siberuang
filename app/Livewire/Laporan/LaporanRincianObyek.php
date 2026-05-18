@@ -7,7 +7,7 @@ use App\Models\BelanjaTu;
 use App\Models\BelanjaLsDetails;
 use App\Models\Rka;
 use App\Models\SubKegiatan;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\Session;
@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Session;
 #[Title('Laporan Rincian Obyek')]
 class LaporanRincianObyek extends Component
 {
+    use AmbiPejabat;
     public $periodeAwal;
     public $periodeAkhir;
     public $tanggalLaporan;
@@ -205,12 +206,12 @@ class LaporanRincianObyek extends Component
 
     public function render()
     {
-        $penggunaAnggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
-        $bendaharaPengeluaran = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
+        $tanggalAcuan = $this->tanggalLaporan ?: ($this->periodeAkhir ?: now()->format('Y-m-d'));
+        $pejabat = $this->ambilPejabat($tanggalAcuan);
 
         return view('livewire.laporan.laporan-rincian-obyek', [
-            'penggunaAnggaran' => $penggunaAnggaran,
-            'bendaharaPengeluaran' => $bendaharaPengeluaran,
+            'penggunaAnggaran'    => $pejabat['pa'],
+            'bendaharaPengeluaran' => $pejabat['bp'],
         ]);
     }
 }

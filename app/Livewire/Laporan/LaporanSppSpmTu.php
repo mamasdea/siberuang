@@ -6,11 +6,12 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\SppSpmTu;
 use App\Jobs\ConvertToPdfSppSpmTu;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class LaporanSppSpmTu extends Component
 {
+    use AmbiPejabat;
     public $laporan_id;
 
     public function laporanSppSpmTu($laporanId)
@@ -30,9 +31,10 @@ class LaporanSppSpmTu extends Component
         $rka = optional($detail)->rka;
         $subKegiatan = optional($rka)->subKegiatan;
 
-        $pengguna_anggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
-        $ppkSkpd = PengelolaKeuangan::where('jabatan', 'PPK-SKPD')->first();
-        $bendahara = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
+        $pejabat = $this->ambilPejabat($sppSpmTu->tanggal);
+        $pengguna_anggaran = $pejabat['pa'];
+        $ppkSkpd           = $pejabat['ppk'];
+        $bendahara         = $pejabat['bp'];
 
         $data = [
             'no_spp_spm' => $sppSpmTu->no_spm_sipd,

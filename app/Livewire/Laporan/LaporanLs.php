@@ -7,11 +7,12 @@ use Livewire\Component;
 use App\Models\BelanjaLs;
 use Illuminate\Support\Str;
 use App\Jobs\ConvertToPdfLs;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class LaporanLs extends Component
 {
+    use AmbiPejabat;
     public $laporan_id;
     public $pdfUrl;
 
@@ -63,12 +64,13 @@ class LaporanLs extends Component
         $detail = $belanja->details->first();
         $hasSpecificCode = $detail && isset($detail->rka) && Str::startsWith($detail->rka->kode_belanja, '5.1.02.01.');
 
-        // Pengelola Keuangan
-        $pengguna_anggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
-        $ppkSkpd = PengelolaKeuangan::where('jabatan', 'PPK-SKPD')->first();
-        $bendahara_pengeluaran = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
+        // Pengelola Keuangan berdasarkan tanggal dokumen
+        $pejabat = $this->ambilPejabat($belanja->tanggal);
+        $pengguna_anggaran     = $pejabat['pa'];
+        $ppkSkpd               = $pejabat['ppk'];
+        $bendahara_pengeluaran = $pejabat['bp'];
         $pengurus_barang = $hasSpecificCode
-            ? PengelolaKeuangan::where('jabatan', 'PENGURUS BARANG')->first()
+            ? $pejabat['pb']
             : (object)['nama' => '________________', 'nip' => '________________'];
 
         // Data untuk template

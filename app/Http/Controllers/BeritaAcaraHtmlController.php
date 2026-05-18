@@ -52,9 +52,24 @@ class BeritaAcaraHtmlController extends Controller
         }
 
         // === Ambil nama & NIP pejabat dari tabel pengelola_keuangans ===
+        // Gunakan tanggal BA pertama sebagai acuan, fallback ke tanggal hari ini
+        $tanggalAcuan = $realisasiModel->beritaAcaras
+            ->filter(fn($ba) => filled($ba->tanggal))
+            ->sortBy('tanggal')
+            ->first()?->tanggal ?? now()->toDateString();
+
         $pejabat = \App\Models\PengelolaKeuangan::whereIn('jabatan', ['PENGGUNA ANGGARAN', 'PENGURUS BARANG'])
+            ->aktifPadaTanggal($tanggalAcuan)
             ->get(['jabatan', 'nama', 'nip'])
             ->keyBy('jabatan');
+
+        // Fallback: jika tidak ditemukan berdasarkan range tanggal, ambil data terbaru
+        if ($pejabat->isEmpty()) {
+            $pejabat = \App\Models\PengelolaKeuangan::whereIn('jabatan', ['PENGGUNA ANGGARAN', 'PENGURUS BARANG'])
+                ->orderBy('id', 'desc')
+                ->get(['jabatan', 'nama', 'nip'])
+                ->keyBy('jabatan');
+        }
 
         $penggunaAnggaran    = $pejabat['PENGGUNA ANGGARAN']->nama ?? '-';
         $pengurusBarang      = $pejabat['PENGURUS BARANG']->nama ?? '-';
@@ -158,10 +173,26 @@ class BeritaAcaraHtmlController extends Controller
         $view  = View::exists("ba.$jenis") ? "ba.$jenis" : "ba.default";
 
         // === Ambil nama pejabat dari tabel pengelola_keuangans ===
-        $penggunaAnggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->value('nama');
-        $pengurusBarang = PengelolaKeuangan::where('jabatan', 'PENGURUS BARANG')->value('nama');
-        $NIPpenggunaAnggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->value('nip');
-        $NIPpengurusBarang = PengelolaKeuangan::where('jabatan', 'PENGURUS BARANG')->value('nip');
+        // Cari pengelola yang masa aktifnya sesuai dengan tanggal BA dokumen
+        $tanggalAcuan = $tanggal?->toDateString() ?? now()->toDateString();
+
+        $pejabat = PengelolaKeuangan::whereIn('jabatan', ['PENGGUNA ANGGARAN', 'PENGURUS BARANG'])
+            ->aktifPadaTanggal($tanggalAcuan)
+            ->get(['jabatan', 'nama', 'nip'])
+            ->keyBy('jabatan');
+
+        // Fallback: jika tidak ada yang cocok dengan range tanggal, ambil data terbaru
+        if ($pejabat->isEmpty()) {
+            $pejabat = PengelolaKeuangan::whereIn('jabatan', ['PENGGUNA ANGGARAN', 'PENGURUS BARANG'])
+                ->orderBy('id', 'desc')
+                ->get(['jabatan', 'nama', 'nip'])
+                ->keyBy('jabatan');
+        }
+
+        $penggunaAnggaran    = $pejabat['PENGGUNA ANGGARAN']->nama ?? '-';
+        $pengurusBarang      = $pejabat['PENGURUS BARANG']->nama ?? '-';
+        $NIPpenggunaAnggaran = $pejabat['PENGGUNA ANGGARAN']->nip ?? '-';
+        $NIPpengurusBarang   = $pejabat['PENGURUS BARANG']->nip ?? '-';
 
         return view($view, [
             'title'      => $this->mapTitles[$jenis],

@@ -6,11 +6,12 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\SppSpmGu;
 use App\Jobs\ConvertToPdfSppSpmGu;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class LaporanSppSpmGu extends Component
 {
+    use AmbiPejabat;
     public $laporan_id;
     public $pdfUrl;
 
@@ -67,14 +68,15 @@ class LaporanSppSpmGu extends Component
         $subKegiatan = optional($rka)->subKegiatan;
         $kegiatan = optional($subKegiatan)->kegiatan;
 
-        // Pengelola Keuangan
-        $pengguna_anggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
-        $ppkSkpd = PengelolaKeuangan::where('jabatan', 'PPK-SKPD')->first();
-        $bendahara_pengeluaran = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
+        // Pengelola Keuangan berdasarkan tanggal dokumen
+        $pejabat = $this->ambilPejabat($sppSpmGu->tanggal);
+        $pengguna_anggaran     = $pejabat['pa'];
+        $ppkSkpd               = $pejabat['ppk'];
+        $bendahara_pengeluaran = $pejabat['bp'];
 
         $hasSpecificCode = $rka && \Illuminate\Support\Str::startsWith($rka->kode_belanja, '5.1.02.01.');
         $pengurus_barang = $hasSpecificCode
-            ? PengelolaKeuangan::where('jabatan', 'PENGURUS BARANG')->first()
+            ? $pejabat['pb']
             : (object)['nama' => '________________', 'nip' => '________________'];
 
         // Data untuk template

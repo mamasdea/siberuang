@@ -12,13 +12,14 @@ use App\Models\BelanjaKkpd;
 use Illuminate\Support\Str;
 use App\Models\BelanjaLsDetails;
 use App\Models\PajakKkpd;
-use App\Models\PengelolaKeuangan;
+use App\Traits\AmbiPejabat;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class LaporanBelanjaKkpd extends Component
 {
+    use AmbiPejabat;
     public $laporan_id;
     public $pdfUrl;
 
@@ -51,13 +52,13 @@ class LaporanBelanjaKkpd extends Component
         $tahunIndo = Carbon::parse($belanja->tanggal)->translatedFormat('Y');
         $tanggalIndoSingkat = Carbon::parse($belanja->tanggal)->format('d/m/Y');
         $nilaiTerbilang = $this->terbilang($belanja->nilai) . ' rupiah';
-        $pengguna_anggaran = PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
-        $bendahara_pengeluaran = PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
+        $pejabat = $this->ambilPejabat($belanja->tanggal);
+        $pengguna_anggaran    = $pejabat['pa'];
+        $bendahara_pengeluaran = $pejabat['bp'];
 
-        // $pengurus_barang = PengelolaKeuangan::where('jabatan', 'PENGURUS BARANG')->first();
         $hasSpecificCode = Str::startsWith($belanja->rka->kode_belanja, '5.1.02.01.');
         $pengurus_barang = $hasSpecificCode
-            ? PengelolaKeuangan::where('jabatan', 'PENGURUS BARANG')->first()
+            ? $pejabat['pb']
             : (object)['nama' => '________________', 'nip' => '________________'];
 
 

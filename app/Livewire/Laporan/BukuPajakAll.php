@@ -7,10 +7,12 @@ use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Traits\AmbiPejabat;
 
 #[Title('Buku Pajak All')]
 class BukuPajakAll extends Component
 {
+    use AmbiPejabat;
     public $tanggal_awal = '';
     public $tanggal_akhir = '';
     public $tanggal_cetak = '';
@@ -346,8 +348,10 @@ class BukuPajakAll extends Component
         $totalPenyetoranPeriode = collect($this->laporan)->sum('penyetoran');
         $saldoAkhir = $this->saldoAwal + $totalPemotonganPeriode - $totalPenyetoranPeriode;
 
-        $bendahara = \App\Models\PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
-        $penggunaAnggaran = \App\Models\PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
+        $tanggalAcuan = $this->tanggal_cetak ?: now()->format('Y-m-d');
+        $pejabat      = $this->ambilPejabat($tanggalAcuan);
+        $bendahara        = $pejabat['bp'];
+        $penggunaAnggaran = $pejabat['pa'];
 
         $data = [
             'laporan' => $this->laporan,
@@ -382,11 +386,13 @@ class BukuPajakAll extends Component
         $totalPenyetoranPeriode = collect($this->laporan)->sum('penyetoran');
         $saldoAkhir = $this->saldoAwal + $totalPemotonganPeriode - $totalPenyetoranPeriode;
 
-        $this->bendahara = \App\Models\PengelolaKeuangan::where('jabatan', 'BENDAHARA PENGELUARAN')->first();
-        $this->penggunaAnggaran = \App\Models\PengelolaKeuangan::where('jabatan', 'PENGGUNA ANGGARAN')->first();
+        $tanggalAcuan = $this->tanggal_cetak ?: now()->format('Y-m-d');
+        $pejabat = $this->ambilPejabat($tanggalAcuan);
 
         return view('livewire.laporan.buku-pajak-all', [
             'laporan' => $this->laporan,
+            'bendahara'        => $pejabat['bp'],
+            'penggunaAnggaran' => $pejabat['pa'],
             'ppnTotal' => $this->ppnTotal,
             'pph21Total' => $this->pph21Total,
             'pph22Total' => $this->pph22Total,
