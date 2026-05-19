@@ -450,18 +450,18 @@ class BelanjaManager extends Component
 
             if (!Storage::disk('local')->exists('public/reports/laporan_belanja_' . $this->pathpdf)) {
                 $this->js(<<<'JS'
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Cetak',
-                        text: 'Konversi PDF gagal. Server konversi tidak dapat dijangkau. Silakan coba lagi atau hubungi administrator.',
-                    });
-                JS);
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal Cetak',
+    text: 'Konversi PDF gagal. Server konversi tidak dapat dijangkau. Silakan hubungkan VPN lalu coba lagi.',
+});
+JS);
                 return;
             }
 
             $this->js(<<<'JS'
-                $('#viewBelanja').modal("show")
-            JS);
+$('#viewBelanja').modal("show")
+JS);
         } catch (\Exception $e) {
             $errMsg = json_encode('Terjadi kesalahan: ' . $e->getMessage());
             $this->js("Swal.fire({ icon: 'error', title: 'Gagal Cetak', text: {$errMsg} });");
