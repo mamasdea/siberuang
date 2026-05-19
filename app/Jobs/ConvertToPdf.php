@@ -44,9 +44,10 @@ class ConvertToPdf implements ShouldQueue
         try {
             \Illuminate\Support\Facades\Log::info('ConvertToPdf: Memulai konversi untuk ' . $this->nama_file_docx);
             
-            $client = new Client(['timeout' => 30]);
+            $client = new Client(['connect_timeout' => 5, 'timeout' => 30]);
 
-            $response = $client->request('POST', 'http://10.90.237.12:8080/api/v1/convert/file/pdf',  [
+            $convertUrl = env('PDF_CONVERT_URL', 'http://10.90.237.12:8080') . '/api/v1/convert/file/pdf';
+            $response = $client->request('POST', $convertUrl,  [
                 'multipart' => [
                     [
                         'name'     => 'fileInput',

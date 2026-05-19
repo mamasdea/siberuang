@@ -442,12 +442,30 @@ class BelanjaManager extends Component
 
     public function printTai($id)
     {
-        $data = new LaporanBelanja;
-        $this->pathWord = $data->getKwitansiDinasPaths($id)['word_path'];
-        $this->pathpdf = $data->getKwitansiDinasPaths($id)['pdf_path'];
-        $this->js(<<<'JS'
-            $('#viewBelanja').modal("show")
-        JS);
+        try {
+            $data = new LaporanBelanja;
+            $paths = $data->getKwitansiDinasPaths($id);
+            $this->pathWord = $paths['word_path'];
+            $this->pathpdf = $paths['pdf_path'];
+
+            if (!Storage::disk('local')->exists('public/reports/laporan_belanja_' . $this->pathpdf)) {
+                $this->js(<<<'JS'
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Cetak',
+                        text: 'Konversi PDF gagal. Server konversi tidak dapat dijangkau. Silakan coba lagi atau hubungi administrator.',
+                    });
+                JS);
+                return;
+            }
+
+            $this->js(<<<'JS'
+                $('#viewBelanja').modal("show")
+            JS);
+        } catch (\Exception $e) {
+            $errMsg = json_encode('Terjadi kesalahan: ' . $e->getMessage());
+            $this->js("Swal.fire({ icon: 'error', title: 'Gagal Cetak', text: {$errMsg} });");
+        }
     }
     public function downloadTai($id)
     {

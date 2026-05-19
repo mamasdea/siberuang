@@ -12,7 +12,14 @@
       "Bash(pip list *)",
       "Bash(pip3 list *)",
       "Bash(pip install *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(curl -s --connect-timeout 5 http://10.90.237.12:8080/api/v1/convert/file/pdf)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(curl *)",
+      "Bash(Get-Content *)",
+      "Bash(where soffice *)",
+      "Bash(where libreoffice *)",
+      "Read(//c/Program Files/LibreOffice/program/**)"
     ]
   }
 }
