@@ -143,23 +143,22 @@
                                         </button>
                                     </div>
                                     <div class="btn-group ml-1">
-                                        <button wire:click="printTaiLs({{ $row->id }})"
-                                            class="btn btn-secondary btn-sm" style="border-radius: 6px 0 0 6px;"
-                                            title="Print" wire:loading.attr="disabled"
-                                            wire:target="printTaiLs({{ $row->id }})">
-
-                                            <span wire:loading.remove wire:target="printTaiLs({{ $row->id }})">
-                                                <i class="fas fa-print"></i>
-                                            </span>
-
-                                            <span wire:loading wire:target="printTaiLs({{ $row->id }})">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                        </button>
+                                        {{-- Cetak HTML (tanpa VPN) --}}
+                                        <a href="{{ route('belanja-ls.cetak', $row->id) }}" target="_blank"
+                                            class="btn btn-info btn-sm" style="border-radius: 6px 0 0 6px;"
+                                            title="Cetak HTML (tanpa VPN)">
+                                            <i class="fas fa-print"></i>
+                                        </a>
                                         <button wire:click="downloadTaiLs({{ $row->id }})"
                                             class="btn btn-success btn-sm" style="border-radius: 0 6px 6px 0;"
-                                            title="Download">
-                                            <i class="fas fa-download"></i>
+                                            title="Download Word" wire:loading.attr="disabled"
+                                            wire:target="downloadTaiLs({{ $row->id }})">
+                                            <span wire:loading.remove wire:target="downloadTaiLs({{ $row->id }})">
+                                                <i class="fas fa-download"></i>
+                                            </span>
+                                            <span wire:loading wire:target="downloadTaiLs({{ $row->id }})">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </span>
                                         </button>
                                     </div>
                                 </td>

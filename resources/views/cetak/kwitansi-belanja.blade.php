@@ -975,6 +975,15 @@
                         <td class="right">{{ rp($p->nominal) }}</td>
                     </tr>
                 @endforeach
+                @foreach ($sortedPajaks as $pjk)
+                    <tr style="height:28px;">
+                        <td></td>
+                        <td>{{ $pjk->jenis_pajak }}</td>
+                        <td class="center">{{ $pjk->no_billing ?? '-' }}</td>
+                        <td class="center"></td>
+                        <td class="right">{{ rp($pjk->nominal) }}</td>
+                    </tr>
+                @endforeach
                 <tr class="bold">
                     <td colspan="4" class="center">J u m l a h</td>
                     <td class="right">{{ rp($totalNominal) }}</td>

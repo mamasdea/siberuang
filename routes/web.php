@@ -43,6 +43,7 @@ use App\Livewire\Anggaran\ProgramKegiatanForm;
 use App\Livewire\Belanja\Kkpd\BelanjaKkpdsManager;
 use App\Http\Controllers\BeritaAcaraHtmlController;
 use App\Http\Controllers\BelanjaCetakController;
+use App\Http\Controllers\BelanjaLsCetakController;
 
 Route::get('/', fn() => view('auth.login'));
 
@@ -86,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
 
     // -- Cetak HTML Belanja --
     Route::get('belanja/{id}/cetak', [BelanjaCetakController::class, 'cetak'])->name('belanja.cetak');
+    Route::get('belanja-ls/{id}/cetak', [BelanjaLsCetakController::class, 'cetak'])->name('belanja-ls.cetak');
 
     // -- Belanja (menu:belanja) --
     Route::middleware(['menu:belanja'])->group(function () {
