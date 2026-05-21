@@ -133,32 +133,12 @@
                                         </button>
                                     </div>
                                     <div class="btn-group ml-1">
-                                        <button wire:click="printSppSpmUp({{ $row->id }})"
-                                            class="btn btn-secondary btn-sm"
+                                        <a href="{{ route('spp-spm-up.cetak', $row->id) }}" target="_blank"
+                                            class="btn btn-info btn-sm"
                                             style="border-radius: 6px 0 0 6px;"
-                                            title="Cetak"
-                                            wire:loading.attr="disabled"
-                                            wire:target="printSppSpmUp({{ $row->id }})">
-                                            <span wire:loading.remove wire:target="printSppSpmUp({{ $row->id }})">
-                                                <i class="fas fa-print"></i>
-                                            </span>
-                                            <span wire:loading wire:target="printSppSpmUp({{ $row->id }})">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                        </button>
-                                        <button wire:click="downloadSppSpmUp({{ $row->id }})"
-                                            class="btn btn-success btn-sm"
-                                            style="border-radius: 0 6px 6px 0;"
-                                            title="Download"
-                                            wire:loading.attr="disabled"
-                                            wire:target="downloadSppSpmUp({{ $row->id }})">
-                                            <span wire:loading.remove wire:target="downloadSppSpmUp({{ $row->id }})">
-                                                <i class="fas fa-download"></i>
-                                            </span>
-                                            <span wire:loading wire:target="downloadSppSpmUp({{ $row->id }})">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                        </button>
+                                            title="Cetak HTML">
+                                            <i class="fas fa-print"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

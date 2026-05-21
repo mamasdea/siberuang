@@ -44,6 +44,7 @@ use App\Livewire\Belanja\Kkpd\BelanjaKkpdsManager;
 use App\Http\Controllers\BeritaAcaraHtmlController;
 use App\Http\Controllers\BelanjaCetakController;
 use App\Http\Controllers\BelanjaLsCetakController;
+use App\Http\Controllers\SppSpmCetakController;
 
 Route::get('/', fn() => view('auth.login'));
 
@@ -88,6 +89,11 @@ Route::middleware(['auth'])->group(function () {
     // -- Cetak HTML Belanja --
     Route::get('belanja/{id}/cetak', [BelanjaCetakController::class, 'cetak'])->name('belanja.cetak');
     Route::get('belanja-ls/{id}/cetak', [BelanjaLsCetakController::class, 'cetak'])->name('belanja-ls.cetak');
+    Route::get('spp-spm-gu/{id}/cetak', [SppSpmCetakController::class, 'cetakGu'])->name('spp-spm-gu.cetak');
+    Route::get('spp-spm-tu/{id}/cetak', [SppSpmCetakController::class, 'cetakTu'])->name('spp-spm-tu.cetak');
+    Route::get('spp-spm-up/{id}/cetak', [SppSpmCetakController::class, 'cetakUp'])->name('spp-spm-up.cetak');
+    Route::get('gu-nihil-cetak/{id}/cetak', [SppSpmCetakController::class, 'cetakGuNihil'])->name('gu-nihil.cetak');
+    Route::get('tu-nihil-cetak/{id}/cetak', [SppSpmCetakController::class, 'cetakTuNihil'])->name('tu-nihil.cetak');
 
     // -- Belanja (menu:belanja) --
     Route::middleware(['menu:belanja'])->group(function () {

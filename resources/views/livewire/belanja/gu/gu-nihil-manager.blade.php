@@ -88,7 +88,11 @@
                                 </button>
                             @endif
                             <button wire:click="edit" class="btn btn-warning btn-sm mr-1" style="border-radius: 6px;"><i class="fas fa-pencil-alt mr-1 text-white"></i> Edit</button>
-                            <button wire:click="delete_confirmation" class="btn btn-danger btn-sm" style="border-radius: 6px;"><i class="fas fa-trash-alt mr-1"></i> Hapus</button>
+                            <button wire:click="delete_confirmation" class="btn btn-danger btn-sm mr-1" style="border-radius: 6px;"><i class="fas fa-trash-alt mr-1"></i> Hapus</button>
+                            <a href="{{ route('gu-nihil.cetak', $nihil['id']) }}" target="_blank"
+                               class="btn btn-info btn-sm" style="border-radius: 6px;" title="Cetak HTML">
+                                <i class="fas fa-print mr-1"></i> Cetak
+                            </a>
                         </div>
                     @else
                         {{-- Form --}}

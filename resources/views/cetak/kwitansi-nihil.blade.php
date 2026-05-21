@@ -2,23 +2,23 @@
     use Carbon\Carbon;
     Carbon::setLocale('id');
 
-    if (!function_exists('tbgls')) {
-        function tbgls($n): string {
+    if (!function_exists('tbgnihil')) {
+        function tbgnihil($n): string {
             $n = abs((int)$n);
             $h = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
-            if ($n < 12)        return $h[$n];
-            if ($n < 20)        return trim(tbgls($n - 10) . ' belas');
-            if ($n < 100)       return trim(tbgls((int)($n / 10)) . ' puluh ' . tbgls($n % 10));
-            if ($n < 200)       return trim('seratus ' . tbgls($n - 100));
-            if ($n < 1000)      return trim(tbgls((int)($n / 100)) . ' ratus ' . tbgls($n % 100));
-            if ($n < 2000)      return trim('seribu ' . tbgls($n - 1000));
-            if ($n < 1000000)   return trim(tbgls((int)($n / 1000)) . ' ribu ' . tbgls($n % 1000));
-            if ($n < 1000000000) return trim(tbgls((int)($n / 1000000)) . ' juta ' . tbgls($n % 1000000));
+            if ($n < 12)         return $h[$n];
+            if ($n < 20)         return trim(tbgnihil($n - 10) . ' belas');
+            if ($n < 100)        return trim(tbgnihil((int)($n / 10)) . ' puluh ' . tbgnihil($n % 10));
+            if ($n < 200)        return trim('seratus ' . tbgnihil($n - 100));
+            if ($n < 1000)       return trim(tbgnihil((int)($n / 100)) . ' ratus ' . tbgnihil($n % 100));
+            if ($n < 2000)       return trim('seribu ' . tbgnihil($n - 1000));
+            if ($n < 1000000)    return trim(tbgnihil((int)($n / 1000)) . ' ribu ' . tbgnihil($n % 1000));
+            if ($n < 1000000000) return trim(tbgnihil((int)($n / 1000000)) . ' juta ' . tbgnihil($n % 1000000));
             return (string)$n;
         }
     }
-    if (!function_exists('rpls')) {
-        function rpls($n) { return number_format((float)$n, 0, ',', '.'); }
+    if (!function_exists('rpnihil')) {
+        function rpnihil($n) { return number_format((float)$n, 0, ',', '.'); }
     }
 
     $tglText  = $tgl->translatedFormat('j F Y');
@@ -28,17 +28,13 @@
     $namaBP   = $bp?->nama   ?? '________________';  $nipBP   = $bp?->nip   ?? '________________';
     $namaPPK  = $ppk?->nama  ?? '________________';  $nipPPK  = $ppk?->nip  ?? '________________';
     $namaPPTK = $pptk?->nama ?? '________________';  $nipPPTK = $pptk?->nip ?? '________________';
-    $namaPB   = $pb?->nama;  $nipPB = $pb?->nip;
 
-    $subKegKode = optional($subKeg)->kode ?? '';
+    $subKegKode = optional($subKeg)->kode ?? '-';
+    $subKegNama = optional($subKeg)->nama ?? '-';
+    $rkaNama    = optional($firstRka)->nama_belanja ?? '-';
+    $rkaKode    = optional($firstRka)->kode_belanja ?? '-';
 
-    // Nomor surat
-    $noSpp          = $belanja->no_bukti . '/LS/' . $subKegKode . '/' . $tahun;
-    $noSpmSipd      = $belanja->no_spm_sipd ?? '-';
-    $noPernyataan   = str_pad((int)$belanja->no_bukti + 1, 4, '0', STR_PAD_LEFT) . '/' . $subKegKode . '/' . $tahun;
-    $noTjawab       = str_pad((int)$belanja->no_bukti + 2, 4, '0', STR_PAD_LEFT) . '/' . $noSpmSipd . '/LS';
-
-    $nilaiTerbilang = ucwords(tbgls($belanja->total_nilai)) . ' Rupiah';
+    $nilaiTerbilang = ucwords(tbgnihil($nilaiSetor)) . ' Rupiah';
 
     $paper       = strtoupper(request('paper', 'A4'));
     $paperWidth  = $paper === 'F4' ? '215mm' : '210mm';
@@ -49,7 +45,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>SPP-SPM LS – {{ $noSpp }}</title>
+<title>SPP-SPM {{ $jenis }} – {{ $noSpp }}</title>
 <style>
 @page { size: {{ $paperWidth }} {{ $paperHeight }}; margin: 0; }
 *, html, body { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,7 +107,7 @@ p { margin: 0 0 9px; text-align: justify; }
 .ttd-space    { height: 70px; display: block; }
 .ttd-space-lg { height: 90px; display: block; }
 
-/* HALAMAN 5 – KWITANSI (sama persis dengan belanja GU) */
+/* KWITANSI (halaman 3) */
 .print-page-kwitansi {
     width: {{ $paperWidth }};
     min-height: calc({{ $paperHeight }} - 2mm);
@@ -176,7 +172,7 @@ p { margin: 0 0 9px; text-align: justify; }
 <body>
 
 <div class="toolbar">
-    <span>SPP-LS: {{ $noSpp }} &mdash; {{ $tglText }} &mdash; Kertas: {{ $paper }}</span>
+    <span>SPP-SPM {{ $jenis }}: {{ $noSpp }} &mdash; {{ $tglText }} &mdash; Kertas: {{ $paper }}</span>
     <div class="toolbar-actions">
         <a href="?paper=A4">A4</a>
         <a href="?paper=F4">F4</a>
@@ -186,7 +182,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div>
 
 {{-- ======================================================
-     HALAMAN 1 – SURAT PERNYATAAN PENGAJUAN LS
+     HALAMAN 1 – SURAT PERNYATAAN NIHIL
      ====================================================== --}}
 <section class="sheet"><div class="inner">
     <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
@@ -208,13 +204,12 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
     <hr class="office-line">
 
-    <div class="title" style="margin-top:18px;">SURAT PERNYATAAN PENGAJUAN – LS</div>
+    <div class="title" style="margin-top:18px;">SURAT PERNYATAAN {{ strtoupper($jenis) }}</div>
     <div class="center" style="margin-bottom:26px;">Nomor : {{ $noSpp }}</div>
 
-    <p>Sehubungan dengan Surat Perintah Membayar Langsung (SPM-LS Nomor: {{ $noSpmSipd }}) tanggal {{ $tglText }}
-    yang kami ajukan sebesar Rp. {{ rpls($belanja->total_nilai) }}
-    ({{ $nilaiTerbilang }}) untuk keperluan SKPD Dinas Komunikasi dan Informatika Kabupaten Wonosobo
-    tahun anggaran {{ $tahun }} dengan ini menyatakan bahwa saya :</p>
+    <p>Sehubungan dengan penyetoran sisa {{ $jenis }} ke Kas Daerah (Rekening Kasda) sejumlah
+    Rp. {{ rpnihil($nilaiSetor) }} ({{ $nilaiTerbilang }}) untuk keperluan SKPD Dinas Komunikasi dan Informatika
+    Kabupaten Wonosobo tahun anggaran {{ $tahun }}, dengan ini menyatakan bahwa saya :</p>
 
     <table class="form" style="width:75%;margin:18px 0;">
         <tr><td style="width:18%;">Nama</td><td style="width:3%;">:</td><td>{{ $namaPA }}</td></tr>
@@ -222,8 +217,16 @@ p { margin: 0 0 9px; text-align: justify; }
         <tr><td>Jabatan</td><td>:</td><td>Kepala Dinas Komunikasi dan Informatika</td></tr>
     </table>
 
-    <p>Bertanggung Jawab secara formal dan material atas kebenaran penggunaan dana tersebut diatas sesuai ketentuan yang berlaku.</p>
-    <p>Demikian surat Pernyataan ini dibuat untuk melengkapi pernyataan dan persyaratan pengajuan SPP-LS SKPD kami.</p>
+    <p>Menyatakan bahwa sisa dana yang tidak terpakai sebesar Rp. {{ rpnihil($nilaiSetor) }} ({{ $nilaiTerbilang }})
+    telah disetor kembali ke Kas Daerah sesuai ketentuan yang berlaku.</p>
+
+    <p>Demikian surat Pernyataan Nihil ini dibuat dengan sebenarnya.</p>
+
+    @if($dokumen->uraian)
+    <div style="margin:10px 0;">
+        <strong>Keterangan:</strong> {{ $dokumen->uraian }}
+    </div>
+    @endif
 
     <table class="ttd" style="margin-top:40px;">
         <tr>
@@ -242,7 +245,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div></section>
 
 {{-- ======================================================
-     HALAMAN 2 – VERIFIKASI PPK ATAS PENGAJUAN SPM-LS
+     HALAMAN 2 – VERIFIKASI PPK NIHIL
      ====================================================== --}}
 <section class="sheet"><div class="inner">
     <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
@@ -264,38 +267,26 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
     <hr class="office-line">
 
-    <div class="title">PEJABAT PENATAUSAHAAN KEUANGAN SKPD<br>VERIFIKASI ATAS PENGAJUAN SPM – LS</div>
+    <div class="title">PEJABAT PENATAUSAHAAN KEUANGAN SKPD<br>VERIFIKASI {{ strtoupper($jenis) }}</div>
 
     <table class="form" style="width:80%;margin-top:28px;">
         <tr><td style="width:48%;">Bulan</td><td style="width:3%;">:</td><td>{{ $bulanTxt }} {{ $tahun }}</td></tr>
+        <tr><td>No SPP</td><td>:</td><td>{{ $noSpp }}</td></tr>
+        <tr><td>No SPM SIPD</td><td>:</td><td>{{ $noSpmSipd }}</td></tr>
         <tr><td>Nama Bendahara Pengeluaran</td><td>:</td><td>{{ $namaBP }}</td></tr>
-        <tr><td>SPM – LS yang diajukan Sebesar</td><td>:</td><td>Rp. {{ rpls($belanja->total_nilai) }}</td></tr>
-        <tr><td>SPM – LS disahkan</td><td>:</td><td>Rp. {{ rpls($belanja->total_nilai - $totalPajak) }}</td></tr>
+        <tr><td>Nilai Setoran</td><td>:</td><td>Rp. {{ rpnihil($nilaiSetor) }}</td></tr>
     </table>
 
+    <div style="margin-top:18px;">
+        <p>Berdasarkan penelitian, penyetoran sisa {{ $jenis }} ke Kasda dengan nilai Rp. {{ rpnihil($nilaiSetor) }}
+        ({{ $nilaiTerbilang }}) telah dinyatakan sesuai dengan ketentuan yang berlaku dan dapat diproses
+        lebih lanjut.</p>
+    </div>
+
     <table class="form" style="width:65%;margin-top:16px;">
-        <tr>
-            <td style="width:44%;">Pemungutan Potongan</td>
-            <td style="width:4%;">-</td>
-            <td style="width:18%;">PPN</td>
-            <td style="width:4%;">:</td>
-            <td class="right">{{ rpls($ppn) }}</td>
-        </tr>
-        <tr>
-            <td></td><td>-</td><td>PPh 21</td><td>:</td>
-            <td class="right">{{ rpls($pph21) }}</td>
-        </tr>
-        <tr>
-            <td></td><td>-</td><td>PPh 22</td><td>:</td>
-            <td class="right">{{ rpls($pph22) }}</td>
-        </tr>
-        <tr>
-            <td></td><td>-</td><td>PPh 23</td><td>:</td>
-            <td class="right">{{ rpls($pph23) }}</td>
-        </tr>
         <tr class="bold">
-            <td colspan="4">Jumlah Potongan &nbsp; Rp.</td>
-            <td class="right" style="border-top:1px solid #000;">{{ rpls($totalPajak) }}</td>
+            <td colspan="3">Jumlah Setoran Nihil &nbsp; Rp.</td>
+            <td class="right" style="border-top:1px solid #000;">{{ rpnihil($nilaiSetor) }}</td>
         </tr>
     </table>
 
@@ -314,147 +305,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div></section>
 
 {{-- ======================================================
-     HALAMAN 3 – LEMBAR CEK LIST PPK-SKPD UNTUK SPJ LS
-     ====================================================== --}}
-<section class="sheet"><div class="inner">
-    <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
-        <tr>
-            <td style="width:115px;text-align:center;vertical-align:middle;padding-left:50px;padding-right:10px;">
-                <img src="{{ asset('logo-pemkab-hp.png') }}" alt="Logo Pemkab"
-                    style="width:95px;height:auto;display:block;margin:auto;">
-            </td>
-            <td style="text-align:center;vertical-align:middle;padding-right:5px;">
-                <div class="office-head">
-                    <div class="a">PEMERINTAH KABUPATEN WONOSOBO</div>
-                    <div class="b">DINAS KOMUNIKASI DAN INFORMATIKA</div>
-                    <div class="kop-text">Jl. Sabuk Alu No. 2A (0286) 325112 / Fax 325115</div>
-                    <div class="kop-text">Website: diskominfo.wonosobokab.go.id email: diskominfo@wonosobokab.go.id</div>
-                    <div class="kop-kota">W O N O S O B O &nbsp; - &nbsp; 56314</div>
-                </div>
-            </td>
-        </tr>
-    </table>
-    <hr class="office-line">
-
-    <div class="title">LEMBAR CEK LIST PPK – SKPD UNTUK SPJ LS</div>
-
-    <table class="form" style="margin-bottom:12px;">
-        <tr><td style="width:16%;">SKPD</td><td style="width:3%;">:</td><td>DINAS KOMUNIKASI DAN INFORMATIKA</td></tr>
-        <tr><td>KABUPATEN</td><td>:</td><td>WONOSOBO</td></tr>
-        <tr><td>JENIS SPJ</td><td>:</td><td>{{ $belanja->uraian }}</td></tr>
-    </table>
-
-    <table class="grid" style="font-size:10px;">
-        <tr class="center bold">
-            <th style="width:6%;">NO</th>
-            <th>URAIAN</th>
-            <th style="width:13%;">ADA /<br>TIDAK</th>
-            <th style="width:15%;">SESUAI /<br>TIDAK</th>
-            <th style="width:15%;">KETERANGAN</th>
-        </tr>
-        @foreach([
-            'Kode Rekening dan Nominasi Belanja Sesuai SPJ',
-            'Nota Belanja dan Kwitansi Dinas',
-            'Bukti Setoran Pajak',
-            'Surat Pengantar SPP GU/TU/UP/LS',
-            'Ringkasan SPP GU/TU/UP/LS',
-            'Rincian SPP',
-            'Surat Perintah Membayar (SPM)',
-            'Surat Pernyataan Pengajuan SPP GU/TU/UP/LS',
-            'Surat Pernyataan Tanggung Jawab PA',
-            'Lembar Verifikasi PPK - SKPD',
-        ] as $idx => $item)
-        <tr>
-            <td class="center">{{ $idx + 1 }}</td>
-            <td>{{ $item }}</td>
-            <td class="center">√</td>
-            <td class="center">√</td>
-            <td></td>
-        </tr>
-        @endforeach
-    </table>
-
-    <div style="margin-top:14px;">
-        PAGU ANGGARAN SPP/SPM YANG DIAJUKAN &nbsp;&nbsp;&nbsp; : Rp. {{ rpls($belanja->total_nilai) }}<br>
-        SPP/SPM YANG DI SAHKAN
-    </div>
-    <div style="height:44px;border:1px solid #000;margin:6px 0 0;"></div>
-
-    <table class="ttd" style="margin-top:4px;">
-        <tr>
-            <td style="width:55%;"></td>
-            <td>
-                Wonosobo, {{ $tglText }}<br><br>
-                PPK – SKPD
-                <span class="ttd-space-lg"></span>
-                <span class="bold">{{ $namaPPK }}</span><br>
-                NIP. {{ $nipPPK }}
-            </td>
-        </tr>
-    </table>
-</div></section>
-
-{{-- ======================================================
-     HALAMAN 4 – SURAT PERNYATAAN TANGGUNG JAWAB PA
-     ====================================================== --}}
-<section class="sheet"><div class="inner">
-    <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
-        <tr>
-            <td style="width:115px;text-align:center;vertical-align:middle;padding-left:50px;padding-right:10px;">
-                <img src="{{ asset('logo-pemkab-hp.png') }}" alt="Logo Pemkab"
-                    style="width:95px;height:auto;display:block;margin:auto;">
-            </td>
-            <td style="text-align:center;vertical-align:middle;padding-right:5px;">
-                <div class="office-head">
-                    <div class="a">PEMERINTAH KABUPATEN WONOSOBO</div>
-                    <div class="b">DINAS KOMUNIKASI DAN INFORMATIKA</div>
-                    <div class="kop-text">Jl. Sabuk Alu No. 2A (0286) 325112 / Fax 325115</div>
-                    <div class="kop-text">Website: diskominfo.wonosobokab.go.id email: diskominfo@wonosobokab.go.id</div>
-                    <div class="kop-kota">W O N O S O B O &nbsp; - &nbsp; 56314</div>
-                </div>
-            </td>
-        </tr>
-    </table>
-    <hr class="office-line">
-
-    <div class="title">SURAT PERNYATAAN TANGGUNG JAWAB PENGGUNA ANGGARAN</div>
-    <div class="center" style="margin-bottom:22px;">Nomor: {{ $noTjawab }}</div>
-
-    <p>Sehubungan dengan Surat Perintah Membayar Langsung (SPM-LS) Nomor: {{ $noSpmSipd }}
-    tanggal {{ $tglText }} sebesar Rp. {{ rpls($belanja->total_nilai) }}</p>
-
-    <p>Terbilang: {{ $nilaiTerbilang }}</p>
-
-    <p>untuk keperluan SKPD Dinas Komunikasi &amp; Informatika Kab. Wonosobo
-    Tahun Anggaran {{ $tahun }} dengan ini menyatakan bahwa saya:</p>
-
-    <table class="form" style="width:82%;margin:14px 0;">
-        <tr><td style="width:17%;">N a m a</td><td style="width:3%;">:</td><td>{{ $namaPA }}</td></tr>
-        <tr><td>N I P</td><td>:</td><td>{{ $nipPA }}</td></tr>
-        <tr><td>Jabatan</td><td>:</td><td>Kepala Dinas Komunikasi &amp; Informatika Kabupaten Wonosobo.</td></tr>
-    </table>
-
-    <p>Bertanggung Jawab secara formal dan material atas kebenaran penggunaan dana tersebut diatas sesuai ketentuan yang berlaku.</p>
-    <p>Demikian Surat Pernyataan ini kami buat untuk melengkapi persyaratan pengajuan SPM-LS SKPD kami.</p>
-
-    <table class="ttd" style="margin-top:40px;">
-        <tr>
-            <td style="width:45%;"></td>
-            <td>
-                Wonosobo, {{ $tglText }}<br>
-                Kepala Dinas Komunikasi &amp; Informatika<br>
-                Kabupaten Wonosobo<br>
-                Selaku Pengguna Anggaran
-                <span class="ttd-space-lg"></span>
-                <span class="bold">{{ $namaPA }}</span><br>
-                NIP. {{ $nipPA }}
-            </td>
-        </tr>
-    </table>
-</div></section>
-
-{{-- ======================================================
-     HALAMAN 5 – KWITANSI DINAS (format sama dengan belanja GU)
+     HALAMAN 3 – KWITANSI SETORAN
      ====================================================== --}}
 <section class="print-page-kwitansi">
     <div class="page">
@@ -492,7 +343,7 @@ p { margin: 0 0 9px; text-align: justify; }
         <table class="section">
             <tr>
                 <td width="64%" style="padding:7px;">
-                    <div class="center bold main-title">SURAT BUKTI PEMBAYARAN</div>
+                    <div class="center bold main-title">KWITANSI SETORAN KAS DAERAH</div>
 
                     <table class="content">
                         <tr class="line">
@@ -503,7 +354,7 @@ p { margin: 0 0 9px; text-align: justify; }
                         <tr class="line">
                             <td>Uang sejumlah</td>
                             <td>:</td>
-                            <td>Rp. {{ rpls($belanja->total_nilai) }}</td>
+                            <td>Rp. {{ rpnihil($nilaiSetor) }}</td>
                         </tr>
                         <tr class="line">
                             <td>Terbilang</td>
@@ -513,17 +364,17 @@ p { margin: 0 0 9px; text-align: justify; }
                         <tr class="line">
                             <td>Yaitu untuk pembayaran</td>
                             <td>:</td>
-                            <td>{{ $noSpp }} - {{ $belanja->uraian }}</td>
+                            <td>{{ $noSpp }} - Setoran {{ $jenis }} – {{ $dokumen->uraian ?? '' }}</td>
                         </tr>
                         <tr class="line">
-                            <td>Berguna buat pekerjaan</td>
+                            <td>Sub Kegiatan</td>
                             <td>:</td>
-                            <td>{{ optional($firstRka)->nama_belanja }}<br>{{ optional($subKeg)->nama }}</td>
+                            <td>{{ $subKegNama }}</td>
                         </tr>
                         <tr class="line">
-                            <td>Kode Rekening</td>
+                            <td>Kode</td>
                             <td>:</td>
-                            <td>{{ optional($firstRka)->kode_belanja }}</td>
+                            <td>{{ $subKegKode }}</td>
                         </tr>
                     </table>
 
@@ -531,7 +382,7 @@ p { margin: 0 0 9px; text-align: justify; }
 
                     <div class="recipient-sign">
                         Wonosobo, {{ $tglText }}<br>
-                        Yang Berhak Menerima
+                        Yang Menyetorkan
                         <div class="ttd-space-lg-kw"></div>
                         (...........................................)
                         <br><br><br><br>
@@ -542,54 +393,41 @@ p { margin: 0 0 9px; text-align: justify; }
                     <div class="center bold" style="padding:7px;border-bottom:1px solid #000;">KETERANGAN</div>
 
                     <div style="padding:7px;height:74px;">
-                        Barang barang termasuk telah masuk buku Persediaan / Inventaris pada Tgl ..........
+                        Setoran sisa {{ $jenis }} ke Kas Daerah – No STS: {{ $dokumen->no_sts ?? '-' }}
                     </div>
 
                     <table class="tax-table fs-85">
                         <tr>
-                            <td class="center">Jumlah kotor</td>
+                            <td class="center">Nilai Setoran</td>
                             <td class="center">Pajak</td>
                             <td class="center">Jumlah bersih</td>
                         </tr>
                         <tr>
-                            <td class="right">{{ rpls($belanja->total_nilai) }}</td>
-                            <td class="right">{{ rpls($totalPajak) }}</td>
-                            <td class="right">{{ rpls($totalBersih) }}</td>
+                            <td class="right">{{ rpnihil($nilaiSetor) }}</td>
+                            <td class="right">0</td>
+                            <td class="right">{{ rpnihil($nilaiSetor) }}</td>
                         </tr>
                     </table>
 
                     <div style="padding:7px;">
-                        <div class="bold">Uraian Pajak:</div>
+                        <div class="bold">Informasi Dokumen:</div>
                         <table style="width:100%;margin-top:5px;">
                             <tr>
-                                <td>1. PPN</td>
-                                <td width="12%">Rp.</td>
-                                <td class="right">{{ rpls($ppn) }}</td>
+                                <td>No STS</td>
+                                <td width="4%">:</td>
+                                <td>{{ $dokumen->no_sts ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td>2. PPh 21</td>
-                                <td>Rp.</td>
-                                <td class="right">{{ rpls($pph21) }}</td>
+                                <td>No SPM SIPD</td>
+                                <td>:</td>
+                                <td>{{ $noSpmSipd }}</td>
                             </tr>
                             <tr>
-                                <td>3. PPh 22</td>
-                                <td>Rp.</td>
-                                <td class="right">{{ rpls($pph22) }}</td>
-                            </tr>
-                            <tr>
-                                <td>4. PPh 23</td>
-                                <td>Rp.</td>
-                                <td class="right">{{ rpls($pph23) }}</td>
-                            </tr>
-                            <tr class="bold">
-                                <td>JUMLAH</td>
-                                <td>Rp.</td>
-                                <td class="right">{{ rpls($totalPajak) }}</td>
+                                <td>Tanggal</td>
+                                <td>:</td>
+                                <td>{{ $tglText }}</td>
                             </tr>
                         </table>
-
-                        <div style="margin-top:14px;">Pengeluaran / Pembelian dilakukan berdasarkan :</div>
-                        <div style="margin-top:18px;text-align:center;">Alamat Penerima</div>
                     </div>
                 </td>
             </tr>
@@ -597,22 +435,7 @@ p { margin: 0 0 9px; text-align: justify; }
 
         <table class="signature">
             <tr>
-                <td width="25%">
-                    <div class="signature-name">
-                        Yang Menerima Barang<br>
-                        Bendahara Barang,
-                    </div>
-                    <div class="ttd-space-kw"></div>
-                    @if ($namaPB)
-                        <b>{{ $namaPB }}</b>
-                        <div class="nip">NIP. {{ $nipPB }}</div>
-                    @else
-                        (______________________)
-                        <br>
-                        <div class="nip">NIP.______________________</div>
-                    @endif
-                </td>
-                <td width="25%">
+                <td width="33%">
                     <div class="signature-name">
                         Mengetahui &amp; Menyetujui,<br>
                         Pengguna Anggaran
@@ -621,7 +444,7 @@ p { margin: 0 0 9px; text-align: justify; }
                     <b>{{ $namaPA }}</b>
                     <div class="nip">NIP. {{ $nipPA }}</div>
                 </td>
-                <td width="25%">
+                <td width="34%">
                     <div class="signature-name">
                         Yang Membayarkan<br>
                         Bendahara Pengeluaran,
@@ -630,13 +453,14 @@ p { margin: 0 0 9px; text-align: justify; }
                     <b>{{ $namaBP }}</b>
                     <div class="nip">NIP. {{ $nipBP }}</div>
                 </td>
-                <td width="25%">
+                <td width="33%">
                     <div class="signature-name">
-                        P P T K
+                        Yang Menerima,<br>
+                        &nbsp;
                     </div>
                     <div class="ttd-space-kw"></div>
-                    <b>{{ $namaPPTK }}</b>
-                    <div class="nip">NIP. {{ $nipPPTK }}</div>
+                    <b>(..............................)</b>
+                    <div class="nip">NIP. ___________________</div>
                 </td>
             </tr>
         </table>

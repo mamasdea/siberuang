@@ -118,6 +118,15 @@
                                             <button class="btn btn-danger btn-sm" wire:click="delete_confirmation({{ $row->id }})" title="Hapus"><i class="fas fa-trash-alt"></i></button>
                                         @endif
                                     </div>
+                                    {{-- Cetak HTML --}}
+                                    <div class="btn-group ml-1">
+                                        <a href="{{ route('spp-spm-tu.cetak', $row->id) }}" target="_blank"
+                                            class="btn btn-info btn-sm"
+                                            style="border-radius: 6px 0 0 6px;"
+                                            title="Cetak HTML">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

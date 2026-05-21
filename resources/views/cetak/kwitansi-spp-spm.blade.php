@@ -2,23 +2,23 @@
     use Carbon\Carbon;
     Carbon::setLocale('id');
 
-    if (!function_exists('tbgls')) {
-        function tbgls($n): string {
+    if (!function_exists('tbgspm')) {
+        function tbgspm($n): string {
             $n = abs((int)$n);
             $h = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
-            if ($n < 12)        return $h[$n];
-            if ($n < 20)        return trim(tbgls($n - 10) . ' belas');
-            if ($n < 100)       return trim(tbgls((int)($n / 10)) . ' puluh ' . tbgls($n % 10));
-            if ($n < 200)       return trim('seratus ' . tbgls($n - 100));
-            if ($n < 1000)      return trim(tbgls((int)($n / 100)) . ' ratus ' . tbgls($n % 100));
-            if ($n < 2000)      return trim('seribu ' . tbgls($n - 1000));
-            if ($n < 1000000)   return trim(tbgls((int)($n / 1000)) . ' ribu ' . tbgls($n % 1000));
-            if ($n < 1000000000) return trim(tbgls((int)($n / 1000000)) . ' juta ' . tbgls($n % 1000000));
+            if ($n < 12)         return $h[$n];
+            if ($n < 20)         return trim(tbgspm($n - 10) . ' belas');
+            if ($n < 100)        return trim(tbgspm((int)($n / 10)) . ' puluh ' . tbgspm($n % 10));
+            if ($n < 200)        return trim('seratus ' . tbgspm($n - 100));
+            if ($n < 1000)       return trim(tbgspm((int)($n / 100)) . ' ratus ' . tbgspm($n % 100));
+            if ($n < 2000)       return trim('seribu ' . tbgspm($n - 1000));
+            if ($n < 1000000)    return trim(tbgspm((int)($n / 1000)) . ' ribu ' . tbgspm($n % 1000));
+            if ($n < 1000000000) return trim(tbgspm((int)($n / 1000000)) . ' juta ' . tbgspm($n % 1000000));
             return (string)$n;
         }
     }
-    if (!function_exists('rpls')) {
-        function rpls($n) { return number_format((float)$n, 0, ',', '.'); }
+    if (!function_exists('rpspm')) {
+        function rpspm($n) { return number_format((float)$n, 0, ',', '.'); }
     }
 
     $tglText  = $tgl->translatedFormat('j F Y');
@@ -28,17 +28,13 @@
     $namaBP   = $bp?->nama   ?? '________________';  $nipBP   = $bp?->nip   ?? '________________';
     $namaPPK  = $ppk?->nama  ?? '________________';  $nipPPK  = $ppk?->nip  ?? '________________';
     $namaPPTK = $pptk?->nama ?? '________________';  $nipPPTK = $pptk?->nip ?? '________________';
-    $namaPB   = $pb?->nama;  $nipPB = $pb?->nip;
 
-    $subKegKode = optional($subKeg)->kode ?? '';
+    $subKegKode = optional($subKeg)->kode ?? '-';
+    $subKegNama = optional($subKeg)->nama ?? '-';
+    $rkaNama    = optional($firstRka)->nama_belanja ?? '-';
+    $rkaKode    = optional($firstRka)->kode_belanja ?? '-';
 
-    // Nomor surat
-    $noSpp          = $belanja->no_bukti . '/LS/' . $subKegKode . '/' . $tahun;
-    $noSpmSipd      = $belanja->no_spm_sipd ?? '-';
-    $noPernyataan   = str_pad((int)$belanja->no_bukti + 1, 4, '0', STR_PAD_LEFT) . '/' . $subKegKode . '/' . $tahun;
-    $noTjawab       = str_pad((int)$belanja->no_bukti + 2, 4, '0', STR_PAD_LEFT) . '/' . $noSpmSipd . '/LS';
-
-    $nilaiTerbilang = ucwords(tbgls($belanja->total_nilai)) . ' Rupiah';
+    $nilaiTerbilang = ucwords(tbgspm($dokumen->total_nilai)) . ' Rupiah';
 
     $paper       = strtoupper(request('paper', 'A4'));
     $paperWidth  = $paper === 'F4' ? '215mm' : '210mm';
@@ -49,7 +45,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>SPP-SPM LS – {{ $noSpp }}</title>
+<title>SPP-SPM {{ $jenis }} – {{ $noSpp }}</title>
 <style>
 @page { size: {{ $paperWidth }} {{ $paperHeight }}; margin: 0; }
 *, html, body { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,7 +107,7 @@ p { margin: 0 0 9px; text-align: justify; }
 .ttd-space    { height: 70px; display: block; }
 .ttd-space-lg { height: 90px; display: block; }
 
-/* HALAMAN 5 – KWITANSI (sama persis dengan belanja GU) */
+/* HALAMAN 5 – KWITANSI */
 .print-page-kwitansi {
     width: {{ $paperWidth }};
     min-height: calc({{ $paperHeight }} - 2mm);
@@ -176,7 +172,7 @@ p { margin: 0 0 9px; text-align: justify; }
 <body>
 
 <div class="toolbar">
-    <span>SPP-LS: {{ $noSpp }} &mdash; {{ $tglText }} &mdash; Kertas: {{ $paper }}</span>
+    <span>SPP-SPM {{ $jenis }}: {{ $noSpp }} &mdash; {{ $tglText }} &mdash; Kertas: {{ $paper }}</span>
     <div class="toolbar-actions">
         <a href="?paper=A4">A4</a>
         <a href="?paper=F4">F4</a>
@@ -186,7 +182,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div>
 
 {{-- ======================================================
-     HALAMAN 1 – SURAT PERNYATAAN PENGAJUAN LS
+     HALAMAN 1 – SURAT PERNYATAAN PENGAJUAN
      ====================================================== --}}
 <section class="sheet"><div class="inner">
     <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
@@ -208,11 +204,11 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
     <hr class="office-line">
 
-    <div class="title" style="margin-top:18px;">SURAT PERNYATAAN PENGAJUAN – LS</div>
+    <div class="title" style="margin-top:18px;">SURAT PERNYATAAN PENGAJUAN – {{ $jenis }}</div>
     <div class="center" style="margin-bottom:26px;">Nomor : {{ $noSpp }}</div>
 
-    <p>Sehubungan dengan Surat Perintah Membayar Langsung (SPM-LS Nomor: {{ $noSpmSipd }}) tanggal {{ $tglText }}
-    yang kami ajukan sebesar Rp. {{ rpls($belanja->total_nilai) }}
+    <p>Sehubungan dengan Surat Perintah Membayar {{ $jenis }} (SPM-{{ $jenis }} Nomor: {{ $noSpmSipd }}) tanggal {{ $tglText }}
+    yang kami ajukan sebesar Rp. {{ rpspm($dokumen->total_nilai) }}
     ({{ $nilaiTerbilang }}) untuk keperluan SKPD Dinas Komunikasi dan Informatika Kabupaten Wonosobo
     tahun anggaran {{ $tahun }} dengan ini menyatakan bahwa saya :</p>
 
@@ -223,7 +219,7 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
 
     <p>Bertanggung Jawab secara formal dan material atas kebenaran penggunaan dana tersebut diatas sesuai ketentuan yang berlaku.</p>
-    <p>Demikian surat Pernyataan ini dibuat untuk melengkapi pernyataan dan persyaratan pengajuan SPP-LS SKPD kami.</p>
+    <p>Demikian surat Pernyataan ini dibuat untuk melengkapi pernyataan dan persyaratan pengajuan SPP-{{ $jenis }} SKPD kami.</p>
 
     <table class="ttd" style="margin-top:40px;">
         <tr>
@@ -242,7 +238,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div></section>
 
 {{-- ======================================================
-     HALAMAN 2 – VERIFIKASI PPK ATAS PENGAJUAN SPM-LS
+     HALAMAN 2 – VERIFIKASI PPK ATAS PENGAJUAN SPM
      ====================================================== --}}
 <section class="sheet"><div class="inner">
     <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
@@ -264,13 +260,13 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
     <hr class="office-line">
 
-    <div class="title">PEJABAT PENATAUSAHAAN KEUANGAN SKPD<br>VERIFIKASI ATAS PENGAJUAN SPM – LS</div>
+    <div class="title">PEJABAT PENATAUSAHAAN KEUANGAN SKPD<br>VERIFIKASI ATAS PENGAJUAN SPM – {{ $jenis }}</div>
 
     <table class="form" style="width:80%;margin-top:28px;">
         <tr><td style="width:48%;">Bulan</td><td style="width:3%;">:</td><td>{{ $bulanTxt }} {{ $tahun }}</td></tr>
         <tr><td>Nama Bendahara Pengeluaran</td><td>:</td><td>{{ $namaBP }}</td></tr>
-        <tr><td>SPM – LS yang diajukan Sebesar</td><td>:</td><td>Rp. {{ rpls($belanja->total_nilai) }}</td></tr>
-        <tr><td>SPM – LS disahkan</td><td>:</td><td>Rp. {{ rpls($belanja->total_nilai - $totalPajak) }}</td></tr>
+        <tr><td>SPM – {{ $jenis }} yang diajukan Sebesar</td><td>:</td><td>Rp. {{ rpspm($dokumen->total_nilai) }}</td></tr>
+        <tr><td>SPM – {{ $jenis }} disahkan</td><td>:</td><td>Rp. {{ rpspm($dokumen->total_nilai - $totalPajak) }}</td></tr>
     </table>
 
     <table class="form" style="width:65%;margin-top:16px;">
@@ -279,23 +275,23 @@ p { margin: 0 0 9px; text-align: justify; }
             <td style="width:4%;">-</td>
             <td style="width:18%;">PPN</td>
             <td style="width:4%;">:</td>
-            <td class="right">{{ rpls($ppn) }}</td>
+            <td class="right">{{ rpspm($ppn) }}</td>
         </tr>
         <tr>
             <td></td><td>-</td><td>PPh 21</td><td>:</td>
-            <td class="right">{{ rpls($pph21) }}</td>
+            <td class="right">{{ rpspm($pph21) }}</td>
         </tr>
         <tr>
             <td></td><td>-</td><td>PPh 22</td><td>:</td>
-            <td class="right">{{ rpls($pph22) }}</td>
+            <td class="right">{{ rpspm($pph22) }}</td>
         </tr>
         <tr>
             <td></td><td>-</td><td>PPh 23</td><td>:</td>
-            <td class="right">{{ rpls($pph23) }}</td>
+            <td class="right">{{ rpspm($pph23) }}</td>
         </tr>
         <tr class="bold">
             <td colspan="4">Jumlah Potongan &nbsp; Rp.</td>
-            <td class="right" style="border-top:1px solid #000;">{{ rpls($totalPajak) }}</td>
+            <td class="right" style="border-top:1px solid #000;">{{ rpspm($totalPajak) }}</td>
         </tr>
     </table>
 
@@ -314,7 +310,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div></section>
 
 {{-- ======================================================
-     HALAMAN 3 – LEMBAR CEK LIST PPK-SKPD UNTUK SPJ LS
+     HALAMAN 3 – LEMBAR CEK LIST PPK-SKPD
      ====================================================== --}}
 <section class="sheet"><div class="inner">
     <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
@@ -336,12 +332,12 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
     <hr class="office-line">
 
-    <div class="title">LEMBAR CEK LIST PPK – SKPD UNTUK SPJ LS</div>
+    <div class="title">LEMBAR CEK LIST PPK – SKPD UNTUK SPJ {{ $jenis }}</div>
 
     <table class="form" style="margin-bottom:12px;">
         <tr><td style="width:16%;">SKPD</td><td style="width:3%;">:</td><td>DINAS KOMUNIKASI DAN INFORMATIKA</td></tr>
         <tr><td>KABUPATEN</td><td>:</td><td>WONOSOBO</td></tr>
-        <tr><td>JENIS SPJ</td><td>:</td><td>{{ $belanja->uraian }}</td></tr>
+        <tr><td>JENIS SPJ</td><td>:</td><td>{{ $dokumen->uraian }}</td></tr>
     </table>
 
     <table class="grid" style="font-size:10px;">
@@ -375,7 +371,7 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
 
     <div style="margin-top:14px;">
-        PAGU ANGGARAN SPP/SPM YANG DIAJUKAN &nbsp;&nbsp;&nbsp; : Rp. {{ rpls($belanja->total_nilai) }}<br>
+        PAGU ANGGARAN SPP/SPM YANG DIAJUKAN &nbsp;&nbsp;&nbsp; : Rp. {{ rpspm($dokumen->total_nilai) }}<br>
         SPP/SPM YANG DI SAHKAN
     </div>
     <div style="height:44px;border:1px solid #000;margin:6px 0 0;"></div>
@@ -420,8 +416,8 @@ p { margin: 0 0 9px; text-align: justify; }
     <div class="title">SURAT PERNYATAAN TANGGUNG JAWAB PENGGUNA ANGGARAN</div>
     <div class="center" style="margin-bottom:22px;">Nomor: {{ $noTjawab }}</div>
 
-    <p>Sehubungan dengan Surat Perintah Membayar Langsung (SPM-LS) Nomor: {{ $noSpmSipd }}
-    tanggal {{ $tglText }} sebesar Rp. {{ rpls($belanja->total_nilai) }}</p>
+    <p>Sehubungan dengan Surat Perintah Membayar {{ $jenis }} (SPM-{{ $jenis }}) Nomor: {{ $noSpmSipd }}
+    tanggal {{ $tglText }} sebesar Rp. {{ rpspm($dokumen->total_nilai) }}</p>
 
     <p>Terbilang: {{ $nilaiTerbilang }}</p>
 
@@ -435,7 +431,7 @@ p { margin: 0 0 9px; text-align: justify; }
     </table>
 
     <p>Bertanggung Jawab secara formal dan material atas kebenaran penggunaan dana tersebut diatas sesuai ketentuan yang berlaku.</p>
-    <p>Demikian Surat Pernyataan ini kami buat untuk melengkapi persyaratan pengajuan SPM-LS SKPD kami.</p>
+    <p>Demikian Surat Pernyataan ini kami buat untuk melengkapi persyaratan pengajuan SPM-{{ $jenis }} SKPD kami.</p>
 
     <table class="ttd" style="margin-top:40px;">
         <tr>
@@ -454,7 +450,7 @@ p { margin: 0 0 9px; text-align: justify; }
 </div></section>
 
 {{-- ======================================================
-     HALAMAN 5 – KWITANSI DINAS (format sama dengan belanja GU)
+     HALAMAN 5 – KWITANSI DINAS
      ====================================================== --}}
 <section class="print-page-kwitansi">
     <div class="page">
@@ -503,7 +499,7 @@ p { margin: 0 0 9px; text-align: justify; }
                         <tr class="line">
                             <td>Uang sejumlah</td>
                             <td>:</td>
-                            <td>Rp. {{ rpls($belanja->total_nilai) }}</td>
+                            <td>Rp. {{ rpspm($dokumen->total_nilai) }}</td>
                         </tr>
                         <tr class="line">
                             <td>Terbilang</td>
@@ -513,17 +509,17 @@ p { margin: 0 0 9px; text-align: justify; }
                         <tr class="line">
                             <td>Yaitu untuk pembayaran</td>
                             <td>:</td>
-                            <td>{{ $noSpp }} - {{ $belanja->uraian }}</td>
+                            <td>{{ $noSpp }} - {{ $dokumen->uraian }}</td>
                         </tr>
                         <tr class="line">
                             <td>Berguna buat pekerjaan</td>
                             <td>:</td>
-                            <td>{{ optional($firstRka)->nama_belanja }}<br>{{ optional($subKeg)->nama }}</td>
+                            <td>{{ $rkaNama }}<br>{{ $subKegNama }}</td>
                         </tr>
                         <tr class="line">
                             <td>Kode Rekening</td>
                             <td>:</td>
-                            <td>{{ optional($firstRka)->kode_belanja }}</td>
+                            <td>{{ $rkaKode }}</td>
                         </tr>
                     </table>
 
@@ -552,9 +548,9 @@ p { margin: 0 0 9px; text-align: justify; }
                             <td class="center">Jumlah bersih</td>
                         </tr>
                         <tr>
-                            <td class="right">{{ rpls($belanja->total_nilai) }}</td>
-                            <td class="right">{{ rpls($totalPajak) }}</td>
-                            <td class="right">{{ rpls($totalBersih) }}</td>
+                            <td class="right">{{ rpspm($dokumen->total_nilai) }}</td>
+                            <td class="right">{{ rpspm($totalPajak) }}</td>
+                            <td class="right">{{ rpspm($totalBersih) }}</td>
                         </tr>
                     </table>
 
@@ -564,27 +560,27 @@ p { margin: 0 0 9px; text-align: justify; }
                             <tr>
                                 <td>1. PPN</td>
                                 <td width="12%">Rp.</td>
-                                <td class="right">{{ rpls($ppn) }}</td>
+                                <td class="right">{{ rpspm($ppn) }}</td>
                             </tr>
                             <tr>
                                 <td>2. PPh 21</td>
                                 <td>Rp.</td>
-                                <td class="right">{{ rpls($pph21) }}</td>
+                                <td class="right">{{ rpspm($pph21) }}</td>
                             </tr>
                             <tr>
                                 <td>3. PPh 22</td>
                                 <td>Rp.</td>
-                                <td class="right">{{ rpls($pph22) }}</td>
+                                <td class="right">{{ rpspm($pph22) }}</td>
                             </tr>
                             <tr>
                                 <td>4. PPh 23</td>
                                 <td>Rp.</td>
-                                <td class="right">{{ rpls($pph23) }}</td>
+                                <td class="right">{{ rpspm($pph23) }}</td>
                             </tr>
                             <tr class="bold">
                                 <td>JUMLAH</td>
                                 <td>Rp.</td>
-                                <td class="right">{{ rpls($totalPajak) }}</td>
+                                <td class="right">{{ rpspm($totalPajak) }}</td>
                             </tr>
                         </table>
 
@@ -597,21 +593,6 @@ p { margin: 0 0 9px; text-align: justify; }
 
         <table class="signature">
             <tr>
-                <td width="25%">
-                    <div class="signature-name">
-                        Yang Menerima Barang<br>
-                        Bendahara Barang,
-                    </div>
-                    <div class="ttd-space-kw"></div>
-                    @if ($namaPB)
-                        <b>{{ $namaPB }}</b>
-                        <div class="nip">NIP. {{ $nipPB }}</div>
-                    @else
-                        (______________________)
-                        <br>
-                        <div class="nip">NIP.______________________</div>
-                    @endif
-                </td>
                 <td width="25%">
                     <div class="signature-name">
                         Mengetahui &amp; Menyetujui,<br>
@@ -637,6 +618,15 @@ p { margin: 0 0 9px; text-align: justify; }
                     <div class="ttd-space-kw"></div>
                     <b>{{ $namaPPTK }}</b>
                     <div class="nip">NIP. {{ $nipPPTK }}</div>
+                </td>
+                <td width="25%">
+                    <div class="signature-name">
+                        Yang Menerima,<br>
+                        &nbsp;
+                    </div>
+                    <div class="ttd-space-kw"></div>
+                    <b>(..............................)</b>
+                    <div class="nip">NIP. ___________________</div>
                 </td>
             </tr>
         </table>
