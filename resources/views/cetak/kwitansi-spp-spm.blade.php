@@ -295,7 +295,12 @@ p { margin: 0 0 9px; text-align: justify; }
         </tr>
     </table>
 
-    <table class="ttd" style="margin-top:68px;">
+    <div style="margin-top:24px;">
+        <div style="font-size:10px;margin-bottom:4px;">Catatan Verifikasi :</div>
+        <div style="border:1px solid #000;min-height:120px;width:100%;"></div>
+    </div>
+
+    <table class="ttd" style="margin-top:4px;">
         <tr>
             <td style="width:55%;"></td>
             <td>

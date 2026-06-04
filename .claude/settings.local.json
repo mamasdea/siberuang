@@ -19,7 +19,8 @@
       "Bash(Get-Content *)",
       "Bash(where soffice *)",
       "Bash(where libreoffice *)",
-      "Read(//c/Program Files/LibreOffice/program/**)"
+      "Read(//c/Program Files/LibreOffice/program/**)",
+      "Bash(grep -E \"\\\\.\\(blade\\\\.php|php\\)$\")"
     ]
   }
 }
