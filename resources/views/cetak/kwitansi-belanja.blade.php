@@ -927,7 +927,7 @@
 
                         Kepada,<br>
                         Yth. Pemimpin Cabang<br>
-                        {{ $bankTujuan }} Cabang Wonosobo<br>
+                        Bank Jateng Cabang Wonosobo<br>
                         di -<br>
                         WONOSOBO
 
