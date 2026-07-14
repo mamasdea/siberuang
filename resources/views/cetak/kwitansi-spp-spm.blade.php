@@ -457,7 +457,7 @@ p { margin: 0 0 9px; text-align: justify; }
 {{-- ======================================================
      HALAMAN 5 – KWITANSI DINAS
      ====================================================== --}}
-<section class="print-page-kwitansi">
+{{-- <section class="print-page-kwitansi">
     <div class="page">
         <table class="header">
             <tr>
@@ -636,7 +636,7 @@ p { margin: 0 0 9px; text-align: justify; }
             </tr>
         </table>
     </div>
-</section>
+</section> --}}
 
 </body>
 </html>
