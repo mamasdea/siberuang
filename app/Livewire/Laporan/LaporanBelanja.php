@@ -8,7 +8,6 @@ use App\Models\Pajak;
 use App\Models\Belanja;
 use Livewire\Component;
 use App\Jobs\ConvertToPdf;
-use Illuminate\Support\Str;
 use App\Traits\AmbiPejabat;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
@@ -53,7 +52,7 @@ class LaporanBelanja extends Component
         $pengguna_anggaran    = $pejabat['pa'];
         $bendahara_pengeluaran = $pejabat['bp'];
 
-        $hasSpecificCode = Str::startsWith($belanja->rka->kode_belanja, '5.1.02.01.');
+        $hasSpecificCode = $this->perluTtdPengurusBarang($belanja->rka->kode_belanja);
         $pengurus_barang = $hasSpecificCode
             ? $pejabat['pb']
             : (object)['nama' => '________________', 'nip' => '________________'];

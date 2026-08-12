@@ -74,7 +74,7 @@ class LaporanSppSpmGu extends Component
         $ppkSkpd               = $pejabat['ppk'];
         $bendahara_pengeluaran = $pejabat['bp'];
 
-        $hasSpecificCode = $rka && \Illuminate\Support\Str::startsWith($rka->kode_belanja, '5.1.02.01.');
+        $hasSpecificCode = $rka && $this->perluTtdPengurusBarang($rka->kode_belanja);
         $pengurus_barang = $hasSpecificCode
             ? $pejabat['pb']
             : (object)['nama' => '________________', 'nip' => '________________'];

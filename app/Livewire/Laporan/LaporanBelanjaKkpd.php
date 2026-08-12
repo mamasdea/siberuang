@@ -9,7 +9,6 @@ use App\Models\Belanja;
 use Livewire\Component;
 use App\Jobs\ConvertToPdf;
 use App\Models\BelanjaKkpd;
-use Illuminate\Support\Str;
 use App\Models\BelanjaLsDetails;
 use App\Models\PajakKkpd;
 use App\Traits\AmbiPejabat;
@@ -56,7 +55,7 @@ class LaporanBelanjaKkpd extends Component
         $pengguna_anggaran    = $pejabat['pa'];
         $bendahara_pengeluaran = $pejabat['bp'];
 
-        $hasSpecificCode = Str::startsWith($belanja->rka->kode_belanja, '5.1.02.01.');
+        $hasSpecificCode = $this->perluTtdPengurusBarang($belanja->rka->kode_belanja);
         $pengurus_barang = $hasSpecificCode
             ? $pejabat['pb']
             : (object)['nama' => '________________', 'nip' => '________________'];

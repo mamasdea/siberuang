@@ -7,7 +7,6 @@ use App\Models\Belanja;
 use App\Models\BelanjaKkpd;
 use App\Models\BelanjaLsDetails;
 use App\Traits\AmbiPejabat;
-use Illuminate\Support\Str;
 
 class BelanjaCetakController extends Controller
 {
@@ -48,7 +47,7 @@ class BelanjaCetakController extends Controller
         $ppk = $pejabat['ppk'];
         $pptk = $belanja->rka->subKegiatan->pptk ?? null;
 
-        $hasSpecificCode = Str::startsWith($belanja->rka->kode_belanja, '5.1.02.01.');
+        $hasSpecificCode = $this->perluTtdPengurusBarang($belanja->rka->kode_belanja);
         $pb = $hasSpecificCode
             ? $pejabat['pb']
             : (object)['nama' => null, 'nip' => null];

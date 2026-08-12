@@ -20,7 +20,14 @@
       "Bash(where soffice *)",
       "Bash(where libreoffice *)",
       "Read(//c/Program Files/LibreOffice/program/**)",
-      "Bash(grep -E \"\\\\.\\(blade\\\\.php|php\\)$\")"
+      "Bash(grep -E \"\\\\.\\(blade\\\\.php|php\\)$\")",
+      "Bash(xargs grep -liE \"LimitRequestBody|client_max_body_size\")",
+      "PowerShell(cd C:\\\\laragon\\\\www\\\\e-spj; php artisan tinker --execute=\"$rows = App\\\\Models\\\\PengelolaKeuangan::where\\('jabatan', 'PENGURUS BARANG'\\)->get\\(['id','jabatan','nama','nip','tanggal_mulai','tanggal_selesai']\\); echo $rows->toJson\\(JSON_PRETTY_PRINT\\);\")",
+      "PowerShell(Get-Service *)",
+      "Bash(tasklist //FI \"IMAGENAME eq mysqld.exe\")",
+      "Bash(tasklist //FI \"IMAGENAME eq laragon.exe\")",
+      "PowerShell(Get-Process *)",
+      "PowerShell(cd C:\\\\laragon\\\\www\\\\e-spj; foreach \\($f in @\\('app\\\\Traits\\\\AmbiPejabat.php','app\\\\Livewire\\\\Laporan\\\\LaporanBelanja.php','app\\\\Livewire\\\\Laporan\\\\LaporanBelanjaKkpd.php','app\\\\Livewire\\\\Laporan\\\\LaporanLs.php','app\\\\Livewire\\\\Laporan\\\\LaporanSppSpmGu.php','app\\\\Http\\\\Controllers\\\\BelanjaCetakController.php','app\\\\Http\\\\Controllers\\\\BelanjaLsCetakController.php'\\)\\) { php -l $f })"
     ]
   }
 }

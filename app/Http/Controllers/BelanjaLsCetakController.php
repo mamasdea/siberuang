@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\Models\BelanjaLs;
 use App\Models\BelanjaLsDetails;
 use App\Traits\AmbiPejabat;
-use Illuminate\Support\Str;
 
 class BelanjaLsCetakController extends Controller
 {
@@ -40,7 +39,7 @@ class BelanjaLsCetakController extends Controller
         $kegiatan     = optional($subKeg)->kegiatan;
         $pptk         = optional($subKeg)->pptk;
 
-        $hasSpecificCode = $firstRka && Str::startsWith($firstRka->kode_belanja, '5.1.02.01.');
+        $hasSpecificCode = $firstRka && $this->perluTtdPengurusBarang($firstRka->kode_belanja);
 
         // ---- PEJABAT ----
         $pejabat = $this->ambilPejabat($belanja->tanggal);

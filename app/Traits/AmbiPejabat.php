@@ -3,9 +3,29 @@
 namespace App\Traits;
 
 use App\Models\PengelolaKeuangan;
+use Illuminate\Support\Str;
 
 trait AmbiPejabat
 {
+    /**
+     * Kode belanja yang berawalan '5.1.02.01.' butuh ttd pengurus barang,
+     * kecuali kode-kode berikut (mis. BBM/pelumas, tidak dikelola sebagai
+     * persediaan oleh pengurus barang).
+     */
+    private const KODE_BELANJA_TANPA_PENGURUS_BARANG = [
+        '5.1.02.01.001.00004', // Belanja Bahan-Bahan Bakar dan Pelumas
+    ];
+
+    protected function perluTtdPengurusBarang(?string $kodeBelanja): bool
+    {
+        if (!$kodeBelanja) {
+            return false;
+        }
+
+        return Str::startsWith($kodeBelanja, '5.1.02.01.')
+            && !in_array($kodeBelanja, self::KODE_BELANJA_TANPA_PENGURUS_BARANG, true);
+    }
+
     /**
      * Ambil data pengelola keuangan yang aktif pada tanggal tertentu.
      * Fallback ke data terbaru jika tidak ditemukan berdasarkan range.

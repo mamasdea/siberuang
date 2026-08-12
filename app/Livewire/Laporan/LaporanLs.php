@@ -5,7 +5,6 @@ namespace App\Livewire\Laporan;
 use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\BelanjaLs;
-use Illuminate\Support\Str;
 use App\Jobs\ConvertToPdfLs;
 use App\Traits\AmbiPejabat;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -62,7 +61,7 @@ class LaporanLs extends Component
         $totalBersih = $nilaiTotal - $totalPajak;
 
         $detail = $belanja->details->first();
-        $hasSpecificCode = $detail && isset($detail->rka) && Str::startsWith($detail->rka->kode_belanja, '5.1.02.01.');
+        $hasSpecificCode = $detail && isset($detail->rka) && $this->perluTtdPengurusBarang($detail->rka->kode_belanja);
 
         // Pengelola Keuangan berdasarkan tanggal dokumen
         $pejabat = $this->ambilPejabat($belanja->tanggal);
